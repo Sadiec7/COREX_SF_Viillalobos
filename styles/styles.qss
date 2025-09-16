@@ -1,0 +1,414 @@
+/* Modern Insurance Management System - Styles */
+
+/* Color Palette:
+   Gold: #F4D03F, #D4AF37
+   Dark Blue: #1B4F72, #2E86AB
+   Background: #F8F9FA, #FFFFFF
+   Text: #2C3E50, #34495E
+   Accent: #E74C3C, #27AE60
+*/
+
+* {
+    font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
+}
+
+/* Main Window */
+QMainWindow {
+    background-color: #F8F9FA;
+    color: #2C3E50;
+}
+
+/* Custom Window Frame */
+.CustomWindow {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E8E8E8;
+}
+
+QWidget {
+    outline: none;
+}
+
+/* Title Bar */
+.TitleBar {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                               stop: 0 #1B4F72, stop: 1 #2E86AB);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    min-height: 40px;
+    max-height: 40px;
+}
+
+.TitleBar QLabel {
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    padding-left: 15px;
+}
+
+.TitleButton {
+    background-color: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-size: 16px;
+    min-width: 40px;
+    max-width: 40px;
+    min-height: 40px;
+    max-height: 40px;
+}
+
+.TitleButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.CloseButton:hover {
+    background-color: #E74C3C;
+    border-top-right-radius: 12px;
+}
+
+/* Login Window Specific */
+.LoginWindow {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1,
+                               stop: 0 #1B4F72, stop: 1 #2E86AB);
+}
+
+.LoginCard {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    border: none;
+    padding: 40px;
+}
+
+.LoginTitle {
+    color: #1B4F72;
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.LoginSubtitle {
+    color: #7F8C8D;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Input Fields */
+.CustomLineEdit {
+    background-color: #F8F9FA;
+    border: 2px solid #E8E8E8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #2C3E50;
+    min-height: 20px;
+}
+
+.CustomLineEdit:focus {
+    border-color: #D4AF37;
+    background-color: #FFFFFF;
+    outline: none;
+}
+
+.CustomLineEdit::placeholder {
+    color: #95A5A6;
+}
+
+/* Buttons */
+.PrimaryButton {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                               stop: 0 #F4D03F, stop: 1 #D4AF37);
+    border: none;
+    border-radius: 8px;
+    color: #1B4F72;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 24px;
+    min-height: 20px;
+}
+
+.PrimaryButton:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                               stop: 0 #F1C40F, stop: 1 #B7950B);
+    transform: translateY(-1px);
+}
+
+.PrimaryButton:pressed {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                               stop: 0 #D4AF37, stop: 1 #B7950B);
+    transform: translateY(0px);
+}
+
+.SecondaryButton {
+    background-color: transparent;
+    border: 2px solid #D4AF37;
+    border-radius: 8px;
+    color: #D4AF37;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 22px;
+    min-height: 20px;
+}
+
+.SecondaryButton:hover {
+    background-color: #D4AF37;
+    color: #FFFFFF;
+}
+
+/* Checkbox */
+QCheckBox {
+    color: #7F8C8D;
+    font-size: 13px;
+    spacing: 8px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    border: 2px solid #E8E8E8;
+    background-color: #FFFFFF;
+}
+
+QCheckBox::indicator:hover {
+    border-color: #D4AF37;
+}
+
+QCheckBox::indicator:checked {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                               stop: 0 #F4D03F, stop: 1 #D4AF37);
+    border-color: #D4AF37;
+}
+
+/* Links */
+.LinkLabel {
+    color: #D4AF37;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+.LinkLabel:hover {
+    color: #B7950B;
+}
+
+/* Sidebar */
+.Sidebar {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                               stop: 0 #1B4F72, stop: 1 #2E86AB);
+    border: none;
+    min-width: 250px;
+    max-width: 250px;
+}
+
+.SidebarItem {
+    background-color: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    padding: 15px 20px;
+    margin: 2px 10px;
+    border-radius: 8px;
+}
+
+.SidebarItem:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.SidebarItem:checked {
+    background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
+                               stop: 0 #F4D03F, stop: 1 #D4AF37);
+    color: #1B4F72;
+    font-weight: 600;
+}
+
+/* Content Area */
+.ContentArea {
+    background-color: #F8F9FA;
+    border: none;
+    padding: 20px;
+}
+
+/* Header */
+.DashboardHeader {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E8E8E8;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.WelcomeText {
+    color: #1B4F72;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.DateText {
+    color: #7F8C8D;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Metric Cards */
+.MetricCard {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E8E8E8;
+    padding: 20px;
+    margin: 10px;
+}
+
+.MetricCard:hover {
+    border-color: #D4AF37;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+}
+
+.MetricNumber {
+    color: #1B4F72;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.MetricLabel {
+    color: #7F8C8D;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.MetricTrend {
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+.TrendUp {
+    color: #27AE60;
+}
+
+.TrendDown {
+    color: #E74C3C;
+}
+
+.TrendNeutral {
+    color: #F39C12;
+}
+
+/* Alert Cards */
+.AlertCard {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border-left: 4px solid #F39C12;
+    padding: 15px;
+    margin: 5px 0;
+}
+
+.AlertCard.urgent {
+    border-left-color: #E74C3C;
+}
+
+.AlertCard.warning {
+    border-left-color: #F39C12;
+}
+
+.AlertCard.info {
+    border-left-color: #3498DB;
+}
+
+/* Tables */
+QTableWidget {
+    background-color: #FFFFFF;
+    border: 1px solid #E8E8E8;
+    border-radius: 12px;
+    gridline-color: #F8F9FA;
+    selection-background-color: rgba(212, 175, 55, 0.2);
+}
+
+QTableWidget::item {
+    padding: 12px;
+    border-bottom: 1px solid #F8F9FA;
+}
+
+QTableWidget::item:hover {
+    background-color: #F8F9FA;
+}
+
+QHeaderView::section {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                               stop: 0 #F8F9FA, stop: 1 #E8E8E8);
+    border: none;
+    border-bottom: 2px solid #D4AF37;
+    color: #1B4F72;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 15px 12px;
+}
+
+/* Status Labels */
+.StatusLabel {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.StatusActive {
+    background-color: rgba(39, 174, 96, 0.2);
+    color: #27AE60;
+}
+
+.StatusPending {
+    background-color: rgba(243, 156, 18, 0.2);
+    color: #F39C12;
+}
+
+.StatusUrgent {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #E74C3C;
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    background-color: #F8F9FA;
+    width: 8px;
+    border-radius: 4px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #D4AF37;
+    border-radius: 4px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #B7950B;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
+}
+
+/* Loading Spinner */
+.LoadingSpinner {
+    border: 3px solid #E8E8E8;
+    border-top: 3px solid #D4AF37;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+}
+
+/* Tooltips */
+QToolTip {
+    background-color: #2C3E50;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
