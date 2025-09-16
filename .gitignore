@@ -29,6 +29,7 @@ env/
 ENV/
 .venv
 .env
+*.venv
 
 # IDE
 .vscode/
@@ -36,6 +37,8 @@ ENV/
 *.swp
 *.swo
 *~
+.spyderproject
+.spyproject
 
 # OS
 .DS_Store
@@ -45,13 +48,69 @@ ENV/
 .Trashes
 ehthumbs.db
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
+logs/
 
 # Qt Designer files
 *.ui
+*.qrc
+
+# PyQt/PySide compiled files
+*.pyc
+*.pyo
+
+# Application specific
+config.ini
+settings.json
+.secrets
 
 # Temporary files
 *.tmp
 *.temp
+*.bak
+*.swp
+*~.nib
+
+# Test coverage
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version

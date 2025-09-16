@@ -1,58 +1,72 @@
-# 🛡️ Sistema de Gestión de Seguros - PySide6 Demo
+# 🛡️ PySide6 Frontend Demo - Sistema de Gestión de Seguros
 
-Una aplicación moderna y elegante de gestión de seguros desarrollada con PySide6, diseñada para demostrar que las aplicaciones nativas de escritorio pueden ser tan visualmente atractivas como las aplicaciones web modernas.
+Demo completo de frontend moderno desarrollado con **PySide6** que demuestra que las aplicaciones nativas pueden ser tan elegantes y funcionales como las mejores aplicaciones web.
 
-## ✨ Características Principales
+## 🎯 Objetivo del Proyecto
 
-### 🎨 Diseño Moderno
-- **Interfaz elegante** con tema dorado (#F4D03F, #D4AF37) y azul oscuro (#1B4F72, #2E86AB)
-- **Animaciones suaves** y micro-interacciones pulidas
-- **Efectos visuales** como sombras, gradientes y hover effects
-- **Tipografía jerárquica** y espaciado consistente
+**¿Puede PySide6 competir con React + HTML/CSS en elegancia visual?**
 
-### 🔐 Sistema de Login
-- Ventana sin bordes del sistema con frame personalizado
-- Campos de entrada con validación y efectos de foco
-- Toggle show/hide para contraseña
-- Animaciones de entrada y retroalimentación de errores
-- **Credenciales demo**: `admin` / `123456`
+**¡La respuesta es SÍ!** 🚀
 
-### 📊 Dashboard Interactivo
-- **Sidebar responsivo** con navegación animada
-- **Cards de métricas** con efectos hover y trends
-- **Gráficos animados** (barras, líneas, pie) usando QPainter
-- **Tablas personalizadas** con estados coloreados
-- **Alertas importantes** con diferentes niveles de prioridad
-- **Notificaciones toast** elegantes
+Este proyecto demuestra las capacidades avanzadas de PySide6 para crear interfaces de usuario modernas, elegantes y profesionales.
 
-### 🎯 Widgets Personalizados
-- `MetricCard`: Cards con animaciones y indicadores de tendencia
-- `AlertCard`: Alertas con iconos y acciones
-- `CustomTable`: Tablas estilizadas con hover effects
-- `RippleButton`: Botones con efecto ripple estilo Material Design
-- `LoadingSpinner`: Spinners animados personalizados
-- `NotificationToast`: Notificaciones no intrusivas
+## ✨ Demo en Vivo
 
-## 🚀 Instalación y Ejecución
+### 🚀 Ejecución Rápida
 
-### Requisitos
-- Python 3.8 o superior
-- PySide6
-
-### Instalación
 ```bash
-# Instalar dependencias
-pip install -r requirements.txt
+# 1. Crear entorno virtual
+python3 -m venv venv
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
 
-# O instalar directamente
-pip install PySide6>=6.5.0
+# 2. Instalar dependencias
+pip install PySide6
+
+# 3. Ejecutar demo
+python simple_demo.py
 ```
 
-### Ejecución
-```bash
-# Ejecutar la aplicación
-python main.py
-```
+### 🔑 Credenciales Demo
+- **Usuario**: `admin`
+- **Contraseña**: `123456`
+
+## 🎨 Características Destacadas
+
+### 🖥️ Interfaz Moderna
+- **Login elegante** con animaciones fluidas
+- **Dashboard profesional** con sidebar navegación
+- **Tema dorado/azul** (#F4D03F, #D4AF37, #1B4F72, #2E86AB)
+- **Layouts responsivos** sin superposiciones
+- **Micro-animaciones** y hover effects
+
+### 🧩 Widgets Personalizados
+- **MetricCard**: Cards animadas con métricas
+- **AlertCard**: Alertas con niveles de prioridad
+- **CustomTable**: Tablas estilizadas
+- **Charts**: Gráficos con QPainter
+- **Sidebar**: Navegación moderna
+
+### ⚡ Rendimiento Nativo
+- **Sin overhead de navegador**
+- **Integración OS nativa**
+- **Menor uso de recursos**
+- **Funciona offline**
+
+## 📁 Archivos Principales
+
+| Archivo | Descripción |
+|---------|-------------|
+| `simple_demo.py` | **🌟 Versión optimizada (RECOMENDADA)** |
+| `main.py` | Aplicación completa con todas las características |
+| `login_window.py` | Login con animaciones avanzadas |
+| `dashboard_window.py` | Dashboard completo con sidebar |
+| `styles/styles.qss` | Tema CSS profesional |
+| `widgets/` | Componentes reutilizables |
+
+## 🚀 Guía de Instalación Completa
+
+Ver **[README_FRONTEND.md](README_FRONTEND.md)** para instrucciones detalladas.
 
 ## 📁 Estructura del Proyecto
 
