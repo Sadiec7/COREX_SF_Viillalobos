@@ -39,10 +39,24 @@ class CleanLoginWindow(QMainWindow):
         main_layout.setSpacing(40)
 
         # Logo and title
-        logo_label = QLabel("🛡️")
+        logo_label = QLabel()
+
+        # Use the trident icon, it's cleaner and more readable
+        try:
+            logo_pixmap = QPixmap("assets/icons/tridente_icono.png")
+            if not logo_pixmap.isNull():
+                # Make it bigger for the login screen
+                scaled_logo = logo_pixmap.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_label.setPixmap(scaled_logo)
+            else:
+                raise Exception("Icon file not found")
+        except:
+            # Fallback to emoji
+            logo_label.setText("🛡️")
+            logo_label.setStyleSheet("font-size: 64px;")
+
         logo_label.setAlignment(Qt.AlignCenter)
-        logo_label.setStyleSheet("font-size: 48px;")
-        logo_label.setFixedHeight(60)
+        logo_label.setFixedHeight(100)
         main_layout.addWidget(logo_label)
 
         title_label = QLabel("Sistema de Gestión de Seguros")
@@ -140,6 +154,63 @@ class CleanLoginWindow(QMainWindow):
         # Connect Enter key
         self.username_input.returnPressed.connect(self.handle_login)
         self.password_input.returnPressed.connect(self.handle_login)
+
+    def create_logo_pixmap(self, width, height):
+        """Create the golden trident logo using QPainter"""
+        pixmap = QPixmap(width, height)
+        pixmap.fill(Qt.transparent)
+
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Golden color
+        golden_color = QColor("#D4AF37")
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(golden_color))
+
+        # Scale factor
+        scale = min(width, height) / 100.0
+        center_x = width // 2
+        center_y = height // 2
+
+        # Draw the trident logo based on the provided image
+        # Central vertical line
+        central_width = int(8 * scale)
+        central_height = int(70 * scale)
+        central_rect = QRect(
+            center_x - central_width // 2,
+            center_y - central_height // 2,
+            central_width,
+            central_height
+        )
+        painter.drawRect(central_rect)
+
+        # Left arrow
+        left_points = [
+            QPoint(center_x - int(35 * scale), center_y - int(10 * scale)),
+            QPoint(center_x - int(15 * scale), center_y - int(10 * scale)),
+            QPoint(center_x - int(5 * scale), center_y - int(20 * scale)),
+            QPoint(center_x - int(5 * scale), center_y - int(5 * scale)),
+            QPoint(center_x - int(15 * scale), center_y + int(5 * scale)),
+            QPoint(center_x - int(35 * scale), center_y + int(5 * scale))
+        ]
+        left_polygon = QPolygon(left_points)
+        painter.drawPolygon(left_polygon)
+
+        # Right arrow
+        right_points = [
+            QPoint(center_x + int(35 * scale), center_y - int(10 * scale)),
+            QPoint(center_x + int(15 * scale), center_y - int(10 * scale)),
+            QPoint(center_x + int(5 * scale), center_y - int(20 * scale)),
+            QPoint(center_x + int(5 * scale), center_y - int(5 * scale)),
+            QPoint(center_x + int(15 * scale), center_y + int(5 * scale)),
+            QPoint(center_x + int(35 * scale), center_y + int(5 * scale))
+        ]
+        right_polygon = QPolygon(right_points)
+        painter.drawPolygon(right_polygon)
+
+        painter.end()
+        return pixmap
 
     def apply_styles(self):
         self.setStyleSheet("""
@@ -266,6 +337,63 @@ class SimpleDashboard(QMainWindow):
         self.setup_ui()
         self.apply_styles()
 
+    def create_sidebar_logo(self, width, height):
+        """Create smaller logo for sidebar"""
+        pixmap = QPixmap(width, height)
+        pixmap.fill(Qt.transparent)
+
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # White color for sidebar
+        white_color = QColor("#FFFFFF")
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(white_color))
+
+        # Scale factor
+        scale = 0.5
+        center_x = width // 2
+        center_y = height // 2
+
+        # Draw the trident logo
+        # Central vertical line
+        central_width = int(3 * scale)
+        central_height = int(30 * scale)
+        central_rect = QRect(
+            center_x - central_width // 2,
+            center_y - central_height // 2,
+            central_width,
+            central_height
+        )
+        painter.drawRect(central_rect)
+
+        # Left arrow
+        left_points = [
+            QPoint(center_x - int(15 * scale), center_y - int(6 * scale)),
+            QPoint(center_x - int(8 * scale), center_y - int(6 * scale)),
+            QPoint(center_x - int(2 * scale), center_y - int(12 * scale)),
+            QPoint(center_x - int(2 * scale), center_y - int(2 * scale)),
+            QPoint(center_x - int(8 * scale), center_y + int(2 * scale)),
+            QPoint(center_x - int(15 * scale), center_y + int(2 * scale))
+        ]
+        left_polygon = QPolygon(left_points)
+        painter.drawPolygon(left_polygon)
+
+        # Right arrow
+        right_points = [
+            QPoint(center_x + int(15 * scale), center_y - int(6 * scale)),
+            QPoint(center_x + int(8 * scale), center_y - int(6 * scale)),
+            QPoint(center_x + int(2 * scale), center_y - int(12 * scale)),
+            QPoint(center_x + int(2 * scale), center_y - int(2 * scale)),
+            QPoint(center_x + int(8 * scale), center_y + int(2 * scale)),
+            QPoint(center_x + int(15 * scale), center_y + int(2 * scale))
+        ]
+        right_polygon = QPolygon(right_points)
+        painter.drawPolygon(right_polygon)
+
+        painter.end()
+        return pixmap
+
     def center_window(self):
         screen = QGuiApplication.primaryScreen().geometry()
         window_geometry = self.frameGeometry()
@@ -299,9 +427,21 @@ class SimpleDashboard(QMainWindow):
         layout.setSpacing(15)
 
         # Logo
-        logo_label = QLabel("🛡️")
+        logo_label = QLabel()
+        try:
+            # Load the trident icon for sidebar - make it bigger
+            logo_pixmap = QPixmap("assets/icons/tridente_icono.png")
+            if not logo_pixmap.isNull():
+                scaled_logo = logo_pixmap.scaled(48, 48, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                logo_label.setPixmap(scaled_logo)
+            else:
+                raise Exception("Icon not found")
+        except:
+            logo_label.setText("🛡️")
+            logo_label.setStyleSheet("font-size: 40px; color: white;")
+
         logo_label.setAlignment(Qt.AlignCenter)
-        logo_label.setStyleSheet("font-size: 32px; color: white; margin-bottom: 20px;")
+        logo_label.setStyleSheet("margin-bottom: 25px;")
         layout.addWidget(logo_label)
 
         # Navigation buttons
@@ -513,10 +653,87 @@ class SimpleApp(QApplication):
 
     def __init__(self, argv):
         super().__init__(argv)
+
+        # Set application icon
+        self.setApplicationName("Sistema de Seguros")
+        self.setApplicationVersion("1.0.0")
+        self.setOrganizationName("Insurance Corp")
+
+        # Create and set application icon
+        try:
+            app_icon = QIcon("assets/icons/tridente_icono.png")
+            if not app_icon.isNull():
+                self.setWindowIcon(app_icon)
+            else:
+                # Fallback to created icon
+                icon_pixmap = self.create_app_icon()
+                self.setWindowIcon(QIcon(icon_pixmap))
+        except:
+            # Fallback to created icon
+            icon_pixmap = self.create_app_icon()
+            self.setWindowIcon(QIcon(icon_pixmap))
+
         self.login_window = None
         self.dashboard_window = None
         self.current_user = None
         self.show_login()
+
+    def create_app_icon(self):
+        """Create application icon"""
+        pixmap = QPixmap(64, 64)
+        pixmap.fill(Qt.transparent)
+
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Golden color
+        golden_color = QColor("#D4AF37")
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(golden_color))
+
+        # Scale factor
+        scale = 0.6
+        center_x = 32
+        center_y = 32
+
+        # Draw the trident logo
+        # Central vertical line
+        central_width = int(5 * scale)
+        central_height = int(45 * scale)
+        central_rect = QRect(
+            center_x - central_width // 2,
+            center_y - central_height // 2,
+            central_width,
+            central_height
+        )
+        painter.drawRect(central_rect)
+
+        # Left arrow
+        left_points = [
+            QPoint(center_x - int(22 * scale), center_y - int(8 * scale)),
+            QPoint(center_x - int(10 * scale), center_y - int(8 * scale)),
+            QPoint(center_x - int(3 * scale), center_y - int(15 * scale)),
+            QPoint(center_x - int(3 * scale), center_y - int(3 * scale)),
+            QPoint(center_x - int(10 * scale), center_y + int(3 * scale)),
+            QPoint(center_x - int(22 * scale), center_y + int(3 * scale))
+        ]
+        left_polygon = QPolygon(left_points)
+        painter.drawPolygon(left_polygon)
+
+        # Right arrow
+        right_points = [
+            QPoint(center_x + int(22 * scale), center_y - int(8 * scale)),
+            QPoint(center_x + int(10 * scale), center_y - int(8 * scale)),
+            QPoint(center_x + int(3 * scale), center_y - int(15 * scale)),
+            QPoint(center_x + int(3 * scale), center_y - int(3 * scale)),
+            QPoint(center_x + int(10 * scale), center_y + int(3 * scale)),
+            QPoint(center_x + int(22 * scale), center_y + int(3 * scale))
+        ]
+        right_polygon = QPolygon(right_points)
+        painter.drawPolygon(right_polygon)
+
+        painter.end()
+        return pixmap
 
     def show_login(self):
         if self.dashboard_window:
@@ -524,6 +741,12 @@ class SimpleApp(QApplication):
             self.dashboard_window = None
 
         self.login_window = CleanLoginWindow()
+        # Set window icon
+        try:
+            window_icon = QIcon("assets/icons/tridente_icono.png")
+            self.login_window.setWindowIcon(window_icon)
+        except:
+            pass
         self.login_window.login_successful.connect(self.handle_login)
         self.login_window.show()
 
@@ -534,6 +757,12 @@ class SimpleApp(QApplication):
             self.login_window = None
 
         self.dashboard_window = SimpleDashboard(username)
+        # Set window icon
+        try:
+            window_icon = QIcon("assets/icons/tridente_icono.png")
+            self.dashboard_window.setWindowIcon(window_icon)
+        except:
+            pass
         self.dashboard_window.logout_requested.connect(self.handle_logout)
         self.dashboard_window.show()
 
