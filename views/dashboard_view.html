@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Seguros Fianzas VILLALOBOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gold': {
+                            400: '#F4D03F',
+                            500: '#D4AF37',
+                            600: '#B7950B'
+                        },
+                        'navy': {
+                            700: '#1B4F72',
+                            600: '#2E86AB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1B4F72 0%, #2E86AB 100%);
+        }
+
+        .metric-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .metric-card:hover::before {
+            left: 100%;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(212, 175, 55, 0.1);
+        }
+
+        .nav-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(244, 208, 63, 0.3);
+            transition: width 0.3s ease;
+        }
+
+        .nav-item:hover::before {
+            width: 4px;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(8px);
+            color: #F4D03F;
+        }
+
+        .nav-item.active {
+            background-color: rgba(244, 208, 63, 0.2);
+            color: #F4D03F;
+            transform: translateX(12px);
+        }
+
+        .nav-item.active::before {
+            width: 4px;
+            background: #F4D03F;
+        }
+
+
+        .fade-in-stagger {
+            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .fade-in-stagger:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in-stagger:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in-stagger:nth-child(3) { animation-delay: 0.3s; }
+        .fade-in-stagger:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex h-screen">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 text-white p-6 flex flex-col">
+        <!-- Logo and brand -->
+        <div class="text-center mb-8">
+            <div class="mb-3">
+                <img src="../assets/images/logo.png" alt="Seguros Fianzas VILLALOBOS" class="mx-auto w-12 h-12 opacity-90 hover:opacity-100 transition-opacity duration-300">
+            </div>
+            <h2 class="text-lg font-bold">Seguros Fianzas</h2>
+            <p class="text-sm opacity-80">VILLALOBOS</p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" class="nav-item active flex items-center p-3 rounded-lg transition-colors">
+                        <span class="mr-3">📊</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-item flex items-center p-3 rounded-lg transition-colors" onclick="showComingSoon('Clientes')">
+                        <span class="mr-3">👥</span>
+                        Clientes
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-item flex items-center p-3 rounded-lg transition-colors" onclick="showComingSoon('Pólizas')">
+                        <span class="mr-3">📄</span>
+                        Pólizas
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-item flex items-center p-3 rounded-lg transition-colors" onclick="showComingSoon('Reportes')">
+                        <span class="mr-3">📈</span>
+                        Reportes
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-item flex items-center p-3 rounded-lg transition-colors" onclick="showComingSoon('Configuración')">
+                        <span class="mr-3">⚙️</span>
+                        Configuración
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- User info -->
+        <div class="mt-8 p-3 bg-white bg-opacity-10 rounded-lg">
+            <div class="flex items-center">
+                <span class="mr-3">👤</span>
+                <div>
+                    <p class="font-medium" id="userName">admin</p>
+                    <p class="text-xs opacity-80">Administrador</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout button -->
+        <button id="logoutButton" class="mt-4 w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors flex items-center justify-center">
+            <span class="mr-2">🚪</span>
+            Cerrar Sesión
+        </button>
+    </div>
+
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-navy-700">¡Bienvenido, <span id="welcomeUser">admin</span>!</h1>
+                    <p class="text-gray-600 text-sm">Panel de control - Seguros Fianzas VILLALOBOS</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-500" id="currentDate"></p>
+                    <p class="text-xs text-gray-400" id="currentTime"></p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content area -->
+        <main class="flex-1 overflow-auto p-6">
+            <!-- Metrics cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Policies -->
+                <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Total Pólizas</p>
+                            <p class="text-2xl font-bold text-navy-700">245</p>
+                        </div>
+                        <div class="text-3xl">📄</div>
+                    </div>
+                </div>
+
+                <!-- Expiring This Week -->
+                <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Vencen Esta Semana</p>
+                            <p class="text-2xl font-bold text-orange-600">12</p>
+                        </div>
+                        <div class="text-3xl">⚠️</div>
+                    </div>
+                </div>
+
+                <!-- Pending Payments -->
+                <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Cobros Pendientes</p>
+                            <p class="text-2xl font-bold text-green-600">$45,230</p>
+                        </div>
+                        <div class="text-3xl">💰</div>
+                    </div>
+                </div>
+
+                <!-- New Clients -->
+                <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Nuevos Clientes</p>
+                            <p class="text-2xl font-bold text-blue-600">8</p>
+                        </div>
+                        <div class="text-3xl">👥</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Chart placeholder -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100 p-8 text-center">
+                <div class="text-6xl mb-4">📊</div>
+                <h3 class="text-xl font-semibold text-navy-700 mb-2">Gráficos de Rendimiento</h3>
+                <p class="text-gray-600">Sistema de gestión de seguros funcionando correctamente</p>
+                <p class="text-sm text-gray-500 mt-2">MVC Pattern implementado con Electron</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Update clock
+        function updateClock() {
+            const now = new Date();
+
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+
+            const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+
+            document.getElementById('currentDate').textContent =
+                now.toLocaleDateString('es-ES', dateOptions);
+
+            document.getElementById('currentTime').textContent =
+                now.toLocaleTimeString('es-ES', timeOptions);
+        }
+
+        // Update clock every second
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Logout functionality
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            const confirmed = confirm('¿Estás seguro que deseas cerrar sesión?');
+            if (confirmed) {
+                await window.electronAPI.logout();
+            }
+        });
+
+        // Coming Soon alerts for future features
+        function showComingSoon(feature) {
+            // Create notification toast
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-white border border-gold-500 rounded-lg shadow-lg p-4 z-50 transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">🚧</span>
+                    <div>
+                        <p class="font-semibold text-navy-700">${feature}</p>
+                        <p class="text-sm text-gray-600">Próximamente disponible</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-400 hover:text-gray-600">
+                        <span class="text-xl">×</span>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 10);
+
+            // Auto remove after 4 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, 4000);
+        }
+
+        console.log('✅ Dashboard cargado exitosamente');
+    </script>
+</body>
+</html>

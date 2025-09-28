@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Seguros - Seguros Fianzas VILLALOBOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'gold': {
+                            400: '#F4D03F',
+                            500: '#D4AF37',
+                            600: '#B7950B'
+                        },
+                        'navy': {
+                            700: '#1B4F72',
+                            600: '#2E86AB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1B4F72 0%, #2E86AB 100%);
+            background-attachment: fixed;
+        }
+
+        .login-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+
+
+        .input-focus:focus {
+            border-color: #D4AF37 !important;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+            transform: translateY(-2px);
+        }
+
+        .input-field {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .input-field:focus {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.15);
+        }
+
+        .input-field:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(90deg, #F4D03F 0%, #D4AF37 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .btn-gradient::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, #F1C40F 0%, #B7950B 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-gradient:hover::before {
+            left: 100%;
+        }
+
+        .btn-gradient:hover::after {
+            opacity: 1;
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.4), 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-gradient:active {
+            transform: translateY(-1px) scale(1.01);
+            transition: all 0.1s ease;
+        }
+
+        .fade-in {
+            animation: fadeInUp 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(60px) scale(0.9) rotateX(10deg);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(20px) scale(0.98) rotateX(5deg);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1) rotateX(0deg);
+            }
+        }
+
+        .login-card {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-elements::before,
+        .floating-elements::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-elements::before {
+            width: 300px;
+            height: 300px;
+            top: -50px;
+            left: -100px;
+            background: radial-gradient(circle, rgba(244, 208, 63, 0.15) 0%, rgba(244, 208, 63, 0.05) 70%, transparent 100%);
+            animation-delay: 0s;
+        }
+
+        .floating-elements::after {
+            width: 250px;
+            height: 250px;
+            bottom: -50px;
+            right: -75px;
+            background: radial-gradient(circle, rgba(27, 79, 114, 0.1) 0%, rgba(27, 79, 114, 0.03) 70%, transparent 100%);
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0) rotate(0deg) scale(1);
+                opacity: 0.6;
+            }
+            25% {
+                transform: translateY(-30px) translateX(20px) rotate(90deg) scale(1.1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(-50px) translateX(-10px) rotate(180deg) scale(0.9);
+                opacity: 1;
+            }
+            75% {
+                transform: translateY(-20px) translateX(-30px) rotate(270deg) scale(1.05);
+                opacity: 0.7;
+            }
+        }
+
+        .error-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .success-bounce {
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 33% { content: '.'; }
+            34%, 66% { content: '..'; }
+            67%, 100% { content: '...'; }
+        }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center p-4 overflow-hidden">
+    <!-- Floating background elements -->
+    <div class="floating-elements"></div>
+
+    <!-- Background overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-20"></div>
+
+    <!-- Login container -->
+    <div class="relative z-10 w-full max-w-md">
+        <div class="login-card rounded-2xl shadow-2xl p-8 fade-in">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <!-- Company Logo -->
+                <div class="mb-6">
+                    <img src="../assets/images/logo-with-text.png" alt="Seguros Fianzas VILLALOBOS" class="mx-auto w-48 h-auto opacity-90 hover:opacity-100 transition-opacity duration-300">
+                </div>
+
+                <!-- Title -->
+                <h1 class="text-2xl font-bold text-navy-700 mb-2">
+                    Sistema de Gestión de Seguros
+                </h1>
+                <p class="text-gray-500 text-xs mt-1">
+                    Ingresa tus credenciales para continuar
+                </p>
+            </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-6">
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <span id="errorText"></span>
+            </div>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg text-sm">
+                <span id="successText"></span>
+            </div>
+
+            <!-- Username Field -->
+            <div>
+                <label for="userInput" class="block text-sm font-medium text-gray-700 mb-2">
+                    👤 Usuario
+                </label>
+                <input
+                    type="text"
+                    id="userInput"
+                    name="username"
+                    value="admin"
+                    placeholder="Ingresa tu usuario"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none input-focus input-field"
+                    required
+                >
+            </div>
+
+            <!-- Password Field -->
+            <div>
+                <label for="passInput" class="block text-sm font-medium text-gray-700 mb-2">
+                    🔒 Contraseña
+                </label>
+                <input
+                    type="password"
+                    id="passInput"
+                    name="password"
+                    value="1234"
+                    placeholder="Ingresa tu contraseña"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none input-focus input-field"
+                    required
+                >
+            </div>
+
+            <!-- Options row -->
+            <div class="flex items-center justify-between text-sm">
+                <label class="flex items-center">
+                    <input type="checkbox" id="remember" class="rounded border-gray-300 text-gold-500 focus:ring-gold-500 focus:ring-2">
+                    <span class="ml-2 text-gray-600">Recordar sesión</span>
+                </label>
+                <a href="#" class="text-gold-500 hover:text-gold-600 transition-colors">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
+
+            <!-- Login Button -->
+            <button
+                type="submit"
+                id="loginButton"
+                class="w-full btn-gradient text-navy-700 font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+            >
+                <span id="buttonText">Iniciar Sesión</span>
+                <span id="buttonLoader" class="hidden">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-navy-700 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Iniciando sesión...
+                </span>
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <p class="text-xs text-gray-500 italic">
+                Demo: usuario 'admin', contraseña '1234'
+            </p>
+            <p class="text-xs text-gray-400 mt-2">
+                © 2024 Seguros Fianzas VILLALOBOS. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+
+    <!-- LoginView JavaScript Class -->
+    <script>
+        class LoginView {
+            constructor() {
+                this.userInput = document.getElementById('userInput');
+                this.passInput = document.getElementById('passInput');
+                this.loginButton = document.getElementById('loginButton');
+                this.buttonText = document.getElementById('buttonText');
+                this.buttonLoader = document.getElementById('buttonLoader');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.errorText = document.getElementById('errorText');
+                this.successMessage = document.getElementById('successMessage');
+                this.successText = document.getElementById('successText');
+                this.form = document.getElementById('loginForm');
+
+                this.init();
+            }
+
+            init() {
+                // Event listeners
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    // El controlador manejará el submit
+                    if (window.loginController) {
+                        window.loginController.handleLogin();
+                    }
+                });
+
+                // Clear messages on input
+                [this.userInput, this.passInput].forEach(input => {
+                    input.addEventListener('input', () => {
+                        this.hideMessages();
+                    });
+                });
+            }
+
+            /**
+             * Devuelve el usuario y la contraseña ingresados.
+             * Equivalente al método get_credentials() del Python
+             */
+            getCredentials() {
+                return {
+                    username: this.userInput.value.trim(),
+                    password: this.passInput.value.trim()
+                };
+            }
+
+            /**
+             * Muestra un diálogo de mensaje simple.
+             * Equivalente al método show_message() del Python
+             */
+            showMessage(title, message) {
+                if (title === "Éxito") {
+                    this.successText.textContent = message;
+                    this.successMessage.classList.remove('hidden');
+                    this.errorMessage.classList.add('hidden');
+                } else {
+                    this.errorText.textContent = message;
+                    this.errorMessage.classList.remove('hidden');
+                    this.successMessage.classList.add('hidden');
+                }
+            }
+
+            hideMessages() {
+                this.errorMessage.classList.add('hidden');
+                this.successMessage.classList.add('hidden');
+            }
+
+            setLoading(loading) {
+                if (loading) {
+                    this.loginButton.disabled = true;
+                    this.buttonText.classList.add('hidden');
+                    this.buttonLoader.classList.remove('hidden');
+                } else {
+                    this.loginButton.disabled = false;
+                    this.buttonText.classList.remove('hidden');
+                    this.buttonLoader.classList.add('hidden');
+                }
+            }
+
+            showSuccessAnimation() {
+                // Cambiar el contenido del botón para mostrar éxito
+                this.buttonText.textContent = '¡Ingresando!';
+                this.buttonLoader.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-navy-700 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Accediendo al sistema...
+                `;
+
+                // Añadir animación de éxito al botón
+                this.loginButton.classList.add('success-bounce');
+                this.loginButton.style.background = 'linear-gradient(90deg, #27AE60 0%, #2ECC71 100%)';
+
+                // Mostrar checkmark después de un momento
+                setTimeout(() => {
+                    this.buttonText.textContent = '✓ ¡Éxito!';
+                    this.buttonLoader.classList.add('hidden');
+                    this.buttonText.classList.remove('hidden');
+                }, 400);
+            }
+
+            close() {
+                // En Electron, esto sería manejado por el proceso principal
+                console.log('Login view would close');
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.loginView = new LoginView();
+        });
+    </script>
+
+    <!-- Load LoginController -->
+    <script src="../controllers/login_controller.js"></script>
+    <script>
+        // Initialize MVC pattern when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Create View instance (already created above)
+            const loginView = window.loginView;
+
+            // 2. Create Controller instance and connect it to the view
+            // Note: Model is handled in the main process
+            window.loginController = new LoginController(null, loginView);
+
+            console.log('🏛️ MVC Pattern initialized:');
+            console.log('✅ View: LoginView');
+            console.log('✅ Controller: LoginController');
+            console.log('✅ Model: UserModel (in main process)');
+        });
+    </script>
+</body>
+</html>

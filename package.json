@@ -1,0 +1,25 @@
+{
+  "name": "electron-seguros",
+  "version": "1.0.0",
+  "description": "Sistema de Seguros - Arquitectura MVC con Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "postinstall": "electron-rebuild"
+  },
+  "keywords": [
+    "electron",
+    "mvc",
+    "seguros"
+  ],
+  "author": "Sistema de Seguros",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.1",
+    "better-sqlite3": "^12.4.1",
+    "electron": "^38.1.2"
+  }
+}
