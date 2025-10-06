@@ -2,26 +2,36 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
-// Importar el modelo (usando versión mock por problemas con better-sqlite3)
-const UserModel = require('./models/user_model_mock');
+// Importar DatabaseManager y Modelos v2
+const { initDatabase } = require('./models/database');
+const UserModel = require('./models/user_model_sqljs');
+const ClienteModel = require('./models/cliente_model');
+const PolizaModel = require('./models/poliza_model');
+const { registerIPCHandlers } = require('./ipc-handlers');
 
 let mainWindow;
+let dbManager;
 let userModel;
+let clienteModel;
+let polizaModel;
 
 function createWindow() {
-    // Crear la ventana del navegador
+    // Crear la ventana del navegador con tamaño inicial más grande
     mainWindow = new BrowserWindow({
-        width: 450,
-        height: 650,
+        width: 500,
+        height: 750,
+        minWidth: 450,
+        minHeight: 700,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         },
         title: "Seguros Fianzas VILLALOBOS",
-        resizable: false,
+        icon: path.join(__dirname, 'icon.png'),  // Ícono de la app
+        resizable: true,  // Permitir redimensionar
         show: false,
-        maximizable: false,
+        maximizable: true,
         minimizable: true
     });
 
@@ -45,35 +55,42 @@ function createWindow() {
     }
 }
 
-function initializeApp() {
-    console.log('🛡️ Seguros Fianzas VILLALOBOS - Sistema MVC con Electron');
-    console.log('   Inicializando aplicación...');
+async function initializeApp() {
+    console.log('🛡️ Seguros Fianzas VILLALOBOS - Sistema MVC con Electron v2');
+    console.log('   Inicializando aplicación con base de datos completa...\n');
 
-    // 1. Crear instancia del Modelo
-    userModel = new UserModel();
-    console.log('✅ Modelo inicializado (UserModel)');
+    // 1. Inicializar base de datos (sql.js es asíncrono)
+    dbManager = await initDatabase();
 
-    // 2. Crear la ventana (Vista)
+    // 2. Crear instancias de los modelos (pasando dbManager, no db)
+    userModel = new UserModel(dbManager);
+    clienteModel = new ClienteModel(dbManager);
+    polizaModel = new PolizaModel(dbManager);
+    console.log('✅ Modelos inicializados (User, Cliente, Poliza)\n');
+
+    // 3. Registrar handlers IPC
+    registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel);
+
+    // 4. Crear la ventana (Vista)
     createWindow();
     console.log('✅ Vista cargada (LoginView)');
 
-    // 3. El Controlador se inicializa en el renderer process
+    // 5. El Controlador se inicializa en el renderer process
     console.log('✅ Controlador se inicializará en el frontend');
     console.log('');
-    console.log('Demo: usuario "admin", contraseña "1234"');
+    console.log('🔐 Credenciales: admin / admin123');
 }
 
-// Manejar autenticación desde el renderer process
+// Manejar autenticación desde el renderer process (ahora con bcrypt)
 ipcMain.handle('auth:authenticate', async (event, username, password) => {
     try {
-        console.log(`Intentando autenticar usuario: ${username}`);
+        console.log(`🔐 Intentando autenticar usuario: ${username}`);
 
-        // Usar el modelo para verificar credenciales
-        const isValid = userModel.checkCredentials(username, password);
+        // Usar el modelo v2 con bcrypt para verificar credenciales
+        const user = await userModel.checkCredentials(username, password);
 
-        if (isValid) {
-            const user = userModel.getUserByUsername(username);
-            console.log(`✅ Autenticación exitosa para: ${username}`);
+        if (user) {
+            console.log(`✅ Autenticación exitosa para: ${username} (Rol: ${user.rol})`);
 
             return {
                 success: true,
@@ -83,15 +100,15 @@ ipcMain.handle('auth:authenticate', async (event, username, password) => {
             console.log(`❌ Credenciales incorrectas para: ${username}`);
             return {
                 success: false,
-                message: 'Credenciales incorrectas'
+                message: 'Usuario o contraseña incorrectos'
             };
         }
 
     } catch (error) {
-        console.error('Error en autenticación:', error);
+        console.error('❌ Error en autenticación:', error.message);
         return {
             success: false,
-            message: 'Error interno del servidor'
+            message: error.message || 'Error interno del servidor'
         };
     }
 });
@@ -150,9 +167,8 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         // Cerrar conexión a la base de datos
-        if (userModel) {
-            userModel.close();
-            console.log('Base de datos cerrada correctamente');
+        if (dbManager) {
+            dbManager.close();
         }
         app.quit();
     }

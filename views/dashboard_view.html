@@ -141,13 +141,13 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg transition-colors" onclick="showComingSoon('Clientes')">
+                    <a href="clientes_view.html" class="nav-item flex items-center p-3 rounded-lg transition-colors">
                         <span class="mr-3">👥</span>
                         Clientes
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="nav-item flex items-center p-3 rounded-lg transition-colors" onclick="showComingSoon('Pólizas')">
+                    <a href="polizas_view.html" class="nav-item flex items-center p-3 rounded-lg transition-colors">
                         <span class="mr-3">📄</span>
                         Pólizas
                     </a>
@@ -210,7 +210,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Total Pólizas</p>
-                            <p class="text-2xl font-bold text-navy-700">245</p>
+                            <p id="metricTotalPolizas" class="text-2xl font-bold text-navy-700">0</p>
                         </div>
                         <div class="text-3xl">📄</div>
                     </div>
@@ -221,7 +221,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Vencen Esta Semana</p>
-                            <p class="text-2xl font-bold text-orange-600">12</p>
+                            <p id="metricVencenSemana" class="text-2xl font-bold text-orange-600">0</p>
                         </div>
                         <div class="text-3xl">⚠️</div>
                     </div>
@@ -232,7 +232,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Cobros Pendientes</p>
-                            <p class="text-2xl font-bold text-green-600">$45,230</p>
+                            <p id="metricCobrosPendientes" class="text-2xl font-bold text-green-600">$0.00</p>
                         </div>
                         <div class="text-3xl">💰</div>
                     </div>
@@ -243,7 +243,7 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-gray-600 text-sm font-medium">Nuevos Clientes</p>
-                            <p class="text-2xl font-bold text-blue-600">8</p>
+                            <p id="metricNuevosClientes" class="text-2xl font-bold text-blue-600">0</p>
                         </div>
                         <div class="text-3xl">👥</div>
                     </div>
@@ -335,6 +335,15 @@
         }
 
         console.log('✅ Dashboard cargado exitosamente');
+    </script>
+
+    <!-- Dashboard Controller -->
+    <script src="../controllers/dashboard_controller.js"></script>
+    <script>
+        // Initialize dashboard controller
+        document.addEventListener('DOMContentLoaded', () => {
+            window.dashboardController = new DashboardController();
+        });
     </script>
 </body>
 </html>

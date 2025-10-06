@@ -19,7 +19,10 @@
   "type": "commonjs",
   "devDependencies": {
     "@electron/rebuild": "^4.0.1",
-    "better-sqlite3": "^12.4.1",
     "electron": "^38.1.2"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "sql.js": "^1.13.0"
   }
 }
