@@ -67,7 +67,6 @@ CREATE TABLE IF NOT EXISTS MetodoPago (
 );
 
 -- ============================================
--- 6. POLIZA
 -- ============================================
 CREATE TABLE IF NOT EXISTS Poliza (
     poliza_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,13 +74,20 @@ CREATE TABLE IF NOT EXISTS Poliza (
     cliente_id INTEGER NOT NULL,
     aseguradora_id INTEGER NOT NULL,
     ramo_id INTEGER NOT NULL,
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE NOT NULL,
+    tipo_poliza VARCHAR(20) NOT NULL
+        CHECK(tipo_poliza IN ('nuevo', 'renovacion')),
+    prima_neta DECIMAL(10,2) NOT NULL,
     prima_total DECIMAL(10,2) NOT NULL,
+    vigencia_inicio DATE NOT NULL,
+    vigencia_fin DATE NOT NULL,
+    vigencia_renovacion_automatica BOOLEAN DEFAULT 0,
+    periodicidad_id INTEGER NOT NULL,
+    metodo_pago_id INTEGER NOT NULL,
+    domiciliada BOOLEAN DEFAULT 0,
+    estado_pago VARCHAR(20) DEFAULT 'pendiente'
+        CHECK(estado_pago IN ('pendiente', 'pagado', 'vencido')),
     comision_porcentaje DECIMAL(5,2),
     suma_asegurada DECIMAL(15,2),
-    periodicidad_pago_id INTEGER NOT NULL,
-    metodo_pago_id INTEGER,
     notas TEXT,
     activo BOOLEAN DEFAULT 1,
     fecha_eliminacion DATETIME NULL,
@@ -91,11 +97,11 @@ CREATE TABLE IF NOT EXISTS Poliza (
     FOREIGN KEY (cliente_id) REFERENCES Cliente(cliente_id),
     FOREIGN KEY (aseguradora_id) REFERENCES Aseguradora(aseguradora_id),
     FOREIGN KEY (ramo_id) REFERENCES Ramo(ramo_id),
-    FOREIGN KEY (periodicidad_pago_id) REFERENCES Periodicidad(periodicidad_id),
+    FOREIGN KEY (periodicidad_id) REFERENCES Periodicidad(periodicidad_id),
     FOREIGN KEY (metodo_pago_id) REFERENCES MetodoPago(metodo_pago_id),
 
-    CHECK (prima_total > 0),
-    CHECK (fecha_fin > fecha_inicio)
+    CHECK (prima_total >= prima_neta),
+    CHECK (vigencia_fin > vigencia_inicio)
 );
 
 -- ============================================
@@ -105,15 +111,21 @@ CREATE TABLE IF NOT EXISTS Recibo (
     recibo_id INTEGER PRIMARY KEY AUTOINCREMENT,
     poliza_id INTEGER NOT NULL,
     numero_recibo VARCHAR(50) NOT NULL,
+    fecha_inicio_periodo DATE NOT NULL,
+    fecha_fin_periodo DATE NOT NULL,
     numero_fraccion INTEGER NOT NULL,
     monto DECIMAL(10,2) NOT NULL CHECK (monto > 0),
-    fecha_vencimiento DATE NOT NULL,
-    pagado BOOLEAN DEFAULT 0,
+    fecha_corte DATE NOT NULL,
+    fecha_vencimiento_original DATE NOT NULL,
+    dias_gracia INTEGER DEFAULT 0,
+    estado VARCHAR(20) DEFAULT 'pendiente'
+        CHECK(estado IN ('pendiente', 'pagado', 'vencido')),
     fecha_pago DATETIME NULL,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_modificacion DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    FOREIGN KEY (poliza_id) REFERENCES Poliza(poliza_id)
+    FOREIGN KEY (poliza_id) REFERENCES Poliza(poliza_id),
+    UNIQUE(poliza_id, fecha_inicio_periodo, numero_fraccion)
 );
 
 -- ============================================
@@ -171,3 +183,64 @@ CREATE TABLE IF NOT EXISTS AuditoriaPoliza (
     FOREIGN KEY (usuario_id) REFERENCES Usuario(usuario_id)
 );
 
+-- ============================================
+-- 11. TRIGGERS
+-- ============================================
+
+-- Sincronizar fecha_modificacion en Cliente
+CREATE TRIGGER IF NOT EXISTS trg_cliente_update_timestamp
+AFTER UPDATE ON Cliente
+FOR EACH ROW
+BEGIN
+    UPDATE Cliente
+    SET fecha_modificacion = CURRENT_TIMESTAMP
+    WHERE cliente_id = NEW.cliente_id;
+END;
+
+-- Sincronizar fecha_modificacion en Poliza
+CREATE TRIGGER IF NOT EXISTS trg_poliza_update_timestamp
+AFTER UPDATE ON Poliza
+FOR EACH ROW
+BEGIN
+    UPDATE Poliza
+    SET fecha_modificacion = CURRENT_TIMESTAMP
+    WHERE poliza_id = NEW.poliza_id;
+END;
+
+-- Auditoría básica de cambios de estado_pago
+CREATE TRIGGER IF NOT EXISTS trg_poliza_auditoria_estado
+AFTER UPDATE ON Poliza
+FOR EACH ROW
+WHEN OLD.estado_pago != NEW.estado_pago
+BEGIN
+    INSERT INTO AuditoriaPoliza (
+        poliza_id,
+        usuario_id,
+        accion,
+        campo_modificado,
+        valor_anterior,
+        valor_nuevo
+    )
+    VALUES (
+        NEW.poliza_id,
+        1, -- TODO: reemplazar con usuario actual
+        'UPDATE',
+        'estado_pago',
+        OLD.estado_pago,
+        NEW.estado_pago
+    );
+END;
+
+-- ============================================
+-- 12. ÍNDICES
+-- ============================================
+CREATE INDEX IF NOT EXISTS idx_cliente_rfc ON Cliente(rfc);
+CREATE INDEX IF NOT EXISTS idx_cliente_nombre ON Cliente(nombre);
+CREATE INDEX IF NOT EXISTS idx_poliza_cliente ON Poliza(cliente_id);
+CREATE INDEX IF NOT EXISTS idx_poliza_numero ON Poliza(numero_poliza);
+CREATE INDEX IF NOT EXISTS idx_poliza_vigencia ON Poliza(vigencia_fin, estado_pago);
+CREATE INDEX IF NOT EXISTS idx_recibo_poliza ON Recibo(poliza_id);
+CREATE INDEX IF NOT EXISTS idx_recibo_periodo ON Recibo(fecha_inicio_periodo, estado);
+CREATE INDEX IF NOT EXISTS idx_recibo_corte ON Recibo(fecha_corte);
+CREATE INDEX IF NOT EXISTS idx_auditoria_poliza ON AuditoriaPoliza(poliza_id, fecha_modificacion);
+CREATE INDEX IF NOT EXISTS idx_auditoria_usuario ON AuditoriaPoliza(usuario_id);

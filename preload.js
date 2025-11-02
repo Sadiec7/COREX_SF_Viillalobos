@@ -51,6 +51,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
         create: (polizaData) =>
             ipcRenderer.invoke('polizas:create', polizaData),
 
+        update: (polizaId, polizaData) =>
+            ipcRenderer.invoke('polizas:update', polizaId, polizaData),
+
+        delete: (polizaId) =>
+            ipcRenderer.invoke('polizas:delete', polizaId),
+
         getRecibos: (polizaId) =>
             ipcRenderer.invoke('polizas:getRecibos', polizaId),
 
@@ -62,8 +68,29 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // RECIBOS
     // ============================================
     recibos: {
+        list: (filters) =>
+            ipcRenderer.invoke('recibos:list', filters),
+
+        getById: (reciboId) =>
+            ipcRenderer.invoke('recibos:getById', reciboId),
+
+        getByPoliza: (polizaId) =>
+            ipcRenderer.invoke('recibos:getByPoliza', polizaId),
+
+        create: (reciboData) =>
+            ipcRenderer.invoke('recibos:create', reciboData),
+
+        update: (reciboId, reciboData) =>
+            ipcRenderer.invoke('recibos:update', reciboId, reciboData),
+
+        delete: (reciboId) =>
+            ipcRenderer.invoke('recibos:delete', reciboId),
+
         marcarPagado: (reciboId, fechaPago) =>
             ipcRenderer.invoke('recibos:marcarPagado', reciboId, fechaPago),
+
+        cambiarEstado: (reciboId, nuevoEstado) =>
+            ipcRenderer.invoke('recibos:cambiarEstado', reciboId, nuevoEstado),
 
         pendientesConAlertas: () =>
             ipcRenderer.invoke('recibos:pendientesConAlertas')
@@ -83,7 +110,67 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('catalogos:getPeriodicidades'),
 
         getMetodosPago: () =>
-            ipcRenderer.invoke('catalogos:getMetodosPago')
+            ipcRenderer.invoke('catalogos:getMetodosPago'),
+
+        createAseguradora: (nombre) =>
+            ipcRenderer.invoke('catalogos:createAseguradora', nombre),
+
+        updateAseguradora: (payload) =>
+            ipcRenderer.invoke('catalogos:updateAseguradora', payload),
+
+        createRamo: (nombre, descripcion) =>
+            ipcRenderer.invoke('catalogos:createRamo', nombre, descripcion),
+
+        updateRamo: (payload) =>
+            ipcRenderer.invoke('catalogos:updateRamo', payload)
+    },
+
+    // ============================================
+    // DIÁLOGOS NATIVOS
+    // ============================================
+    dialog: {
+        openFile: (options = {}) =>
+            ipcRenderer.invoke('dialog:openFile', options),
+
+        selectDirectory: (options = {}) =>
+            ipcRenderer.invoke('dialog:selectDirectory', options)
+    },
+
+    // ============================================
+    // DOCUMENTOS
+    // ============================================
+    documentos: {
+        create: (documentoData) =>
+            ipcRenderer.invoke('documentos:create', documentoData),
+
+        getByCliente: (clienteId) =>
+            ipcRenderer.invoke('documentos:getByCliente', clienteId),
+
+        getByPoliza: (polizaId) =>
+            ipcRenderer.invoke('documentos:getByPoliza', polizaId),
+
+        delete: (documentoId) =>
+            ipcRenderer.invoke('documentos:delete', documentoId),
+
+        openFile: (payload) =>
+            ipcRenderer.invoke('documentos:openFile', payload),
+
+        exportCliente: (payload) =>
+            ipcRenderer.invoke('documentos:exportCliente', payload)
+    },
+
+    // ============================================
+    // AUDITORÍA
+    // ============================================
+    auditoria: {
+        listarPorPoliza: (polizaId, limit) =>
+            ipcRenderer.invoke('auditoria:listarPorPoliza', polizaId, limit),
+
+        listarRecientes: (limit) =>
+            ipcRenderer.invoke('auditoria:listarRecientes', limit),
+
+        registrar: (auditoriaData) =>
+            ipcRenderer.invoke('auditoria:registrar', auditoriaData)
     },
 
     // ============================================

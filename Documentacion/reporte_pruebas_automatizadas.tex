@@ -1,0 +1,820 @@
+\documentclass[12pt,a4paper]{article}
+
+% Paquetes esenciales disponibles
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{listings}
+
+% Configuración de colores corporativos
+\definecolor{navyblue}{RGB}{27,79,114}
+\definecolor{lightblue}{RGB}{46,134,171}
+\definecolor{gold}{RGB}{212,175,55}
+\definecolor{successgreen}{RGB}{34,197,94}
+\definecolor{warningyellow}{RGB}{234,179,8}
+\definecolor{errorred}{RGB}{239,68,68}
+\definecolor{codegray}{RGB}{248,248,248}
+
+% Configuración de hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=navyblue,
+    filecolor=navyblue,
+    urlcolor=lightblue,
+    citecolor=navyblue,
+    pdftitle={Reporte de Pruebas Automatizadas - Sistema COREX},
+    pdfauthor={Equipo COREX}
+}
+
+% Configuración de listings
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codegray},
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{navyblue}\bfseries,
+    commentstyle=\color{gray}\itshape,
+    stringstyle=\color{gold},
+    showstringspaces=false,
+    tabsize=2
+}
+
+% Configuración de ruta de gráficos
+\graphicspath{{../testing/test-evidences/}}
+
+% Encabezados y pies de página
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{navyblue}{\textbf{Sistema COREX - Pruebas Automatizadas}}}
+\fancyhead[R]{\textcolor{navyblue}{\textbf{Equipo COREX}}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{2pt}
+\renewcommand{\footrulewidth}{1pt}
+
+% Título y metadatos
+\title{
+    \vspace{-2cm}
+    \textcolor{navyblue}{\Huge\textbf{Reporte de Pruebas Automatizadas}}\\
+    \vspace{0.5cm}
+    \textcolor{lightblue}{\Large Sistema de Gestión de Pólizas COREX}\\
+    \vspace{0.3cm}
+    \textcolor{navyblue}{\large Cliente: Seguros Fianzas VILLALOBOS}
+}
+\author{
+    \textbf{Equipo COREX}\\
+    \texttt{Equipo de Testing y QA}\\
+    \vspace{0.2cm}
+    \textit{Sistema de Seguros - Arquitectura MVC con Electron}
+}
+\date{
+    \textbf{Fecha de Ejecución:} 12 de Octubre de 2025\\
+    \textbf{Versión del Sistema:} 1.0.0\\
+    \textbf{Versión del Reporte:} 1.0
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\vspace{1cm}
+
+\begin{center}
+\colorbox{lightblue!10}{
+\parbox{0.9\textwidth}{
+\textbf{\large Resumen Ejecutivo}\\[0.3cm]
+Este documento presenta los resultados de las pruebas automatizadas realizadas por el \textbf{Equipo COREX} al Sistema de Gestión de Pólizas COREX para el cliente Seguros Fianzas VILLALOBOS. Se ejecutaron \textbf{18 casos de prueba automatizados} utilizando Playwright y Electron, además de pruebas de integridad de base de datos y smoke tests de navegación. El sistema demostró un \textbf{100\% de éxito} en los casos ejecutados.
+}}
+\end{center}
+
+\vspace{0.5cm}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Métrica} & \textbf{Valor} \\
+\midrule
+Total de Casos Ejecutados & 18 \\
+Casos Exitosos (PASS) & 18 \\
+Casos Fallidos (FAIL) & 0 \\
+Porcentaje de Éxito & 100\% \\
+Capturas de Pantalla & $\sim$40 \\
+Framework & Playwright + Electron \\
+\bottomrule
+\end{tabular}
+\caption{Resumen de Métricas de Pruebas}
+\end{table}
+
+\clearpage
+\tableofcontents
+\clearpage
+
+\section{Introducción}
+
+\subsection{Objetivo del Documento}
+
+El presente documento documenta de manera formal el proceso de pruebas automatizadas ejecutado sobre el Sistema de Gestión de Pólizas COREX, desarrollado por \textbf{COREX} para el cliente Seguros Fianzas VILLALOBOS.
+
+\subsection{Alcance de las Pruebas}
+
+Las pruebas automatizadas cubren:
+
+\begin{enumerate}
+    \item \textbf{Módulo de Autenticación}: Login/Logout
+    \item \textbf{Gestión de Clientes}: CRUD completo
+    \item \textbf{Gestión de Pólizas}: Creación y filtrado
+    \item \textbf{Interfaz UI/UX}: Diseño y usabilidad
+    \item \textbf{Integridad de Base de Datos}: Constraints y FKs
+    \item \textbf{Navegación}: Smoke tests
+\end{enumerate}
+
+\subsection{Entorno de Pruebas}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Componente} & \textbf{Especificación} \\
+\midrule
+Sistema Operativo & macOS (Darwin 25.0.0) \\
+Framework & Electron 38.1.2 \\
+Base de Datos & SQLite (sql.js 1.13.0) \\
+Testing & Playwright 1.56.0 \\
+Lenguaje & JavaScript (Node.js) \\
+Arquitectura & MVC \\
+CSS & Tailwind CSS 3.4.17 \\
+Encriptación & bcryptjs 3.0.2 \\
+\bottomrule
+\end{tabular}
+\caption{Entorno de Pruebas}
+\end{table}
+
+\section{Metodología de Testing}
+
+\subsection{Enfoque de Automatización}
+
+El proyecto implementa tres niveles de testing:
+
+\begin{enumerate}
+    \item \textbf{Pruebas E2E}: Simulación de usuario real con Playwright
+    \item \textbf{Integridad de Datos}: Validación de constraints de BD
+    \item \textbf{Smoke Tests}: Navegación básica entre módulos
+\end{enumerate}
+
+\subsection{Herramientas Utilizadas}
+
+\subsubsection{Playwright}
+Framework moderno para automatización con soporte nativo para Electron, permitiendo:
+\begin{itemize}
+    \item Captura automática de screenshots
+    \item Manejo de diálogos nativos
+    \item Selectores CSS robustos
+    \item Auto-retry inteligente
+\end{itemize}
+
+\subsubsection{sql.js}
+Base de datos SQLite en memoria para pruebas de integridad aisladas y rápidas.
+
+\section{Casos de Prueba Ejecutados}
+
+\subsection{Suite: Autenticación (7 casos)}
+
+\subsubsection{TC-LOG-001: Inicio de sesión válido}
+
+\textbf{Objetivo:} Verificar autenticación con credenciales válidas.
+
+\textbf{Pasos:}
+\begin{enumerate}
+    \item Ingresar username: ``admin''
+    \item Ingresar password: ``admin123''
+    \item Clic en ``Iniciar Sesión''
+    \item Observar animación de carga
+    \item Verificar redirección al Dashboard
+\end{enumerate}
+
+\textbf{Evidencias Visuales:}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{Login/COREX-21/TC-LOG-001_01_pantalla_login_1.png}
+\caption{Pantalla de Login con campos pre-llenados}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{Login/COREX-21/TC-LOG-001_04_dashboard_exitoso_1.png}
+\caption{Dashboard tras login exitoso}
+\end{figure}
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\clearpage
+
+\subsubsection{TC-LOG-002: Contraseña incorrecta}
+
+\textbf{Objetivo:} Validar rechazo de contraseñas incorrectas.
+
+\textbf{Resultado esperado:} Mensaje de error ``Credenciales inválidas''
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-LOG-003: Usuario inexistente}
+
+\textbf{Objetivo:} Verificar rechazo de usuarios no registrados.
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-LOG-005/006: Campos vacíos}
+
+\textbf{Validación:} HTML5 previene envío con campos vacíos
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}} (ambos)
+
+\subsubsection{TC-LOG-009: Cierre de sesión}
+
+\textbf{Flujo:} Login → Logout → Confirmación → Vuelta a login
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-LOG-010: Redirección al Dashboard}
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsection{Suite: Gestión de Clientes (4 casos)}
+
+\subsubsection{TC-CLI-001: Registro de cliente válido}
+
+\textbf{Objetivo:} Verificar creación exitosa de un nuevo cliente.
+
+\textbf{Datos de prueba:}
+\begin{itemize}
+    \item Nombre: Juan Pérez [timestamp]
+    \item Email: juan.[timestamp]@test.com
+    \item Teléfono: 5551234567
+    \item RFC: JUA[6 dígitos]AA
+\end{itemize}
+
+\textbf{Evidencias Visuales:}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{Gestion de Clientes/COREX-1/TC-CLI-001_01_modulo_clientes.png}
+\caption{Módulo de Clientes - Vista inicial}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{Gestion de Clientes/COREX-1/TC-CLI-001_02_formulario_nuevo.png}
+\caption{Formulario de nuevo cliente}
+\end{figure}
+
+\clearpage
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{Gestion de Clientes/COREX-1/TC-CLI-001_03_datos_completados.png}
+\caption{Formulario con datos completados}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.8\textwidth]{Gestion de Clientes/COREX-1/TC-CLI-001_05_cliente_creado.png}
+\caption{Cliente creado exitosamente en la lista}
+\end{figure}
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\clearpage
+
+\subsubsection{TC-CLI-002: RFC duplicado}
+
+\textbf{Validación:} Sistema rechaza RFC duplicado
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-CLI-003: Editar cliente}
+
+\textbf{Acción:} Modificar teléfono existente
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-CLI-005: Email inválido}
+
+\textbf{Validación:} Formato de email incorrecto rechazado
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsection{Suite: Gestión de Pólizas (2 casos)}
+
+\subsubsection{TC-POL-005: Número duplicado}
+
+\textbf{Validación:} Prevención de números de póliza duplicados
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-POL-007: Filtrar por estado}
+
+\textbf{Estados probados:} Vigente, Vencida, Todas
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsection{Suite: Interfaz UI/UX (6 casos)}
+
+\subsubsection{TC-UI-001: Consistencia visual}
+
+\textbf{Aspectos:} Colores corporativos, tipografía, espaciado
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-UI-004: Contraste}
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-UI-007: Logo corporativo}
+
+\textbf{Ubicaciones:} Login y Sidebar
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}}
+
+\subsubsection{TC-UI-008/009/010: Detalles UI}
+
+\textbf{Validaciones:} Alineación, estados hover, iconografía
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ PASS}} (todos)
+
+\subsection{Vista del Dashboard}
+
+El dashboard es la pantalla principal del sistema tras autenticación exitosa.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{Diseno (UI-UX)/DASHBOARD_01_vista_general.png}
+\caption{Dashboard - Vista general con métricas}
+\end{figure}
+
+\clearpage
+
+\section{Pruebas de Integridad de Base de Datos}
+
+\subsection{Objetivo}
+
+Validar que las restricciones de integridad referencial y constraints de la base de datos funcionan correctamente.
+
+\subsection{UNIQUE Constraints}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Tabla} & \textbf{Campo} & \textbf{Resultado} \\
+\midrule
+Cliente & rfc & \textcolor{successgreen}{✓ PASS} \\
+Usuario & username & \textcolor{successgreen}{✓ PASS} \\
+Usuario & email & \textcolor{successgreen}{✓ PASS} \\
+Poliza & numero\_poliza & \textcolor{successgreen}{✓ PASS} \\
+Aseguradora & nombre & \textcolor{successgreen}{✓ PASS} \\
+Ramo & nombre & \textcolor{successgreen}{✓ PASS} \\
+\bottomrule
+\end{tabular}
+\caption{Validación UNIQUE Constraints}
+\end{table}
+
+\textbf{Validación:} Se intentaron inserciones duplicadas en cada campo y el sistema las rechazó correctamente con error ``UNIQUE constraint failed''.
+
+\subsection{FOREIGN KEY Constraints}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llp{4cm}l}
+\toprule
+\textbf{Tabla} & \textbf{FK} & \textbf{Referencia} & \textbf{Resultado} \\
+\midrule
+Poliza & cliente\_id & Cliente(cliente\_id) & \textcolor{successgreen}{✓} \\
+Poliza & aseguradora\_id & Aseguradora(aseguradora\_id) & \textcolor{successgreen}{✓} \\
+Poliza & ramo\_id & Ramo(ramo\_id) & \textcolor{successgreen}{✓} \\
+Recibo & poliza\_id & Poliza(poliza\_id) & \textcolor{successgreen}{✓} \\
+Documento & cliente\_id & Cliente(cliente\_id) & \textcolor{successgreen}{✓} \\
+\bottomrule
+\end{tabular}
+\caption{Validación Foreign Keys}
+\end{table}
+
+\textbf{Validación:} Se intentaron inserciones con IDs inexistentes (ej. cliente\_id = 999) y el sistema las rechazó con error ``FOREIGN KEY constraint failed''.
+
+\subsection{CHECK Constraints}
+
+\textbf{Regla de Negocio - Documento:} Un documento debe estar relacionado con al menos un Cliente O una Póliza.
+
+\begin{lstlisting}[language=SQL, caption=CHECK Constraint]
+CHECK (cliente_id IS NOT NULL OR poliza_id IS NOT NULL)
+\end{lstlisting}
+
+\textbf{Prueba:} Intentar insertar documento sin cliente\_id ni poliza\_id
+
+\textbf{Resultado:} \textcolor{successgreen}{✓ PASS} - Sistema rechazó con ``CHECK constraint failed''
+
+\subsection{Encriptación de Contraseñas}
+
+\textbf{Validado:} Contraseñas hasheadas con bcrypt + salt único por usuario
+
+\textbf{Proceso:}
+\begin{enumerate}
+    \item Generar salt aleatorio de 16 bytes
+    \item Hash de contraseña con bcrypt (10 rounds)
+    \item Almacenar hash y salt en tabla Usuario
+    \item Verificar irreversibilidad del hash
+\end{enumerate}
+
+\textbf{Resultado:} \textcolor{successgreen}{✓ PASS}
+
+\section{Smoke Tests de Navegación}
+
+\subsection{Objetivo}
+Verificar que la navegación básica entre todos los módulos funciona sin errores críticos.
+
+\subsection{Módulos Navegados}
+
+\begin{enumerate}
+    \item Login → Dashboard
+    \item Clientes (con tabla CRUD)
+    \item Pólizas (listado y filtros)
+    \item Recibos (gestión de pagos)
+    \item Catálogos (aseguradoras, ramos)
+\end{enumerate}
+
+\subsection{Validaciones}
+
+\begin{itemize}
+    \item ✓ Todas las vistas cargan sin errores
+    \item ✓ Sin errores JavaScript en consola
+    \item ✓ Elementos de navegación funcionales
+    \item ✓ Botón ``Volver'' regresa al Dashboard
+    \item ✓ No hay excepciones no manejadas
+\end{itemize}
+
+\textbf{Resultado:} \textcolor{successgreen}{\textbf{✓ TODOS LOS SMOKE TESTS PASARON}}
+
+\section{Resultados y Métricas}
+
+\subsection{Resumen por Suite}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Suite} & \textbf{Casos} & \textbf{PASS} & \textbf{FAIL} & \textbf{\%} \\
+\midrule
+Login & 7 & 7 & 0 & 100\% \\
+Clientes & 4 & 4 & 0 & 100\% \\
+Pólizas & 2 & 2 & 0 & 100\% \\
+UI/UX & 6 & 6 & 0 & 100\% \\
+\midrule
+\textbf{TOTAL} & \textbf{18} & \textbf{18} & \textbf{0} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\caption{Resultados por Suite}
+\end{table}
+
+\subsection{Cobertura de Funcionalidades}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\toprule
+\textbf{Funcionalidad} & \textbf{Cobertura} \\
+\midrule
+Autenticación & \textcolor{successgreen}{✓ Completa} \\
+CRUD Clientes & \textcolor{successgreen}{✓ Completa} \\
+CRUD Pólizas & \textcolor{warningyellow}{⚠ Parcial} \\
+Validaciones de Formularios & \textcolor{successgreen}{✓ Completa} \\
+Validaciones de BD & \textcolor{successgreen}{✓ Completa} \\
+Navegación & \textcolor{successgreen}{✓ Completa} \\
+UI/UX & \textcolor{successgreen}{✓ Completa} \\
+\bottomrule
+\end{tabular}
+\caption{Cobertura Funcional}
+\end{table}
+
+\subsection{Métricas de Calidad}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\toprule
+\textbf{Métrica} & \textbf{Valor} \\
+\midrule
+Tasa de Éxito & 100\% \\
+Defectos Encontrados & 0 \\
+Evidencias Generadas & $\sim$40 capturas \\
+Tiempo por Caso & 10-15 segundos \\
+Tiempo Total & 3-5 minutos \\
+Confiabilidad Scripts & Alta \\
+\bottomrule
+\end{tabular}
+\caption{Métricas de Calidad}
+\end{table}
+
+\subsection{Evidencias Organizadas}
+
+Todas las capturas de pantalla se organizaron en:
+
+\begin{lstlisting}[language=bash]
+testing/test-evidences/
+|-- Login/
+|-- Gestion de Clientes/
+|-- Polizas/
+|-- Diseno (UI-UX)/
+\end{lstlisting}
+
+Cada caso de prueba incluye múltiples capturas que documentan el flujo completo.
+
+\section{Análisis de Resultados}
+
+\subsection{Fortalezas Identificadas}
+
+\begin{enumerate}
+    \item \textbf{Interfaz de Usuario Excelente}
+    \begin{itemize}
+        \item Diseño profesional y moderno
+        \item Animaciones fluidas y sutiles
+        \item Paleta de colores corporativa consistente (navy blue \#1B4F72, dorado \#D4AF37)
+        \item Responsividad adecuada
+        \item Feedback visual apropiado en todas las interacciones
+    \end{itemize}
+
+    \item \textbf{Funcionalidad Core Sólida}
+    \begin{itemize}
+        \item Login/Logout funcionan perfectamente
+        \item CRUD de clientes completamente operativo
+        \item Gestión básica de pólizas funcional
+        \item Validaciones esenciales implementadas
+        \item Manejo de errores adecuado
+    \end{itemize}
+
+    \item \textbf{Integridad de Datos Garantizada}
+    \begin{itemize}
+        \item Validaciones de unicidad funcionan (RFC, username, número de póliza)
+        \item Soft delete implementado correctamente
+        \item Relaciones cliente-póliza-recibo correctas
+        \item Foreign keys activas y funcionales
+        \item CHECK constraints operativos
+    \end{itemize}
+
+    \item \textbf{Seguridad Implementada}
+    \begin{itemize}
+        \item Contraseñas encriptadas con bcrypt (10 rounds)
+        \item Salt único por usuario (16 bytes)
+        \item Validaciones client-side activas
+        \item Prevención efectiva de duplicados
+        \item Hash irreversible verificado
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Áreas de Mejora}
+
+\begin{enumerate}
+    \item \textbf{Funcionalidades Pendientes}
+    \begin{itemize}
+        \item Módulo de Reportes (actualmente solo placeholder)
+        \item Sistema de alertas y notificaciones de vencimiento
+        \item Edición completa de pólizas (solo creación implementada)
+        \item Recuperación de contraseña
+        \item Bloqueo de cuenta por intentos fallidos
+    \end{itemize}
+
+    \item \textbf{Validaciones Adicionales Necesarias}
+    \begin{itemize}
+        \item Formato estricto de RFC (actualmente solo valida unicidad)
+        \item Validación de formato de teléfono mexicano
+        \item Filtros avanzados en tablas de clientes
+        \item Ordenamiento de columnas en tablas
+    \end{itemize}
+
+    \item \textbf{Funcionalidades Avanzadas}
+    \begin{itemize}
+        \item Exportación a Excel/CSV
+        \item Generación de PDFs de pólizas
+        \item Historial de cambios/auditoría visible
+        \item Gestión de permisos por rol de usuario
+        \item Dashboard con gráficas interactivas
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Defectos Encontrados}
+
+\begin{center}
+\colorbox{successgreen!10}{
+\parbox{0.8\textwidth}{
+\textbf{NO SE ENCONTRARON DEFECTOS}\\[0.2cm]
+Todas las funcionalidades implementadas operan correctamente según las especificaciones. El sistema pasó el 100\% de las pruebas ejecutadas sin errores.
+}}
+\end{center}
+
+\section{Recomendaciones}
+
+\subsection{Prioridad Alta (Crítico para Producción)}
+
+\begin{enumerate}
+    \item \textbf{Implementar edición completa de pólizas} (2-3 días)
+    \begin{itemize}
+        \item Funcionalidad crítica para el negocio
+        \item Actualmente solo permite creación y consulta
+        \item Requerida antes del despliegue final
+    \end{itemize}
+
+    \item \textbf{Completar módulo de Reportes} (5-7 días)
+    \begin{itemize}
+        \item Requerido para análisis de negocio
+        \item Incluir exportación a Excel/PDF
+        \item Reportes de cobranza mensual
+        \item Dashboard con métricas reales
+    \end{itemize}
+
+    \item \textbf{Sistema de alertas de vencimiento} (3-4 días)
+    \begin{itemize}
+        \item Alertas automáticas de vencimiento de pólizas
+        \item Notificaciones de recibos pendientes
+        \item Código de colores según días restantes
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Prioridad Media (Mejoras de Usabilidad)}
+
+\begin{enumerate}
+    \item \textbf{Filtros avanzados y ordenamiento} (2 días)
+    \item \textbf{Recuperación de contraseña} (3 días)
+    \item \textbf{Gestión de documentos adjuntos} (4 días)
+    \item \textbf{Validaciones de formato mejoradas} (2 días)
+\end{enumerate}
+
+\subsection{Prioridad Baja (Mejoras Futuras)}
+
+\begin{enumerate}
+    \item \textbf{Bloqueo por intentos fallidos} (1 día)
+    \item \textbf{Roles y permisos avanzados} (3 días)
+    \item \textbf{Módulo de configuración} (2 días)
+    \item \textbf{Auditoría visible en UI} (2 días)
+\end{enumerate}
+
+\section{Conclusiones}
+
+\subsection{Estado General del Sistema}
+
+El Sistema COREX presenta \textbf{calidad excepcional} en todas las funcionalidades implementadas. Los resultados de las pruebas automatizadas demuestran:
+
+\begin{itemize}
+    \item 100\% de éxito en 18 casos de prueba E2E
+    \item Cero defectos funcionales encontrados
+    \item Alta confiabilidad de los scripts de automatización
+    \item Excelente experiencia de usuario validada
+    \item Integridad de datos completamente garantizada
+    \item Seguridad implementada con estándares modernos (bcrypt)
+\end{itemize}
+
+\subsection{Evaluación de Calidad}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lc}
+\toprule
+\textbf{Aspecto} & \textbf{Calificación} \\
+\midrule
+Funcionalidad Implementada & ⭐⭐⭐⭐⭐ (5/5) \\
+Interfaz de Usuario & ⭐⭐⭐⭐⭐ (5/5) \\
+Integridad de Datos & ⭐⭐⭐⭐⭐ (5/5) \\
+Seguridad & ⭐⭐⭐⭐ (4/5) \\
+Cobertura Funcional & ⭐⭐⭐ (3/5) \\
+\midrule
+\textbf{CALIFICACIÓN GENERAL} & \textbf{⭐⭐⭐⭐ (4.4/5)} \\
+\bottomrule
+\end{tabular}
+\caption{Evaluación de Calidad del Sistema}
+\end{table}
+
+\textbf{Nota:} La cobertura funcional es 3/5 debido a módulos pendientes (Reportes, Alertas), pero todo lo implementado funciona perfectamente.
+
+\subsection{Viabilidad para Producción}
+
+\begin{center}
+\colorbox{successgreen!10}{
+\parbox{0.9\textwidth}{
+\textbf{RECOMENDACIÓN: APTO PARA PRODUCCIÓN CON CONDICIONES}\\[0.2cm]
+El sistema desarrollado por COREX puede desplegarse en producción para:
+\begin{itemize}
+    \item Gestión completa de clientes (CRUD operativo)
+    \item Creación y consulta de pólizas
+    \item Filtrado básico de información
+    \item Autenticación segura de usuarios con bcrypt
+    \item Navegación fluida entre módulos
+\end{itemize}
+\textbf{Condición:} Implementar edición de pólizas antes del despliegue final para funcionalidad completa.
+}}
+\end{center}
+
+\subsection{Valor del Testing Automatizado}
+
+La implementación de pruebas automatizadas por el Equipo COREX proporciona:
+
+\begin{enumerate}
+    \item \textbf{Confianza en la calidad} mediante validación objetiva
+    \item \textbf{Detección temprana} de defectos antes de producción
+    \item \textbf{Documentación ejecutable} de comportamientos esperados
+    \item \textbf{Regresión continua} para prevenir bugs en futuras versiones
+    \item \textbf{Evidencias visuales} para stakeholders no técnicos (~40 capturas)
+    \item \textbf{Reducción de costos} al automatizar validaciones repetitivas
+\end{enumerate}
+
+\section{Anexos}
+
+\subsection{Scripts de Ejecución}
+
+\begin{lstlisting}[language=bash,caption=Ejecutar Suite Completa]
+# Pruebas E2E (18 casos)
+node testing/test-automation.js
+
+# Pruebas de integridad BD
+node testing/db_integrity.test.js
+
+# Smoke tests navegacion
+node testing/ui_smoke.test.js
+
+# Ejecutar todas
+npm test
+\end{lstlisting}
+
+\subsection{Estructura del Proyecto de Testing}
+
+\begin{lstlisting}[language=bash]
+testing/
+|-- test-automation.js         (Suite E2E principal)
+|-- db_integrity.test.js       (Pruebas BD)
+|-- ui_smoke.test.js          (Smoke tests)
+|-- testlink_mapping.json     (Mapeo TestLink)
+|-- test-evidences/           (Capturas)
+    |-- Login/
+    |-- Gestion de Clientes/
+    |-- Polizas/
+    |-- Diseno (UI-UX)/
+\end{lstlisting}
+
+\subsection{Información del Proyecto}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Campo} & \textbf{Información} \\
+\midrule
+Empresa Desarrolladora & COREX \\
+Equipo & Equipo COREX - Testing y QA \\
+Cliente & Seguros Fianzas VILLALOBOS \\
+Sistema & COREX v1.0.0 \\
+Fecha de Ejecución & 12 Octubre 2025 \\
+Framework Testing & Playwright + Electron \\
+Base de Datos & SQLite (sql.js) \\
+\bottomrule
+\end{tabular}
+\caption{Información del Proyecto}
+\end{table}
+
+\subsection{Contacto}
+
+Para consultas sobre este reporte o el sistema, contactar al:
+
+\textbf{Equipo COREX}\\
+Departamento de Testing y QA\\
+Sistema de Gestión de Pólizas COREX
+
+\vspace{2cm}
+
+\begin{center}
+\textcolor{navyblue}{\rule{0.8\textwidth}{2pt}}
+
+\vspace{0.5cm}
+
+\textbf{\Large Fin del Reporte}
+
+\vspace{0.3cm}
+
+\textit{Desarrollado por COREX para Seguros Fianzas VILLALOBOS}
+
+\vspace{0.2cm}
+
+\textcolor{gold}{\textbf{Calidad Asegurada - 100\% de Éxito en Pruebas}}
+
+\vspace{0.3cm}
+
+\textcolor{navyblue}{\rule{0.8\textwidth}{2pt}}
+\end{center}
+
+\end{document}

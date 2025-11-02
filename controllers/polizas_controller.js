@@ -10,10 +10,51 @@ class PolizasController {
         this.periodicidades = [];
         this.metodosPago = [];
         this.currentPoliza = null;
+        this.isEditMode = false;
 
         this.initElements();
         this.initEventListeners();
+        this.initValidations();
         this.loadCatalogos();
+    }
+
+    initValidations() {
+        // Initialize form validation
+        if (window.formValidator && this.form) {
+            window.formValidator.initForm(this.form, {
+                numero_poliza: [
+                    { type: 'required', message: 'El número de póliza es requerido' },
+                    { type: 'minLength', length: 3, message: 'Mínimo 3 caracteres' }
+                ],
+                fecha_inicio: [
+                    { type: 'required', message: 'La fecha de inicio es requerida' },
+                    { type: 'date', message: 'Fecha inválida' }
+                ],
+                fecha_fin: [
+                    { type: 'required', message: 'La fecha de fin es requerida' },
+                    { type: 'date', message: 'Fecha inválida' },
+                    { type: 'dateRange', minField: 'fecha_inicio', message: 'Debe ser posterior a fecha de inicio' }
+                ],
+                prima_total: [
+                    { type: 'required', message: 'La prima total es requerida' },
+                    { type: 'positiveNumber', message: 'Debe ser un número positivo' }
+                ],
+                prima_neta: [
+                    { type: 'positiveNumber', message: 'Debe ser un número positivo' }
+                ],
+                comision_porcentaje: [
+                    { type: 'number', message: 'Debe ser un número válido' }
+                ],
+                suma_asegurada: [
+                    { type: 'positiveNumber', message: 'Debe ser un número positivo' }
+                ]
+            });
+        }
+
+        // Add character counter for notas
+        if (window.tooltipManager && this.inputNotas) {
+            window.tooltipManager.addCharCounter(this.inputNotas, 1000);
+        }
     }
 
     initElements() {
@@ -46,20 +87,28 @@ class PolizasController {
         this.modalTitle = document.getElementById('modalTitle');
         this.form = document.getElementById('formPoliza');
         this.recibosContent = document.getElementById('recibosContent');
+        this.detailModal = document.getElementById('modalDetallePoliza');
+        this.detailModalClose = document.getElementById('btnCloseDetallePoliza');
+        this.detailModalContent = document.getElementById('detallePolizaContent');
+        this.detailModalRecibos = document.getElementById('detallePolizaRecibos');
 
         // Form inputs
         this.inputNumero = document.getElementById('inputNumero');
         this.inputCliente = document.getElementById('inputCliente');
         this.inputAseguradora = document.getElementById('inputAseguradora');
         this.inputRamo = document.getElementById('inputRamo');
+        this.inputTipoPoliza = document.getElementById('inputTipoPoliza');
         this.inputFechaInicio = document.getElementById('inputFechaInicio');
         this.inputFechaFin = document.getElementById('inputFechaFin');
+        this.inputPrimaNeta = document.getElementById('inputPrimaNeta');
         this.inputPrima = document.getElementById('inputPrima');
         this.inputComision = document.getElementById('inputComision');
         this.inputPeriodicidad = document.getElementById('inputPeriodicidad');
         this.inputMetodoPago = document.getElementById('inputMetodoPago');
         this.inputSumaAsegurada = document.getElementById('inputSumaAsegurada');
         this.inputNotas = document.getElementById('inputNotas');
+        this.inputDomiciliada = this.form.querySelector('input[name="domiciliada"]');
+        this.inputRenovacionAutomatica = this.form.querySelector('input[name="renovacion_automatica"]');
     }
 
     initEventListeners() {
@@ -86,6 +135,14 @@ class PolizasController {
                 this.closeRecibosModal();
             }
         });
+
+        this.detailModal.addEventListener('click', (e) => {
+            if (e.target === this.detailModal) {
+                this.closeDetailModal();
+            }
+        });
+
+        this.detailModalClose.addEventListener('click', () => this.closeDetailModal());
 
         // Form submit
         this.form.addEventListener('submit', (e) => {
@@ -254,6 +311,8 @@ class PolizasController {
         this.tableBody.innerHTML = polizas.map(poliza => {
             const estado = this.getEstadoPoliza(poliza);
             const statusClass = this.getStatusClass(estado);
+            const vigenciaInicio = poliza.vigencia_inicio || poliza.fecha_inicio;
+            const vigenciaFin = poliza.vigencia_fin || poliza.fecha_fin;
 
             return `
             <tr class="table-row transition-colors">
@@ -273,7 +332,7 @@ class PolizasController {
                     $${this.formatNumber(poliza.prima_total)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    ${this.formatDate(poliza.fecha_inicio)} - ${this.formatDate(poliza.fecha_fin)}
+                    ${this.formatDate(vigenciaInicio)} - ${this.formatDate(vigenciaFin)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="status-badge ${statusClass}">
@@ -292,13 +351,40 @@ class PolizasController {
                             </svg>
                         </button>
                         <button
+                            onclick="window.polizasController.manageRecibos(${poliza.poliza_id}, '${this.escapeHtml(poliza.numero_poliza)}')"
+                            class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                            title="Gestionar recibos"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                            </svg>
+                        </button>
+                        <button
                             onclick="window.polizasController.viewDetails(${poliza.poliza_id})"
-                            class="text-green-600 hover:text-green-900 transition-colors"
+                            class="text-blue-600 hover:text-blue-900 transition-colors"
                             title="Ver detalles"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </button>
+                        <button
+                            onclick="window.polizasController.openEditModal(${poliza.poliza_id})"
+                            class="text-gold-600 hover:text-gold-900 transition-colors"
+                            title="Editar"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </button>
+                        <button
+                            onclick="window.polizasController.deletePoliza(${poliza.poliza_id}, '${this.escapeHtml(poliza.numero_poliza)}')"
+                            class="text-red-600 hover:text-red-900 transition-colors"
+                            title="Eliminar"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                             </svg>
                         </button>
                     </div>
@@ -309,7 +395,7 @@ class PolizasController {
 
     getEstadoPoliza(poliza) {
         const hoy = new Date();
-        const fechaFin = new Date(poliza.fecha_fin);
+        const fechaFin = new Date(poliza.vigencia_fin || poliza.fecha_fin);
         const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
 
         if (diasRestantes < 0) {
@@ -380,6 +466,7 @@ class PolizasController {
     }
 
     openAddModal() {
+        this.isEditMode = false;
         this.currentPoliza = null;
         this.modalTitle.textContent = 'Nueva Póliza';
         this.form.reset();
@@ -391,6 +478,53 @@ class PolizasController {
 
         this.inputFechaInicio.value = hoy;
         this.inputFechaFin.value = unAñoDespues.toISOString().split('T')[0];
+        this.inputTipoPoliza.value = 'nuevo';
+        this.inputPrimaNeta.value = '';
+        this.inputPrima.value = '';
+        if (this.inputDomiciliada) {
+            this.inputDomiciliada.checked = false;
+        }
+        if (this.inputRenovacionAutomatica) {
+            this.inputRenovacionAutomatica.checked = false;
+        }
+
+        this.modal.classList.add('active');
+    }
+
+    async openEditModal(polizaId) {
+        const poliza = this.polizas.find(p => p.poliza_id === polizaId);
+
+        if (!poliza) {
+            this.showError('Póliza no encontrada');
+            return;
+        }
+
+        this.isEditMode = true;
+        this.currentPoliza = poliza;
+        this.modalTitle.textContent = 'Editar Póliza';
+
+        // Populate form with poliza data
+        this.inputNumero.value = poliza.numero_poliza || '';
+        this.inputCliente.value = poliza.cliente_id || '';
+        this.inputAseguradora.value = poliza.aseguradora_id || '';
+        this.inputRamo.value = poliza.ramo_id || '';
+        this.inputTipoPoliza.value = poliza.tipo_poliza || 'nuevo';
+        this.inputFechaInicio.value = poliza.fecha_inicio || poliza.vigencia_inicio || '';
+        this.inputFechaFin.value = poliza.fecha_fin || poliza.vigencia_fin || '';
+        this.inputPrima.value = poliza.prima_total || '';
+        this.inputPrimaNeta.value = poliza.prima_neta || poliza.prima_total || '';
+        this.inputComision.value = poliza.comision_porcentaje || '';
+        this.inputPeriodicidad.value = poliza.periodicidad_pago_id || '';
+        this.inputMetodoPago.value = poliza.metodo_pago_id || '';
+        this.inputSumaAsegurada.value = poliza.suma_asegurada || '';
+        this.inputNotas.value = poliza.notas || '';
+
+        if (this.inputDomiciliada) {
+            this.inputDomiciliada.checked = poliza.domiciliada || false;
+        }
+        if (this.inputRenovacionAutomatica) {
+            this.inputRenovacionAutomatica.checked = poliza.vigencia_renovacion_automatica || false;
+        }
 
         this.modal.classList.add('active');
     }
@@ -399,6 +533,7 @@ class PolizasController {
         this.modal.classList.remove('active');
         this.form.reset();
         this.currentPoliza = null;
+        this.isEditMode = false;
     }
 
     closeRecibosModal() {
@@ -406,8 +541,18 @@ class PolizasController {
         this.recibosContent.innerHTML = '';
     }
 
+    closeDetailModal() {
+        this.detailModal.classList.remove('active');
+        this.detailModalContent.innerHTML = '';
+        this.detailModalRecibos.innerHTML = '';
+    }
+
     async handleSubmit() {
         const formData = new FormData(this.form);
+        const primaTotal = parseFloat(formData.get('prima_total'));
+        const primaNetaInput = formData.get('prima_neta');
+        const primaNeta = primaNetaInput ? parseFloat(primaNetaInput) : primaTotal;
+
         const polizaData = {
             numero_poliza: formData.get('numero_poliza').trim(),
             cliente_id: parseInt(formData.get('cliente_id')),
@@ -415,7 +560,9 @@ class PolizasController {
             ramo_id: parseInt(formData.get('ramo_id')),
             fecha_inicio: formData.get('fecha_inicio'),
             fecha_fin: formData.get('fecha_fin'),
-            prima_total: parseFloat(formData.get('prima_total')),
+            prima_total: primaTotal,
+            prima_neta: primaNeta,
+            tipo_poliza: formData.get('tipo_poliza') || 'nuevo',
             comision_porcentaje: formData.get('comision_porcentaje')
                 ? parseFloat(formData.get('comision_porcentaje'))
                 : null,
@@ -426,18 +573,56 @@ class PolizasController {
             suma_asegurada: formData.get('suma_asegurada')
                 ? parseFloat(formData.get('suma_asegurada'))
                 : null,
+            domiciliada: formData.get('domiciliada') === 'on',
+            vigencia_renovacion_automatica: formData.get('renovacion_automatica') === 'on',
             notas: formData.get('notas')?.trim() || null
         };
 
-        try {
-            const result = await window.electronAPI.polizas.create(polizaData);
+        if (!polizaData.metodo_pago_id || Number.isNaN(polizaData.metodo_pago_id)) {
+            this.showError('Selecciona un método de pago');
+            return;
+        }
 
-            if (result.success) {
-                this.showSuccess('Póliza creada correctamente. Se generaron los recibos automáticamente.');
-                this.closeModal();
-                await this.loadPolizas();
+        if (Number.isNaN(primaTotal) || primaTotal <= 0) {
+            this.showError('La prima total debe ser mayor a cero');
+            return;
+        }
+
+        if (Number.isNaN(primaNeta) || primaNeta <= 0) {
+            this.showError('La prima neta debe ser mayor a cero');
+            return;
+        }
+
+        if (primaNeta > primaTotal) {
+            this.showError('La prima neta no puede ser mayor que la prima total');
+            return;
+        }
+
+        try {
+            let result;
+
+            if (this.isEditMode && this.currentPoliza) {
+                // Update existing poliza
+                result = await window.electronAPI.polizas.update(this.currentPoliza.poliza_id, polizaData);
+
+                if (result.success) {
+                    this.showSuccess('Póliza actualizada correctamente');
+                    this.closeModal();
+                    await this.loadPolizas();
+                } else {
+                    this.showError(result.message || 'Error al actualizar póliza');
+                }
             } else {
-                this.showError(result.message || 'Error al crear póliza');
+                // Create new poliza
+                result = await window.electronAPI.polizas.create(polizaData);
+
+                if (result.success) {
+                    this.showSuccess('Póliza creada correctamente. Se generaron los recibos automáticamente.');
+                    this.closeModal();
+                    await this.loadPolizas();
+                } else {
+                    this.showError(result.message || 'Error al crear póliza');
+                }
             }
 
         } catch (error) {
@@ -469,14 +654,14 @@ class PolizasController {
                                 <tr>
                                     <td class="px-4 py-3 text-sm">${recibo.numero_recibo}</td>
                                     <td class="px-4 py-3 text-sm font-semibold">$${this.formatNumber(recibo.monto)}</td>
-                                    <td class="px-4 py-3 text-sm">${this.formatDate(recibo.fecha_vencimiento)}</td>
+                                    <td class="px-4 py-3 text-sm">${this.formatDate(recibo.fecha_corte)}</td>
                                     <td class="px-4 py-3 text-sm">
-                                        <span class="status-badge ${recibo.pagado ? 'status-vigente' : 'status-vencida'}">
-                                            ${recibo.pagado ? 'Pagado' : 'Pendiente'}
+                                        <span class="status-badge ${recibo.estado === 'pagado' ? 'status-vigente' : 'status-vencida'}">
+                                            ${recibo.estado === 'pagado' ? 'Pagado' : 'Pendiente'}
                                         </span>
                                     </td>
                                     <td class="px-4 py-3 text-sm">
-                                        ${!recibo.pagado ? `
+                                        ${recibo.estado !== 'pagado' ? `
                                             <button
                                                 onclick="window.polizasController.marcarPagado(${recibo.recibo_id})"
                                                 class="text-green-600 hover:text-green-900 font-medium"
@@ -526,22 +711,175 @@ class PolizasController {
         }
     }
 
-    viewDetails(polizaId) {
-        const poliza = this.polizas.find(p => p.poliza_id === polizaId);
+    async viewDetails(polizaId) {
+        let poliza = this.polizas.find(p => p.poliza_id === polizaId);
+
+        if (!poliza) {
+            try {
+                const response = await window.electronAPI.polizas.getById(polizaId);
+                if (response.success) {
+                    poliza = response.data;
+                }
+            } catch (error) {
+                console.error('Error al obtener póliza:', error);
+            }
+        }
+
         if (!poliza) {
             this.showError('Póliza no encontrada');
             return;
         }
 
-        alert(`Detalles de la póliza:\n\n` +
-              `Número: ${poliza.numero_poliza}\n` +
-              `Cliente: ${poliza.cliente_nombre}\n` +
-              `Aseguradora: ${poliza.aseguradora_nombre}\n` +
-              `Ramo: ${poliza.ramo_nombre}\n` +
-              `Prima: $${this.formatNumber(poliza.prima_total)}\n` +
-              `Vigencia: ${this.formatDate(poliza.fecha_inicio)} - ${this.formatDate(poliza.fecha_fin)}\n` +
-              `Estado: ${this.getEstadoPoliza(poliza)}`
-        );
+        try {
+            const recibosRes = await window.electronAPI.polizas.getRecibos(polizaId);
+            const recibos = recibosRes.success ? recibosRes.data : [];
+
+            const vigenciaInicio = poliza.vigencia_inicio || poliza.fecha_inicio;
+            const vigenciaFin = poliza.vigencia_fin || poliza.fecha_fin;
+
+            this.detailModalContent.innerHTML = `
+                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Número de póliza</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.numero_poliza)}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Cliente</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.cliente_nombre || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Aseguradora</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.aseguradora_nombre || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Ramo</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.ramo_nombre || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Tipo de póliza</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.tipo_poliza || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Estado de pago</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.estado_pago || 'pendiente')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Prima neta</dt>
+                        <dd class="text-sm text-gray-900">$${this.formatNumber(poliza.prima_neta || 0)}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Prima total</dt>
+                        <dd class="text-sm text-gray-900">$${this.formatNumber(poliza.prima_total || 0)}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Suma asegurada</dt>
+                        <dd class="text-sm text-gray-900">${poliza.suma_asegurada ? '$' + this.formatNumber(poliza.suma_asegurada) : '-'}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Comisión (%)</dt>
+                        <dd class="text-sm text-gray-900">${poliza.comision_porcentaje ? this.formatNumber(poliza.comision_porcentaje) + '%' : '-'}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Método de pago</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.metodo_pago_nombre || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Periodicidad</dt>
+                        <dd class="text-sm text-gray-900">${this.escapeHtml(poliza.periodicidad_nombre || 'N/A')}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Vigencia</dt>
+                        <dd class="text-sm text-gray-900">${this.formatDate(vigenciaInicio)} - ${this.formatDate(vigenciaFin)}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Renovación automática</dt>
+                        <dd class="text-sm text-gray-900">${poliza.vigencia_renovacion_automatica ? 'Sí' : 'No'}</dd>
+                    </div>
+                    <div class="md:col-span-2">
+                        <dt class="text-sm font-medium text-gray-500">Notas</dt>
+                        <dd class="text-sm text-gray-900">${poliza.notas ? this.escapeHtml(poliza.notas) : 'Sin notas'}</dd>
+                    </div>
+                </dl>
+            `;
+
+            if (recibos && recibos.length) {
+                this.detailModalRecibos.innerHTML = recibos.map(recibo => `
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <span class="text-sm font-semibold text-gray-900">${this.escapeHtml(recibo.numero_recibo || ('Recibo #' + recibo.recibo_id))}</span>
+                            <span class="text-xs px-2 py-1 rounded-full ${recibo.estado === 'pagado' ? 'bg-green-100 text-green-700' : recibo.estado === 'vencido' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">
+                                ${this.escapeHtml(recibo.estado || 'pendiente')}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Periodo: ${this.formatDate(recibo.fecha_inicio_periodo)} - ${this.formatDate(recibo.fecha_fin_periodo)}
+                        </p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Corte: ${this.formatDate(recibo.fecha_corte)} · Monto: $${this.formatNumber(recibo.monto || 0)}
+                        </p>
+                        ${recibo.fecha_pago ? `<p class="text-xs text-gray-500 mt-1">Pago: ${this.formatDate(recibo.fecha_pago)}</p>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                this.detailModalRecibos.innerHTML = `
+                    <div class="text-sm text-gray-500 border border-dashed border-gray-300 rounded-lg p-4 text-center">
+                        Sin recibos registrados aún.
+                    </div>
+                `;
+            }
+
+            this.detailModal.classList.add('active');
+        } catch (error) {
+            console.error('Error al obtener detalles de la póliza:', error);
+            this.showError('No se pudieron cargar los detalles de la póliza');
+        }
+    }
+
+    async deletePoliza(polizaId, numeroPoliza) {
+        const poliza = this.polizas.find(p => p.poliza_id === polizaId);
+        const displayName = numeroPoliza || poliza?.numero_poliza || `#${polizaId}`;
+
+        // Use elegant confirm modal if available
+        let confirmed = false;
+        if (window.confirmModal) {
+            confirmed = await window.confirmModal.show({
+                title: 'Eliminar póliza',
+                message: `¿Estás seguro de eliminar la póliza "${displayName}"?\n\nEsta acción no se puede deshacer.`,
+                type: 'danger',
+                confirmText: 'Eliminar',
+                cancelText: 'Cancelar'
+            });
+        } else {
+            confirmed = confirm(`¿Estás seguro de eliminar la póliza "${displayName}"?\n\nEsta acción no se puede deshacer.`);
+        }
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            const result = await window.electronAPI.polizas.delete(polizaId);
+
+            if (result.success) {
+                this.showSuccess('Póliza eliminada correctamente');
+                await this.loadPolizas();
+            } else {
+                this.showError(result.message || 'Error al eliminar póliza');
+            }
+        } catch (error) {
+            console.error('Error al eliminar póliza:', error);
+            this.showError('Error al eliminar póliza');
+        }
+    }
+
+    manageRecibos(polizaId, numeroPoliza) {
+        try {
+            localStorage.setItem('recibosPolizaId', polizaId);
+            localStorage.setItem('recibosPolizaNumero', numeroPoliza);
+        } catch (error) {
+            console.warn('No se pudo guardar el contexto en localStorage:', error);
+        }
+        window.location.href = 'recibos_view.html';
     }
 
     goBack() {
@@ -559,11 +897,19 @@ class PolizasController {
     }
 
     showSuccess(message) {
-        alert(message);
+        if (window.showSuccess) {
+            window.showSuccess(message);
+        } else {
+            alert(message);
+        }
     }
 
     showError(message) {
-        alert('Error: ' + message);
+        if (window.showError) {
+            window.showError(message);
+        } else {
+            alert('Error: ' + message);
+        }
     }
 
     escapeHtml(text) {

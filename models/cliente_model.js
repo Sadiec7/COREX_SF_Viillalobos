@@ -58,6 +58,19 @@ class ClienteModel {
     }
 
     /**
+     * Buscar clientes por nombre o RFC
+     * @param {string} term - Término de búsqueda
+     * @returns {Array} Lista de clientes que coinciden
+     */
+    search(term) {
+        return this.dbManager.query(`
+            SELECT * FROM Cliente
+            WHERE (nombre LIKE ? OR rfc LIKE ?) AND activo = 1
+            ORDER BY nombre ASC
+        `, [`%${term}%`, `%${term}%`]);
+    }
+
+    /**
      * Buscar clientes por nombre (búsqueda parcial)
      * @param {string} nombre - Nombre o parte del nombre
      * @returns {Array} Lista de clientes que coinciden
@@ -139,10 +152,10 @@ class ClienteModel {
                 p.numero_poliza,
                 a.nombre AS aseguradora_nombre,
                 r.nombre AS ramo_nombre,
-                p.fecha_inicio,
-                p.fecha_fin,
+                p.vigencia_inicio,
+                p.vigencia_fin,
                 p.prima_total,
-                p.estado
+                p.estado_pago
             FROM Poliza p
             LEFT JOIN Aseguradora a ON p.aseguradora_id = a.aseguradora_id
             LEFT JOIN Ramo r ON p.ramo_id = r.ramo_id

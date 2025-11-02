@@ -1,0 +1,628 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="  ext-strict"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Content-language" content="en">
+	<meta http-equiv="expires" content="-1">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta name="author" content="Martin Havlat">
+	<meta name="copyright" content="GNU">
+	<meta name="robots" content="NOFOLLOW">
+	<base href="http://localhost:8080/">
+	<title>TestLink</title>
+	<link rel="icon" href="http://localhost:8080/gui/themes/default/images/favicon.ico" type="image/x-icon">
+	
+ 
+	<style media="all" type="text/css">@import "http://localhost:8080/gui/themes/default/css/testlink.css";</style>
+	  
+	<style media="print" type="text/css">@import "http://localhost:8080/gui/themes/default/css/tl_print.css";</style>
+
+ 
+	<script type="text/javascript" src="http://localhost:8080/gui/javascript/testlink_library.js" language="javascript"></script>
+	<script type="text/javascript" src="http://localhost:8080/gui/javascript/test_automation.js" language="javascript"></script>
+	<script type="text/javascript" src="http://localhost:8080/third_party/prototype/prototype.js" language="javascript"></script>
+	 
+	<script type="text/javascript" src="http://localhost:8080/gui/javascript/validate.js" language="javascript"></script>
+    
+
+<script type="text/javascript" src="gui/javascript/cfield_validation.js"></script>
+
+
+<script type="text/javascript">
+
+var cfMessages= new Object;
+cfMessages.warning_numeric_cf="Custom Field %s accepts only numeric values";
+cfMessages.warning_float_cf="Custom Field %s accepts only numeric or float values";
+cfMessages.warning_email_cf="Custom Field %s accepts only email addresses";
+cfMessages.warning_text_area_cf="Custom Field %s accepts only 255 characters";
+
+
+var cfChecks = new Object;
+cfChecks.email = /^(\w+)([-+.][\w]+)*@(\w[-\w]*\.){1,5}([A-Za-z]){2,4}$/;
+cfChecks.textarea_length = 255;
+
+</script>
+	   
+	
+		<script type="text/javascript" src="http://localhost:8080/gui/javascript/sorttable.js" language="javascript"></script>
+	
+	<script type="text/javascript" language="javascript">
+	<!--
+	var fRoot = 'http://localhost:8080/';
+	var menuUrl = '';
+	var args  = '';
+	var additionalArgs  = '';
+	
+	// To solve problem diplaying help
+	var SP_html_help_file  = '';
+	
+	//attachment related JS-Stuff
+	var attachmentDlg_refWindow = null;
+	var attachmentDlg_refLocation = null;
+	var attachmentDlg_bNoRefresh = false;
+	
+	// bug management (using logic similar to attachment)
+	var bug_dialog = new bug_dialog();
+
+	// for ext js
+	var extjsLocation = 'third_party/ext-js';
+	
+	//-->
+	</script> 
+<script language="JavaScript" src="gui/javascript/radio_utils.js" type="text/javascript"></script>
+<script language="JavaScript" src="gui/javascript/expandAndCollapseFunctions.js" type="text/javascript"></script>
+
+    <script language="JavaScript" src="http://localhost:8080/gui/niftycube/niftycube.js" type="text/javascript"></script>
+
+<script language="JavaScript" type="text/javascript">
+var msg="You are going to delete execution<br /><br /> Are you sure?";
+var import_xml_results="Import XML Results";
+</script>
+
+
+
+  
+
+
+        <link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/css/ext-all.css">
+  <link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/ux/gridfilters/css/GridFilters.css">
+  <link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/ux/gridfilters/css/RangeMenu.css">
+  
+              <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/adapter/ext/ext-base.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ext-all.js" language="javascript"></script>
+      
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/Reorderer.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/ToolbarReorderer.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/ToolbarDroppable.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/Exporter-all.js" language="javascript"></script>
+      
+            <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/menu/RangeMenu.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/menu/ListMenu.js" language="javascript"></script>
+      
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/GridFilters.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/Filter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/StringFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/DateFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/ListFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/NumericFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/BooleanFilter.js" language="javascript"></script>
+      
+      
+            <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/src/locale/ext-lang-es.js" language="javascript"></script>
+  
+            <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/TableGrid.js" language="javascript"></script>
+  
+
+
+<script type="text/javascript">
+ 
+ 
+/*
+  function: delete_confirmation
+
+  args: o_id: object id, id of object on with do_action() will be done.
+              is not a DOM id, but an specific application id.
+              IMPORTANT: do_action() is a function defined in this file
+
+        o_name: name of object, used to to give user feedback.
+
+        title: pop up title
+                    
+        msg: can contain a wildcard (%s), that will be replaced
+             with o_name.     
+  
+  returns: 
+
+*/
+function delete_confirmation(o_id,o_name,title,msg,pFunction)
+{
+	var safe_name = o_name.escapeHTML();
+  var safe_title = title;
+  var my_msg = msg.replace('%s',safe_name);
+  if (!pFunction)
+  {
+		pFunction = do_action;
+  }
+  Ext.Msg.confirm(safe_title, my_msg,
+			            function(btn, text)
+			            { 
+					         pFunction(btn,text,o_id);
+			            });
+}
+
+/*
+  function: 
+
+  args:
+  
+  returns: 
+
+*/
+function init_yes_no_buttons(yes_btn,no_btn)
+{
+  Ext.MessageBox.buttonText.yes=yes_btn;
+  Ext.MessageBox.buttonText.no=no_btn;
+}
+/*
+  function: 
+
+  args:
+  
+  returns: 
+
+*/
+function do_action(btn, text, o_id)
+{ 
+  // IMPORTANT:
+  // del_action is defined in SMARTY TEMPLATE that is using this logic.
+  //
+	var my_action='';
+  
+  if( btn == 'yes' )
+  {
+    my_action=del_action+o_id;
+	  window.location=my_action;
+	}
+}					
+/*
+  function: 
+
+  args:
+  
+  returns: 
+
+*/
+function alert_message(title,msg)
+{
+  Ext.MessageBox.alert(title.escapeHTML(), msg.escapeHTML());
+}
+
+/**
+ * Displays an alert message. title and message must be escaped.
+ */
+function alert_message_html(title,msg)
+{
+  Ext.MessageBox.alert(title, msg);
+}
+
+</script>
+<script language="JavaScript" type="text/javascript">
+
+
+function load_notes(panel,exec_id)
+{
+  // 20100129 - BUGID 3113 - franciscom   -  solved ONLY for  $webeditorType == 'none'
+  var url2load=fRoot+'lib/execute/getExecNotes.php?readonly=1&exec_id=' + exec_id;
+  panel.load({url:url2load});
+}
+
+</script>
+
+<script language="JavaScript" type="text/javascript">
+
+/*
+Set value for a group of combo (have same prefix).
+*/
+function set_combo_group(formid,combo_id_prefix,value_to_assign)
+{
+  var f=document.getElementById(formid);
+	var all_comboboxes = f.getElementsByTagName('select');
+	var input_element;
+	var idx=0;
+		
+	for(idx = 0; idx < all_comboboxes.length; idx++)
+	{
+	  input_element=all_comboboxes[idx];
+		if( input_element.type == "select-one" && 
+		    input_element.id.indexOf(combo_id_prefix)==0 &&
+		   !input_element.disabled)
+		{
+       input_element.value=value_to_assign;
+		}	
+	}
+}
+
+</script>
+
+
+
+
+<script type="text/javascript">
+
+// BUGID 3943: Escape all messages (string)
+var alert_box_title="¡¡Advertencia!!";
+var warning_nothing_will_be_saved="For the selected execution result nothing will be written to database";
+
+function validateForm(f)
+{
+  var status_ok=true;
+  var cfields_inputs='';
+  var cfValidityChecks;
+  var cfield_container;
+  var access_key;
+  cfield_container=document.getElementById('save_button_clicked').value;
+  access_key='cfields_exec_time_tcversionid_'+cfield_container; 
+    
+  if( document.getElementById(access_key) != null )
+  {    
+ 	    cfields_inputs = document.getElementById(access_key).getElementsByTagName('input');
+      cfValidityChecks=validateCustomFields(cfields_inputs);
+      if( !cfValidityChecks.status_ok )
+      {
+          var warning_msg=cfMessages[cfValidityChecks.msg_id];
+          alert_message(alert_box_title,warning_msg.replace(/%s/, cfValidityChecks.cfield_label));
+          return false;
+      }
+  }
+  return true;
+}
+
+/*
+  function: checkSubmitForStatus
+            if a radio (with a particular id, see code for details)
+            with $statusCode has been checked, then false is returned to block form submit().
+            
+            Dev. Note - remember this:
+            
+            KO:
+               onclick="foo();checkSubmitForStatus('n')"
+            OK
+               onclick="foo();return checkSubmitForStatus('n')"
+                              ^^^^^^ 
+            
+
+  args :
+  
+  returns: 
+
+*/
+function checkSubmitForStatus($statusCode)
+{
+  var button_clicked;
+  var access_key;
+  var isChecked;
+  
+  button_clicked=document.getElementById('save_button_clicked').value;
+  access_key='status_'+button_clicked+'_'+$statusCode; 
+ 	isChecked = document.getElementById(access_key).checked;
+  if(isChecked)
+  {
+      alert_message(alert_box_title,warning_nothing_will_be_saved);
+      return false;
+  }
+  return true;
+}
+
+
+/**
+ * 
+ *
+ */
+function openExportTestCases(windows_title,tsuite_id,tproject_id,tplan_id,build_id,platform_id,tcversion_set) 
+{
+  args = "tsuiteID=" + tsuite_id + "&tprojectID=" + tproject_id + "&tplanID=" + tplan_id; 
+  args += "&buildID=" + build_id + "&platformID=" + platform_id;
+  args += "&tcversionSet=" + tcversion_set;
+	wref = window.open(fRoot+"lib/execute/execExport.php?"+args,
+	                   windows_title,"menubar=no,width=650,height=500,toolbar=no,scrollbars=yes");
+	wref.focus();
+}
+</script>
+
+
+
+
+
+
+<script>
+
+panel_init_functions = new Array();
+Ext.onReady(function() {
+	for(var i=0;i<panel_init_functions.length;i++) {
+		panel_init_functions[i]();
+	}
+});
+
+
+</script>
+
+
+<link type="text/css" rel="stylesheet" href="gui/niftycube/niftyCorners.css" media="screen"></head>
+
+
+<body onload="show_hide('tplan_notes','tpn_view_status',0);
+              show_hide('build_notes','bn_view_status',0);
+              show_hide('bulk_controls','bc_view_status',1);
+              show_hide('platform_notes','platform_notes_view_status',0);
+              multiple_show_hide('tsdetails_228','tsdetails_view_status_228',
+                                 '0');
+              Nifty('div.exec_additional_info');              Nifty('div.exec_test_spec');              Nifty('div.exec_history');              Nifty('div.exec_tc_title');" onunload="storeWindowSize('TCExecPopup')" class="   ext-webkit ext-safari ext-safari4 ext-mac">
+
+<h1 class="title">
+	Resultados del Test en el Build AutoBuild-2025-10-13T02-33-08-849Z
+		
+
+
+
+<script type="text/javascript">
+<!--
+	var help_localized_text = "<img style='float: right' " +
+		"src='gui/themes/default/images//x-icon.gif' " +
+		"onclick='javascript: close_help();' /> <h2>Executing Test Cases<\/h2>  <p>Allows users to &#39;execute&#39; test cases. Execution itself is merely  assigning a test case a result (pass,fail,blocked) against a selected build.<\/p>  <p>Access to a bug tracking system could be configured. User can directly add a new bugs  and browse exesting ones then.<\/p>";
+//-->
+</script>  
+<img alt="Ayuda" style="vertical-align: top;" src="gui/themes/default/images//sym_question.gif" onclick="javascript: show_help(help_localized_text);">
+</h1>
+<h1 class="title">
+	    Only Test Cases assigned to : 
+	  	    devAngel
+	  	  	    <br> Or without tester assignment
+	  	</h1>
+
+
+<div id="main_content" class="workBack">
+  
+
+<form method="post" id="execSetResults" name="execSetResults" onsubmit="javascript:return validateForm(this);">
+
+  <input type="hidden" id="save_button_clicked" name="save_button_clicked" value="0">
+  <input type="hidden" id="do_delete" name="do_delete" value="0">
+  <input type="hidden" id="exec_to_delete" name="exec_to_delete" value="0">
+
+        
+    
+  
+
+<input type="hidden" id="tpn_view_status" name="tpn_view_status" value="0">
+
+<div class="x-panel-header x-unselectable">
+	<div class="x-tool x-tool-toggle" style="background-position:0 -75px; float:left;" onclick="show_hide('tplan_notes',
+	              'tpn_view_status',
+	              document.getElementById('tplan_notes').style.display=='none')">
+	</div>
+	<span style="padding:2px;">Notas del Test Plan</span>
+</div>
+
+
+  <div id="tplan_notes" class="exec_additional_info" style="display: none; padding-top: 0px; padding-bottom: 0px;"><b class="niftycorners" style="margin-left: -10px; margin-right: 0px; background: rgb(204, 221, 238); margin-bottom: -5px;"><b class="r1" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r2" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r3" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r4" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b></b>
+    Plan de pruebas completo para el sistema COREX con 57 casos de prueba
+      <b class="niftycorners" style="margin-left: -10px; margin-right: 0px; background: rgb(204, 221, 238); margin-top: -5px;"><b class="r4" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r3" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r2" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r1" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b></b></div>
+  
+                 
+  
+        
+    
+  
+
+<input type="hidden" id="bn_view_status" name="bn_view_status" value="0">
+
+<div class="x-panel-header x-unselectable">
+	<div class="x-tool x-tool-toggle" style="background-position:0 -75px; float:left;" onclick="show_hide('build_notes',
+	              'bn_view_status',
+	              document.getElementById('build_notes').style.display=='none')">
+	</div>
+	<span style="padding:2px;">Descripción del Build</span>
+</div>
+
+	<div id="build_notes" class="exec_additional_info" style="display: none; padding-top: 0px; padding-bottom: 0px;"><b class="niftycorners" style="margin-left: -10px; margin-right: 0px; background: rgb(204, 221, 238); margin-bottom: -5px;"><b class="r1" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r2" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r3" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r4" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b></b>
+		
+	<b class="niftycorners" style="margin-left: -10px; margin-right: 0px; background: rgb(204, 221, 238); margin-top: -5px;"><b class="r4" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r3" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r2" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r1" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b></b></div>
+  
+
+
+                                        
+
+            	
+
+                <hr>
+          <div class="groupBtn">
+    	    	  <input type="button" name="print" id="print" value="Imprimir" onclick="javascript:window.print();">
+    	    	  <input type="submit" id="toggle_history_on_off" name="btn_history_on" value="Mostrar el historial completo de ejecuciones">
+    	    	  <input type="button" id="pop_up_import_button" name="import_xml_button" value="Import XML Results" onclick="javascript: openImportResult('import_xml_results',201,
+    	    	                                                768,1,0);">
+          
+              		              	    	  <input type="hidden" id="history_on" name="history_on" value="">
+          </div>
+            <hr>
+	
+      	
+ 	
+    	  	  	  	  
+		<input type="hidden" name="tc_version[789]" value="228">
+		<input type="hidden" name="version_number[789]" value="1">
+
+        
+                
+    
+
+<input type="hidden" id="tsdetails_view_status_228" name="tsdetails_view_status_228" value="0">
+
+<div class="x-panel-header x-unselectable">
+	<div class="x-tool x-tool-toggle" style="background-position:0 -75px; float:left;" onclick="show_hide('tsdetails_228',
+	              'tsdetails_view_status_228',
+	              document.getElementById('tsdetails_228').style.display=='none')">
+	</div>
+	<span style="padding:2px;">Test Suite : <a href="javascript:openTestSuiteWindow(204)"> Login</a>/</span>
+</div>
+
+
+		<div id="tsdetails_228" name="tsdetails_228" class="exec_additional_info" style="display: none; padding-top: 0px; padding-bottom: 0px;"><b class="niftycorners" style="margin-left: -10px; margin-right: 0px; background: rgb(204, 221, 238); margin-bottom: -5px;"><b class="r1" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r2" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r3" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r4" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b></b>
+      <br>
+      <div class="exec_testsuite_details" style="width:95%;">
+      <span class="legend_container">Detalles</span><br>
+		  Autenticación y manejo de errores
+		  </div>
+
+		  
+  			    <br>
+    <b class="niftycorners" style="margin-left: -10px; margin-right: 0px; background: rgb(204, 221, 238); margin-top: -5px;"><b class="r4" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r3" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r2" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b><b class="r1" style="background-color: rgb(240, 244, 240); border-color: rgb(222, 232, 239);"></b></b></div>
+
+
+		<div class="exec_tc_title" style="padding-top: 0px; padding-bottom: 0px;"><b class="niftycorners" style="margin-left: -3px; margin-right: -3px; background: rgb(204, 221, 238); margin-bottom: -2px;"><b class="r1" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b><b class="r2" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b><b class="r3" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b><b class="r4" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b></b>
+						<a href="javascript:openTCaseWindow(228,789,'editOnExec')">
+		<img src="gui/themes/default/images//note_edit.png" title="Show Test Case specification">
+		</a>
+				
+    Test Case&nbsp;ID COREX-21 :: Versión: 1
+		<br>
+		    TC-LOG-001 - Inicio de sesión válido<br>
+		    		      No hay un Tester asignado
+		        <b class="niftycorners" style="margin-left: -3px; margin-right: -3px; background: rgb(204, 221, 238); margin-top: -2px;"><b class="r4" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b><b class="r3" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b><b class="r2" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b><b class="r1" style="background-color: rgb(0, 85, 153); border-color: rgb(102, 153, 195);"></b></b></div>
+
+ 		   		 		   		          
+
+		<div id="execution_history" class="exec_history" style="padding-top: 0px; padding-bottom: 0px;"><b class="niftycorners" style="margin-left: -3px; margin-right: -3px; background: rgb(204, 221, 238); margin-bottom: -5px;"><b class="r1" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b><b class="r2" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b><b class="r3" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b><b class="r4" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b></b>
+  		<div class="exec_history_title">
+  		  			  Last execution
+  			   (any build)   			   -  Build  :  
+  		  		</div>
+
+				            		   <div class="not_run">No Ejecutado</div>
+    			   Aún sin testear
+   		      
+          <b class="niftycorners" style="margin-left: -3px; margin-right: -3px; background: rgb(204, 221, 238); margin-top: -5px;"><b class="r4" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b><b class="r3" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b><b class="r2" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b><b class="r1" style="background-color: rgb(255, 255, 255); border-color: rgb(229, 238, 246);"></b></b></div>
+
+  <br>
+    <div>
+        	
+    
+    	          
+         
+    <div class="exec_test_spec" style="padding-top: 0px; padding-bottom: 0px;"><b class="niftycorners" style="margin-left: -12px; margin-right: -12px; background: rgb(204, 221, 238); margin-bottom: 7px;"><b class="r1" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b><b class="r2" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b><b class="r3" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b><b class="r4" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b></b>
+		<table class="simple" width="100%">
+		<tbody><tr>
+			<th colspan="4" class="title">Resumen</th>
+		</tr>
+		<tr>
+			<td colspan="4">Acceso con credenciales correctas</td>
+		</tr>
+
+		<tr>
+			<th colspan="4" class="title">Preconditions</th>
+		</tr>
+		<tr>
+			<td colspan="4">Usuario activo con email/contraseña válidos</td>
+		</tr>
+
+		<tr>
+      		<td colspan="4">Execution type
+			                 : 
+			                Manual</td>
+		</tr>
+
+		    
+			
+
+
+
+	<tr>
+		<th>
+					#
+		</th>
+		<th>Step actions</th>
+		<th>Resultados Esperados</th>
+					</tr>
+			<tr id="step_row_1">
+		<td style="text-align:left;">
+			<span class="order_info" style="display:none">
+			<input type="text" name="step_set[1041]" id="step_set_1041" value="1" size="1" maxlength="2">
+			<img id="error_icon_step_number" style="visibility: hidden;" src="gui/themes/default/images//error.gif" alt="error condition detected" title="error condition detected" width="1" height="1">
+			</span>1
+		</td>
+		<td><p>Ir a /login → Ingresar credenciales válidas → Acceder</p></td>
+		<td><p>Redirección a dashboard; sesión activa</p></td>
+		
+			</tr>
+		<tr id="step_row_2">
+		<td style="text-align:left;">
+			<span class="order_info" style="display:none">
+			<input type="text" name="step_set[1042]" id="step_set_1042" value="2" size="1" maxlength="2">
+			<img id="error_icon_step_number" style="visibility: hidden;" src="gui/themes/default/images//error.gif" alt="error condition detected" title="error condition detected" width="1" height="1">
+			</span>2
+		</td>
+		<td><p>Validar en la interfaz el mensaje o estado mostrado tras la operación.</p></td>
+		<td><p>El mensaje o estado coincide con el resultado esperado del caso.</p></td>
+		
+			</tr>
+		<tr id="step_row_3">
+		<td style="text-align:left;">
+			<span class="order_info" style="display:none">
+			<input type="text" name="step_set[1043]" id="step_set_1043" value="3" size="1" maxlength="2">
+			<img id="error_icon_step_number" style="visibility: hidden;" src="gui/themes/default/images//error.gif" alt="error condition detected" title="error condition detected" width="1" height="1">
+			</span>3
+		</td>
+		<td><p>Revisar logs o la base de datos relacionada (si aplica) para confirmar la operación.</p></td>
+		<td><p>Los registros muestran la operación correcta sin errores adicionales.</p></td>
+		
+			</tr>
+		<tr id="step_row_4">
+		<td style="text-align:left;">
+			<span class="order_info" style="display:none">
+			<input type="text" name="step_set[1044]" id="step_set_1044" value="4" size="1" maxlength="2">
+			<img id="error_icon_step_number" style="visibility: hidden;" src="gui/themes/default/images//error.gif" alt="error condition detected" title="error condition detected" width="1" height="1">
+			</span>4
+		</td>
+		<td><p>Comprobar que no se generaron efectos colaterales en otros registros o módulos.</p></td>
+		<td><p>No se detectan efectos colaterales y los demás registros permanecen intactos.</p></td>
+		
+			</tr>
+		<tr id="step_row_5">
+		<td style="text-align:left;">
+			<span class="order_info" style="display:none">
+			<input type="text" name="step_set[1045]" id="step_set_1045" value="5" size="1" maxlength="2">
+			<img id="error_icon_step_number" style="visibility: hidden;" src="gui/themes/default/images//error.gif" alt="error condition detected" title="error condition detected" width="1" height="1">
+			</span>5
+		</td>
+		<td><p>Registrar evidencia (capturas, logs) y actualizar el resultado del caso en TestLink.</p></td>
+		<td><p>La evidencia queda almacenada y el resultado del caso se documenta correctamente.</p></td>
+		
+			</tr>
+		  	<tr>
+		  <td colspan="4">
+		         
+			</td>
+		</tr>
+ 
+  	<tr>
+          	               
+    
+
+		  <td colspan="4">
+       
+			</td>
+		</tr>
+ 		
+		<tr>
+			<td colspan="4">
+						</td>
+		</tr>
+		</tbody></table>
+		<b class="niftycorners" style="margin-left: -12px; margin-right: -12px; background: rgb(204, 221, 238); margin-top: 7px;"><b class="r4" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b><b class="r3" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b><b class="r2" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b><b class="r1" style="background-color: rgb(255, 255, 204); border-color: rgb(229, 238, 221);"></b></b></div>
+     	  	<hr>
+	</div>
+  
+	
+            
+</form>
+</div>
+
+
+																																</body></html>

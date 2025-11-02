@@ -4,26 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Clientes - Seguros Fianzas VILLALOBOS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'gold': {
-                            400: '#F4D03F',
-                            500: '#D4AF37',
-                            600: '#B7950B'
-                        },
-                        'navy': {
-                            700: '#1B4F72',
-                            600: '#2E86AB'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="../assets/css/output.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -80,6 +61,17 @@
         .table-row:hover {
             background-color: rgba(212, 175, 55, 0.1);
         }
+
+        .dropzone {
+            border: 2px dashed #D4AF37;
+            background-color: #ffffff;
+        }
+
+        .dropzone.dropzone-active {
+            border-color: #B7950B;
+            background-color: rgba(212, 175, 55, 0.08);
+        }
+
     </style>
 </head>
 <body class="bg-gray-50">
@@ -218,6 +210,7 @@
                 <p class="mt-2 text-sm text-gray-500">Cargando clientes...</p>
             </div>
         </div>
+
     </div>
 
     <!-- Modal: Add/Edit Cliente -->
@@ -353,6 +346,118 @@
                     </div>
                 </div>
 
+                <!-- Documentos opcionales -->
+                <div class="mt-6 border-t pt-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-navy-700">Documentos del cliente (opcional)</h3>
+                            <p class="text-sm text-gray-500">
+                                Agrega archivos de referencia mientras registras o editas al cliente.
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            id="btnOpenFilePicker"
+                            class="hidden md:inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            <svg class="w-5 h-5 text-navy-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4-4-4-4m6 8h10m0 0V4m0 12v4"></path>
+                            </svg>
+                            Seleccionar archivos
+                        </button>
+                    </div>
+
+                    <div
+                        id="documentDropzone"
+                        class="dropzone rounded-xl px-6 py-10 text-center cursor-pointer transition-colors"
+                    >
+                        <input type="file" id="inputDocumentoFiles" class="hidden" multiple>
+                        <div class="flex flex-col items-center gap-3">
+                            <svg class="w-10 h-10 text-gold-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v12m0 0l-3-3m3 3l3-3M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">
+                                    Arrastra aquí los archivos o haz clic para seleccionarlos
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Se guardarán dentro del expediente del cliente. Tamaño máximo por archivo: 10 MB.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="documentDraftList" class="mt-4 space-y-3 hidden"></div>
+
+                    <div id="documentExistingContainer" class="mt-6 hidden">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-3">Documentos ya guardados</h4>
+                        <div id="documentExistingList" class="space-y-3"></div>
+                    </div>
+
+                    <template id="documentExistingTemplate">
+                        <div class="border border-gray-200 rounded-lg px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800 existing-file-name"></p>
+                                <p class="text-xs text-gray-500 existing-file-meta"></p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <button
+                                    type="button"
+                                    class="existing-download-btn text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                >
+                                    Descargar
+                                </button>
+                                <button
+                                    type="button"
+                                    class="existing-remove-btn text-red-600 hover:text-red-800 text-sm font-medium"
+                                >
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template id="documentDraftTemplate">
+                        <div class="border border-gray-200 rounded-lg px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:gap-4">
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-800 truncate draft-file-name"></p>
+                                <p class="text-xs text-gray-500 draft-file-path break-all"></p>
+                                <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs uppercase tracking-wide text-gray-500 mb-1">
+                                            Tipo de documento
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="draft-input-tipo w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold-500 text-sm"
+                                            placeholder="INE, comprobante, contrato..."
+                                        >
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs uppercase tracking-wide text-gray-500 mb-1">
+                                            Nombre de archivo
+                                        </label>
+                                        <input
+                                            type="text"
+                                            class="draft-input-nombre w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gold-500 text-sm"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                class="draft-remove-btn text-red-600 hover:text-red-800 text-sm font-medium flex-shrink-0"
+                            >
+                                Quitar
+                            </button>
+                        </div>
+                    </template>
+
+                    <div id="documentEmptyHint" class="mt-4 text-sm text-gray-500">
+                        No has agregado archivos. Puedes continuar así o adjuntarlos más tarde desde la edición del cliente.
+                    </div>
+                </div>
+
                 <!-- Form Actions -->
                 <div class="flex justify-end gap-3 mt-6">
                     <button
@@ -374,6 +479,17 @@
     </div>
 
     <!-- Scripts -->
+    <!-- Toast Manager -->
+    <script src="../assets/js/toast-manager.js"></script>
+    <!-- Confirm Modal -->
+    <script src="../assets/js/confirm-modal.js"></script>
+    <!-- Loading Spinner -->
+    <script src="../assets/js/loading-spinner.js"></script>
+    <!-- Form Validator -->
+    <script src="../assets/js/form-validator.js"></script>
+    <!-- Tooltip Manager -->
+    <script src="../assets/js/tooltip-manager.js"></script>
+
     <script src="../controllers/clientes_controller.js"></script>
     <script>
         // Initialize when DOM is loaded

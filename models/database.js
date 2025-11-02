@@ -25,6 +25,7 @@ class DatabaseManager {
             const buffer = fs.readFileSync(this.dbPath);
             this.db = new this.SQL.Database(buffer);
             console.log('✅ Base de datos cargada desde archivo');
+            await this._migrateIfNeeded();
         } else {
             this.db = new this.SQL.Database();
             console.log('🔧 Creando nueva base de datos...');
@@ -32,6 +33,44 @@ class DatabaseManager {
         }
 
         return this;
+    }
+
+    _columnExists(table, column) {
+        try {
+            const info = this.query(`PRAGMA table_info(${table})`);
+            return info.some(col => col.name === column);
+        } catch (error) {
+            console.warn(`No se pudo inspeccionar la tabla ${table}:`, error.message);
+            return false;
+        }
+    }
+
+    async _migrateIfNeeded() {
+        const needsReciboMigration = !this._columnExists('Recibo', 'fecha_inicio_periodo');
+        const needsPolizaMigration = !this._columnExists('Poliza', 'prima_neta');
+
+        if (needsReciboMigration || needsPolizaMigration) {
+            console.warn('⚠️  Se detectó un esquema antiguo. Se regenerará la base de datos con el schema v2.');
+
+            try {
+                if (fs.existsSync(this.dbPath)) {
+                    const backupPath = this.dbPath + '.bak';
+                    fs.copyFileSync(this.dbPath, backupPath);
+                    console.log(`📦 Respaldo creado: ${path.basename(backupPath)}`);
+                }
+            } catch (error) {
+                console.error('No se pudo crear respaldo de la base de datos:', error.message);
+            }
+
+            try {
+                this.db.close();
+            } catch (error) {
+                console.warn('Error al cerrar base de datos previa:', error.message);
+            }
+
+            this.db = new this.SQL.Database();
+            await this._createSchema();
+        }
     }
 
     async _createSchema() {
@@ -158,14 +197,22 @@ class DatabaseManager {
             const stmt = this.db.prepare(query);
             stmt.bind(params);
             stmt.step();
+
+            const changes = this.db.getRowsModified();
+            const lastIdExec = this.db.exec('SELECT last_insert_rowid() AS id');
+            const lastInsertRowid =
+                lastIdExec.length && lastIdExec[0].values.length
+                    ? lastIdExec[0].values[0][0]
+                    : 0;
+
             stmt.free();
 
             // Guardar cambios en disco
             this._saveToDisk();
 
             return {
-                changes: this.db.getRowsModified(),
-                lastInsertRowid: this.queryOne('SELECT last_insert_rowid() as id').id
+                changes,
+                lastInsertRowid
             };
         } catch (error) {
             console.error('Error en execute:', error.message);
@@ -220,7 +267,7 @@ class DatabaseManager {
             const polizasVencen7dias = this.queryOne(`
                 SELECT COUNT(*) as total FROM Poliza
                 WHERE activo = 1
-                AND DATE(fecha_fin) BETWEEN DATE('now') AND DATE('now', '+7 days')
+                AND DATE(vigencia_fin) BETWEEN DATE('now') AND DATE('now', '+7 days')
             `);
 
             // Cobros pendientes (suma de recibos no pagados)
@@ -228,7 +275,7 @@ class DatabaseManager {
                 SELECT COALESCE(SUM(r.monto), 0) as total
                 FROM Recibo r
                 JOIN Poliza p ON r.poliza_id = p.poliza_id
-                WHERE r.pagado = 0 AND p.activo = 1
+                WHERE r.estado = 'pendiente' AND p.activo = 1
             `);
 
             // Clientes nuevos del mes actual
@@ -265,19 +312,19 @@ class DatabaseManager {
                 SELECT
                     p.poliza_id,
                     p.numero_poliza,
-                    p.fecha_fin,
+                    p.vigencia_fin,
                     c.nombre AS cliente_nombre,
                     a.nombre AS aseguradora_nombre,
                     r.nombre AS ramo_nombre,
-                    CAST(JULIANDAY(p.fecha_fin) - JULIANDAY('now') AS INTEGER) AS dias_para_vencer
+                    CAST(JULIANDAY(p.vigencia_fin) - JULIANDAY('now') AS INTEGER) AS dias_para_vencer
                 FROM Poliza p
                 LEFT JOIN Cliente c ON p.cliente_id = c.cliente_id
                 LEFT JOIN Aseguradora a ON p.aseguradora_id = a.aseguradora_id
                 LEFT JOIN Ramo r ON p.ramo_id = r.ramo_id
                 WHERE p.activo = 1
-                AND DATE(p.fecha_fin) >= DATE('now')
-                AND DATE(p.fecha_fin) <= DATE('now', '+30 days')
-                ORDER BY p.fecha_fin ASC
+                AND DATE(p.vigencia_fin) >= DATE('now')
+                AND DATE(p.vigencia_fin) <= DATE('now', '+30 days')
+                ORDER BY p.vigencia_fin ASC
             `);
         } catch (error) {
             console.error('Error al obtener pólizas con alertas:', error.message);

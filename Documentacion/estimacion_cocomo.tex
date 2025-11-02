@@ -1,0 +1,172 @@
+\documentclass[12pt]{article}
+\usepackage[spanish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
+\geometry{margin=2.5cm}
+
+\title{Estimaci\'on de esfuerzo y costo con COCOMO}
+\author{Equipo de desarrollo}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Contexto del proyecto}
+El sistema de gesti\'on de seguros se desarrolla con Electron siguiendo una arquitectura MVC (Model-View-Controller). 
+El alcance actual considera controladores, modelos y vistas para autenticaci\'on, cat\'alogos, clientes, p\'olizas, recibos y documentos. 
+El objetivo de este documento es dejar trazabilidad de los supuestos y resultados de la estimaci\'on de esfuerzo y costo aplicando el modelo COCOMO (Constructive Cost Model) b\'asico.
+
+\section{Datos de entrada}
+Se realiz\'o un conteo de l\'ineas de c\'odigo (LOC, por sus siglas en ingl\'es) con la utiler\'ia \texttt{wc -l} sobre los directorios de trabajo (\texttt{controllers}, \texttt{models} y \texttt{views}), excluyendo dependencias externas.
+Los resultados se resumen en la Tabla~\ref{tab:loc}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l r}
+        \toprule
+        Componente & LOC (l\'ineas de c\'odigo) \\
+        \midrule
+        Controladores & 3\,480 \\
+        Modelos & 2\,374 \\
+        Vistas & 2\,877 \\
+        \midrule
+        Total & 8\,731 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Conteo aproximado de l\'ineas fuente entregables.}
+    \label{tab:loc}
+\end{table}
+
+El conteo total equivale a $KLOC = 8.731$ (miles de l\'ineas de c\'odigo). 
+El c\'odigo HTML (HyperText Markup Language) y CSS (Cascading Style Sheets) de las vistas se consider\'o parte del producto entregable al cliente interno, por lo que se incluye en el c\'alculo.
+
+\subsection{Puntos funcionales}
+Adem\'as del conteo en l\'ineas, se catalogaron 15 puntos funcionales (PF, \textit{Functional Points}) a partir de los requerimientos documentados: autenticaci\'on, gesti\'on de clientes, p\'olizas, recibos, cat\'alogos, auditor\'ia y documentos.
+La secci\'on~\ref{sec:factores-funcionales} detalla la valoraci\'on de los factores de influencia asociados a estos PF.
+
+\section{Selecci\'on del modo COCOMO}
+Se elige el modo \emph{org\'anico} del COCOMO b\'asico por las siguientes razones:
+\begin{itemize}
+    \item El alcance descrito en \textit{ESPECIFICACIONES\_COMPLETAS.md} se limita a operaciones CRUD (Create, Read, Update, Delete) locales para un corredor de seguros, sin integraciones externas ni requisitos de escalamiento.
+    \item El equipo de desarrollo est\'a conformado por cuatro estudiantes sin experiencia profesional previa, lo que alinea con las premisas del modo org\'anico.
+    \item El sistema se desplegar\'a en una sola estaci\'on de trabajo y se anticipa una comunicaci\'on directa con el usuario final, caracter\'istica prevista en el modo org\'anico.
+\end{itemize}
+
+Los coeficientes empleados son los propuestos por Boehm para dicho modo: $a = 2.4$, $b = 1.05$, $c = 2.5$ y $d = 0.38$.
+
+\section{Resultados}
+El esfuerzo estimado en meses-persona (PM) es
+\[
+E = a \times (KLOC)^{b} = 2.4 \times (8.731)^{1.05} = 23.35 \text{ PM}.
+\]
+
+El tiempo de desarrollo en meses resulta de
+\[
+T = c \times (E)^{d} = 2.5 \times (23.35)^{0.38} = 8.28 \text{ meses}.
+\]
+
+El tama\~no promedio del equipo requerido es
+\[
+P = \frac{E}{T} = \frac{23.35}{8.28} = 2.82 \text{ personas}.
+\]
+
+Para valorar el costo se asume un estipendio de \$20\,000 MXN (pesos mexicanos) por mes-persona acorde a un equipo estudiantil que opera en un entorno local, sin costos corporativos adicionales. 
+Con este supuesto el costo directo estimado es
+\[
+\begin{aligned}
+C &= E \times 20\,000 = \$467\,045 \text{ MXN} \\
+  &\approx \$27\,473 \text{ USD (d\'olares estadounidenses) (@ 1 USD = 17 MXN)}.
+\end{aligned}
+\]
+
+La Tabla~\ref{tab:resumen} resume los indicadores principales.
+Adicionalmente, al disponer de cuatro desarrolladores a tiempo completo, el calendario podr\'ia acortarse a $E / 4 = 5.84$ meses, mientras que con una persona dedicada el esfuerzo implicar\'ia aproximadamente $23.35$ meses de trabajo.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l r}
+        \toprule
+        Indicador & Valor \\
+        \midrule
+        Esfuerzo & 23.35 PM \\
+        Duraci\'on & 8.28 meses \\
+        Tama\~no del equipo & 2.82 personas \\
+        Costo estimado & \$467\,045 MXN \\
+        \bottomrule
+    \end{tabular}
+    \caption{Resumen de la estimaci\'on COCOMO en modo org\'anico.}
+    \label{tab:resumen}
+\end{table}
+
+\section{Escenarios alternos}
+Se analiz\'o la sensibilidad del modelo ante variaciones de $\pm 10\%$ en el KLOC, manteniendo los mismos coeficientes. 
+Los resultados se muestran en la Tabla~\ref{tab:escenarios}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l r r r r}
+        \toprule
+        Escenario & KLOC & Esfuerzo (PM) & Duraci\'on (meses) & Costo (MXN) \\
+        \midrule
+        Conservador (-10\%) & 7.86 & 20.91 & 7.94 & \$418\,132 \\
+        Base & 8.73 & 23.35 & 8.28 & \$467\,045 \\
+        Ambicioso (+10\%) & 9.60 & 25.81 & 8.60 & \$516\,203 \\
+        \bottomrule
+    \end{tabular}
+    \caption{Sensibilidad del esfuerzo y costo ante variaciones en el tama\~no.}
+    \label{tab:escenarios}
+\end{table}
+
+\section{Factores de ajuste por puntos funcionales}
+\label{sec:factores-funcionales}
+El conteo de 15 PF se ajust\'o aplicando los 15 factores de influencia sugeridos por IFPUG (International Function Point Users Group), calificando cada uno en la escala de 0 (no aplica) a 5 (influencia fuerte). 
+La Tabla~\ref{tab:factores} resume la calificaci\'on y el criterio usado para este proyecto.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{>{\raggedright\arraybackslash}p{5cm} c >{\raggedright\arraybackslash}p{7cm}}
+        \toprule
+        Factor & Calificaci\'on & Justificaci\'on \\
+        \midrule
+        Comunicaci\'on de datos & 1 & El sistema opera offline y s\'olo comparte datos mediante reportes locales. \\
+        Procesamiento distribuido & 0 & No hay servidores remotos ni componentes distribuidos. \\
+        Rendimiento & 1 & El volumen de usuarios y datos es bajo; se requiere respuesta adecuada en una sola estaci\'on. \\
+        Configuraci\'on de hardware & 1 & Se ejecuta en equipo tipo oficina, con requisitos modestos descritos en la documentaci\'on. \\
+        Volumen de transacciones & 1 & El flujo diario de altas y consultas es reducido y manual. \\
+        Entrada de datos en l\'inea & 2 & Formularios interactivos para clientes, p\'olizas y recibos. \\
+        Eficiencia para el usuario final & 2 & Se dise\~na una interfaz amigable, pero para una sola persona operadora. \\
+        Actualizaci\'on en l\'inea & 1 & Las actualizaciones se aplican localmente sin sincronizaci\'on externa. \\
+        Complejidad de procesamiento & 1 & Predominan operaciones CRUD con validaciones b\'asicas y c\'alculos sencillos. \\
+        Reusabilidad & 1 & Componentes reutilizables dentro del MVC, pero sin plan de reaprovechamiento en otros proyectos. \\
+        Facilidad de instalaci\'on & 3 & Se prioriza un instalador sencillo y aut\'onomo para el usuario final. \\
+        Facilidad de operaci\'on & 2 & Se requieren ayudas contextualizadas, pero el flujo operativo es lineal. \\
+        M\'ultiples sitios & 0 & El despliegue es exclusivo para la oficina del corredor. \\
+        Facilidad de cambios & 2 & Arquitectura modular que facilita ajustes futuros para el negocio. \\
+        Seguridad y control de acceso & 2 & Autenticaci\'on local con control de sesiones y resguardo de datos personales. \\
+        \bottomrule
+    \end{tabular}
+    \caption{Calificaci\'on de los 15 factores de influencia para el ajuste de PF.}
+    \label{tab:factores}
+\end{table}
+
+La suma de las calificaciones es $20$, por lo que el factor de valor de ajuste (VAF) se calcula como
+\[
+\mathrm{VAF} = 0.65 + 0.01 \times 20 = 0.85.
+\]
+Tomando los puntos funcionales no ajustados (Unadjusted Function Points, UFP) $= 15$, el puntaje funcional ajustado (Adjusted Function Points, AFP) resulta
+\[
+\mathrm{AFP} = UFP \times \mathrm{VAF} = 15 \times 0.85 = 12.75.
+\]
+Este valor se utilizar\'a como referencia para futuros refinamientos del tamaño funcional y su relaci\'on con los estimados obtenidos por COCOMO.
+
+\section{Recomendaciones}
+\begin{itemize}
+    \item Validar el conteo de l\'ineas con una herramienta especializada (p.~ej. \texttt{cloc}) para refinar la base KLOC.
+    \item Ajustar el costo mensual si se conocen salarios reales del equipo o si se desea incluir gastos corporativos adicionales.
+    \item Revisar factores de costo (COCOMO intermedio) cuando se cuente con informaci\'on sobre fiabilidad requerida, restricciones de hardware o experiencia del equipo.
+\end{itemize}
+
+\end{document}

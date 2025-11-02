@@ -1,12 +1,201 @@
 // ipc-handlers.js
 // Handlers IPC para comunicación con el frontend
 
-const { ipcMain } = require('electron');
+const { ipcMain, dialog, shell, app } = require('electron');
+const path = require('path');
+const fs = require('fs');
+const fsp = fs.promises;
+
+let documentsRootCache = null;
+
+function getDocumentsRoot() {
+    if (!documentsRootCache) {
+        documentsRootCache = path.join(app.getPath('userData'), 'documentos');
+    }
+    return documentsRootCache;
+}
+
+function ensureDocumentsRoot() {
+    const root = getDocumentsRoot();
+    if (!fs.existsSync(root)) {
+        fs.mkdirSync(root, { recursive: true });
+    }
+}
+
+function sanitizeSegment(segment) {
+    return segment.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+}
+
+function sanitizeFilename(name) {
+    const parsed = path.parse(name || '');
+    const base = sanitizeSegment((parsed.name || 'documento').trim() || 'documento');
+    const ext = (parsed.ext || '').replace(/[^.\w-]/g, '');
+    return `${base}${ext}`.slice(0, 180);
+}
+
+function sanitizePathSegments(rawPath) {
+    if (!rawPath || typeof rawPath !== 'string') {
+        return [];
+    }
+    return rawPath
+        .replace(/\\/g, '/')
+        .split('/')
+        .map(segment => segment.trim())
+        .filter(segment => segment && segment !== '.' && segment !== '..')
+        .map(sanitizeSegment);
+}
+
+function buildRelativePath(clienteId, rutaRelativa, nombreArchivo) {
+    const segments = sanitizePathSegments(rutaRelativa);
+    if (!segments.length && clienteId) {
+        segments.push('clientes', String(clienteId));
+    }
+
+    if (segments.length) {
+        const last = segments[segments.length - 1];
+        if (last.includes('.')) {
+            segments[segments.length - 1] = sanitizeFilename(last);
+        } else {
+            segments.push(sanitizeFilename(nombreArchivo));
+        }
+    } else {
+        segments.push(sanitizeFilename(nombreArchivo));
+    }
+
+    return segments.join('/');
+}
+
+function normalizeRelativePath(relativePath) {
+    const segments = sanitizePathSegments(relativePath);
+    if (!segments.length) {
+        throw new Error('No se pudo determinar la ruta del documento.');
+    }
+    return segments.join('/');
+}
+
+function ensureUniqueRelativePath(relativePath) {
+    let candidate = normalizeRelativePath(relativePath);
+    const ext = path.extname(candidate);
+    const baseName = path.basename(candidate, ext);
+    const dir = path.dirname(candidate);
+    let counter = 1;
+
+    const root = getDocumentsRoot();
+
+    while (fs.existsSync(path.join(root, candidate))) {
+        const suffixed = `${baseName}_${counter}${ext}`;
+        candidate = dir && dir !== '.'
+            ? path.join(dir, suffixed)
+            : suffixed;
+        candidate = candidate.replace(/\\/g, '/');
+        counter += 1;
+    }
+
+    return candidate;
+}
+
+function resolveDocumentAbsolutePath(rutaRelativa) {
+    if (!rutaRelativa) {
+        return null;
+    }
+
+    const sanitized = sanitizePathSegments(rutaRelativa).join('/');
+    const root = getDocumentsRoot();
+
+    if (sanitized) {
+        const candidate = path.join(root, sanitized);
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+
+    if (path.isAbsolute(rutaRelativa) && fs.existsSync(rutaRelativa)) {
+        return rutaRelativa;
+    }
+
+    const cwdCandidate = path.resolve(process.cwd(), rutaRelativa);
+    if (fs.existsSync(cwdCandidate)) {
+        return cwdCandidate;
+    }
+
+    return null;
+}
+
+async function ensureUniqueTarget(baseDir, relativePath) {
+    let candidate = normalizeRelativePath(relativePath);
+    const ext = path.extname(candidate);
+    const baseName = path.basename(candidate, ext);
+    const dir = path.dirname(candidate);
+    let counter = 1;
+
+    while (fs.existsSync(path.join(baseDir, candidate))) {
+        const suffixed = `${baseName}_${counter}${ext}`;
+        candidate = dir && dir !== '.'
+            ? path.join(dir, suffixed)
+            : suffixed;
+        candidate = candidate.replace(/\\/g, '/');
+        counter += 1;
+    }
+
+    return candidate;
+}
 
 /**
  * Registrar todos los handlers IPC
  */
-function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
+function registerIPCHandlers(dbManager, models) {
+    const {
+        userModel,
+        clienteModel,
+        polizaModel,
+        reciboModel,
+        documentoModel,
+        catalogosModel,
+        auditoriaModel
+    } = models;
+
+    ensureDocumentsRoot();
+
+    // ============================================
+    // DIÁLOGOS DEL SISTEMA
+    // ============================================
+    ipcMain.handle('dialog:openFile', async (event, options = {}) => {
+        try {
+            const dialogOptions = {
+                properties: ['openFile'],
+                ...options
+            };
+
+            if (!dialogOptions.properties) {
+                dialogOptions.properties = ['openFile'];
+            }
+
+            const result = await dialog.showOpenDialog(dialogOptions);
+            return result;
+        } catch (error) {
+            console.error('Error al abrir diálogo de archivo:', error);
+            return { canceled: true, filePaths: [], error: error.message };
+        }
+    });
+
+    ipcMain.handle('dialog:selectDirectory', async (event, options = {}) => {
+        try {
+            const dialogOptions = {
+                properties: ['openDirectory', 'createDirectory'],
+                ...options
+            };
+
+            if (!dialogOptions.properties) {
+                dialogOptions.properties = ['openDirectory', 'createDirectory'];
+            }
+
+            const result = await dialog.showOpenDialog(dialogOptions);
+            return result;
+        } catch (error) {
+            console.error('Error al abrir diálogo de carpeta:', error);
+            return { canceled: true, filePaths: [], error: error.message };
+        }
+    });
 
     // ============================================
     // CLIENTES
@@ -23,10 +212,10 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
         }
     });
 
-    // Buscar clientes por nombre
-    ipcMain.handle('clientes:search', async (event, nombre) => {
+    // Buscar clientes por nombre o RFC
+    ipcMain.handle('clientes:search', async (event, term) => {
         try {
-            const clientes = clienteModel.searchByName(nombre);
+            const clientes = clienteModel.search(term);
             return { success: true, data: clientes };
         } catch (error) {
             console.error('Error al buscar clientes:', error);
@@ -113,6 +302,17 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
         }
     });
 
+    // Obtener recibos de una póliza
+    ipcMain.handle('polizas:getRecibos', async (event, polizaId) => {
+        try {
+            const recibos = reciboModel.getByPoliza(polizaId);
+            return { success: true, data: recibos };
+        } catch (error) {
+            console.error('Error al obtener recibos:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
     // Crear póliza
     ipcMain.handle('polizas:create', async (event, polizaData) => {
         try {
@@ -125,13 +325,32 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
         }
     });
 
-    // Obtener recibos de una póliza
-    ipcMain.handle('polizas:getRecibos', async (event, polizaId) => {
+    // Actualizar póliza
+    ipcMain.handle('polizas:update', async (event, polizaId, polizaData) => {
         try {
-            const recibos = polizaModel.getRecibos(polizaId);
-            return { success: true, data: recibos };
+            const updated = polizaModel.update(polizaId, polizaData);
+            if (updated) {
+                console.log('✅ Póliza actualizada:', polizaId);
+                return { success: true };
+            }
+            return { success: false, message: 'Póliza no encontrada' };
         } catch (error) {
-            console.error('Error al obtener recibos:', error);
+            console.error('Error al actualizar póliza:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Eliminar póliza (soft delete)
+    ipcMain.handle('polizas:delete', async (event, polizaId) => {
+        try {
+            const deleted = polizaModel.delete(polizaId);
+            if (deleted) {
+                console.log('✅ Póliza eliminada:', polizaId);
+                return { success: true };
+            }
+            return { success: false, message: 'Póliza no encontrada' };
+        } catch (error) {
+            console.error('Error al eliminar póliza:', error);
             return { success: false, message: error.message };
         }
     });
@@ -139,7 +358,7 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
     // Marcar recibo como pagado
     ipcMain.handle('recibos:marcarPagado', async (event, reciboId, fechaPago = null) => {
         try {
-            const updated = polizaModel.marcarReciboPagado(reciboId, fechaPago);
+            const updated = reciboModel.registrarPago(reciboId, fechaPago);
             if (updated) {
                 console.log('✅ Recibo marcado como pagado:', reciboId);
                 return { success: true };
@@ -174,13 +393,86 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
     });
 
     // ============================================
+    // RECIBOS CRUD
+    // ============================================
+    ipcMain.handle('recibos:list', async (event, filters = {}) => {
+        try {
+            const recibos = reciboModel.list(filters);
+            return { success: true, data: recibos };
+        } catch (error) {
+            console.error('Error al listar recibos:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('recibos:getById', async (event, reciboId) => {
+        try {
+            const recibo = reciboModel.getById(reciboId);
+            return { success: true, data: recibo };
+        } catch (error) {
+            console.error('Error al obtener recibo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('recibos:getByPoliza', async (event, polizaId) => {
+        try {
+            const recibos = reciboModel.getByPoliza(polizaId);
+            return { success: true, data: recibos };
+        } catch (error) {
+            console.error('Error al obtener recibos de póliza:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('recibos:create', async (event, reciboData) => {
+        try {
+            const id = reciboModel.crearManual(reciboData);
+            return { success: true, data: { recibo_id: id } };
+        } catch (error) {
+            console.error('Error al crear recibo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('recibos:update', async (event, reciboId, reciboData) => {
+        try {
+            const updated = reciboModel.actualizar(reciboId, reciboData);
+            return { success: updated };
+        } catch (error) {
+            console.error('Error al actualizar recibo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('recibos:delete', async (event, reciboId) => {
+        try {
+            const deleted = reciboModel.eliminar(reciboId);
+            return { success: deleted };
+        } catch (error) {
+            console.error('Error al eliminar recibo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('recibos:cambiarEstado', async (event, reciboId, nuevoEstado) => {
+        try {
+            const updated = reciboModel.cambiarEstado(reciboId, nuevoEstado);
+            return { success: updated };
+        } catch (error) {
+            console.error('Error al cambiar estado del recibo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // ============================================
     // CATÁLOGOS
     // ============================================
 
     // Obtener aseguradoras
     ipcMain.handle('catalogos:getAseguradoras', async () => {
         try {
-            const aseguradoras = dbManager.query('SELECT * FROM Aseguradora WHERE activo = 1 ORDER BY nombre');
+            const aseguradoras = catalogosModel.listarAseguradoras(true);
             return { success: true, data: aseguradoras };
         } catch (error) {
             console.error('Error al obtener aseguradoras:', error);
@@ -191,7 +483,7 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
     // Obtener ramos
     ipcMain.handle('catalogos:getRamos', async () => {
         try {
-            const ramos = dbManager.query('SELECT * FROM Ramo WHERE activo = 1 ORDER BY nombre');
+            const ramos = catalogosModel.listarRamos(true);
             return { success: true, data: ramos };
         } catch (error) {
             console.error('Error al obtener ramos:', error);
@@ -202,7 +494,7 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
     // Obtener periodicidades
     ipcMain.handle('catalogos:getPeriodicidades', async () => {
         try {
-            const periodicidades = dbManager.query('SELECT * FROM Periodicidad ORDER BY meses');
+            const periodicidades = catalogosModel.listarPeriodicidades();
             return { success: true, data: periodicidades };
         } catch (error) {
             console.error('Error al obtener periodicidades:', error);
@@ -213,10 +505,257 @@ function registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel) {
     // Obtener métodos de pago
     ipcMain.handle('catalogos:getMetodosPago', async () => {
         try {
-            const metodos = dbManager.query('SELECT * FROM MetodoPago ORDER BY nombre');
+            const metodos = catalogosModel.listarMetodosPago();
             return { success: true, data: metodos };
         } catch (error) {
             console.error('Error al obtener métodos de pago:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:createAseguradora', async (event, nombre) => {
+        try {
+            const id = catalogosModel.crearAseguradora(nombre);
+            return { success: true, data: { aseguradora_id: id } };
+        } catch (error) {
+            console.error('Error al crear aseguradora:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:updateAseguradora', async (event, payload) => {
+        try {
+            const { aseguradora_id, nombre, activo } = payload;
+            const updated = catalogosModel.actualizarAseguradora(
+                aseguradora_id,
+                nombre,
+                activo
+            );
+            return { success: updated };
+        } catch (error) {
+            console.error('Error al actualizar aseguradora:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:createRamo', async (event, nombre, descripcion = null) => {
+        try {
+            const id = catalogosModel.crearRamo(nombre, descripcion);
+            return { success: true, data: { ramo_id: id } };
+        } catch (error) {
+            console.error('Error al crear ramo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:updateRamo', async (event, payload) => {
+        try {
+            const { ramo_id, nombre, descripcion, activo } = payload;
+            const updated = catalogosModel.actualizarRamo(
+                ramo_id,
+                nombre,
+                descripcion,
+                activo
+            );
+            return { success: updated };
+        } catch (error) {
+            console.error('Error al actualizar ramo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // ============================================
+    // DOCUMENTOS
+    // ============================================
+    ipcMain.handle('documentos:create', async (event, documentoData = {}) => {
+        try {
+            ensureDocumentsRoot();
+            const payload = { ...documentoData };
+
+            if (!payload.nombre_archivo && payload.source_path) {
+                payload.nombre_archivo = path.basename(payload.source_path);
+            }
+
+            const relativeCandidate = buildRelativePath(
+                payload.cliente_id,
+                payload.ruta_relativa,
+                payload.nombre_archivo
+            );
+
+            const relativeSegments = sanitizePathSegments(relativeCandidate);
+            if (!relativeSegments.length) {
+                throw new Error('La ruta proporcionada para el documento no es válida.');
+            }
+
+            const sanitizedFilename = sanitizeFilename(relativeSegments[relativeSegments.length - 1]);
+            relativeSegments[relativeSegments.length - 1] = sanitizedFilename;
+            let sanitizedRelative = relativeSegments.join('/');
+
+            payload.nombre_archivo = sanitizedFilename;
+            payload.ruta_relativa = sanitizedRelative;
+
+            if (payload.source_path) {
+                const sourcePath = payload.source_path;
+                if (!fs.existsSync(sourcePath)) {
+                    throw new Error('El archivo seleccionado no se encontró en el sistema.');
+                }
+
+                sanitizedRelative = ensureUniqueRelativePath(sanitizedRelative);
+                const absoluteTarget = path.join(getDocumentsRoot(), sanitizedRelative);
+
+                await fsp.mkdir(path.dirname(absoluteTarget), { recursive: true });
+                await fsp.copyFile(sourcePath, absoluteTarget);
+                payload.ruta_relativa = sanitizedRelative;
+                payload.nombre_archivo = sanitizeFilename(path.basename(sanitizedRelative));
+            }
+
+            delete payload.source_path;
+
+            const documento = documentoModel.create(payload);
+            console.log('✅ Documento registrado:', documento.documento_id);
+            return { success: true, data: documento };
+        } catch (error) {
+            console.error('Error al crear documento:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:getByCliente', async (event, clienteId) => {
+        try {
+            const documentos = documentoModel.getByCliente(clienteId);
+            return { success: true, data: documentos };
+        } catch (error) {
+            console.error('Error al listar documentos por cliente:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:getByPoliza', async (event, polizaId) => {
+        try {
+            const documentos = documentoModel.getByPoliza(polizaId);
+            return { success: true, data: documentos };
+        } catch (error) {
+            console.error('Error al listar documentos por póliza:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:delete', async (event, documentoId) => {
+        try {
+            const deleted = documentoModel.delete(documentoId);
+            return { success: deleted };
+        } catch (error) {
+            console.error('Error al eliminar documento:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:openFile', async (event, payload = {}) => {
+        try {
+            const { ruta_relativa } = payload;
+            const absolutePath = resolveDocumentAbsolutePath(ruta_relativa);
+            if (!absolutePath) {
+                throw new Error('No se encontró el archivo asociado al documento.');
+            }
+
+            const shellResult = await shell.openPath(absolutePath);
+            if (shellResult) {
+                throw new Error(shellResult);
+            }
+
+            return { success: true, path: absolutePath };
+        } catch (error) {
+            console.error('Error al abrir documento:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:exportCliente', async (event, payload = {}) => {
+        try {
+            const { cliente_id, destino } = payload;
+            if (!cliente_id) {
+                throw new Error('No se especificó el cliente a exportar.');
+            }
+            if (!destino) {
+                throw new Error('Selecciona una carpeta de destino.');
+            }
+
+            const documentos = documentoModel.getByCliente(cliente_id) || [];
+            if (!documentos.length) {
+                return { success: false, message: 'El cliente no tiene documentos registrados.' };
+            }
+
+            await fsp.mkdir(destino, { recursive: true });
+            const resumen = {
+                copiados: 0,
+                omitidos: []
+            };
+
+            for (const documento of documentos) {
+                const origenAbsoluto = resolveDocumentAbsolutePath(documento.ruta_relativa);
+                if (!origenAbsoluto) {
+                    resumen.omitidos.push({
+                        documento_id: documento.documento_id,
+                        nombre_archivo: documento.nombre_archivo,
+                        motivo: 'Archivo no encontrado'
+                    });
+                    continue;
+                }
+
+                const relativeDestino = await ensureUniqueTarget(
+                    destino,
+                    buildRelativePath(
+                        documento.cliente_id,
+                        documento.ruta_relativa,
+                        documento.nombre_archivo
+                    )
+                );
+                const destinoAbsoluto = path.join(destino, relativeDestino);
+                await fsp.mkdir(path.dirname(destinoAbsoluto), { recursive: true });
+                await fsp.copyFile(origenAbsoluto, destinoAbsoluto);
+                resumen.copiados += 1;
+            }
+
+            const message = resumen.omitidos.length
+                ? `Documentos exportados: ${resumen.copiados}. Omitidos: ${resumen.omitidos.length}.`
+                : 'Todos los documentos se exportaron correctamente.';
+
+            return { success: true, data: resumen, message };
+        } catch (error) {
+            console.error('Error al exportar documentos del cliente:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // ============================================
+    // AUDITORÍA
+    // ============================================
+    ipcMain.handle('auditoria:listarPorPoliza', async (event, polizaId, limit = 50) => {
+        try {
+            const registros = auditoriaModel.listarPorPoliza(polizaId, limit);
+            return { success: true, data: registros };
+        } catch (error) {
+            console.error('Error al obtener auditoría de póliza:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('auditoria:listarRecientes', async (event, limit = 50) => {
+        try {
+            const registros = auditoriaModel.listarRecientes(limit);
+            return { success: true, data: registros };
+        } catch (error) {
+            console.error('Error al obtener auditoría reciente:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('auditoria:registrar', async (event, auditoriaData) => {
+        try {
+            const id = auditoriaModel.registrarEntrada(auditoriaData);
+            return { success: true, data: { auditoria_id: id } };
+        } catch (error) {
+            console.error('Error al registrar auditoría:', error);
             return { success: false, message: error.message };
         }
     });

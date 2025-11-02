@@ -7,6 +7,10 @@ const { initDatabase } = require('./models/database');
 const UserModel = require('./models/user_model_sqljs');
 const ClienteModel = require('./models/cliente_model');
 const PolizaModel = require('./models/poliza_model');
+const ReciboModel = require('./models/recibo_model');
+const DocumentoModel = require('./models/documento_model');
+const CatalogosModel = require('./models/catalogos_model');
+const AuditoriaModel = require('./models/auditoria_model');
 const { registerIPCHandlers } = require('./ipc-handlers');
 
 let mainWindow;
@@ -14,6 +18,10 @@ let dbManager;
 let userModel;
 let clienteModel;
 let polizaModel;
+let reciboModel;
+let documentoModel;
+let catalogosModel;
+let auditoriaModel;
 
 function createWindow() {
     // Crear la ventana del navegador con tamaño inicial más grande
@@ -66,10 +74,25 @@ async function initializeApp() {
     userModel = new UserModel(dbManager);
     clienteModel = new ClienteModel(dbManager);
     polizaModel = new PolizaModel(dbManager);
-    console.log('✅ Modelos inicializados (User, Cliente, Poliza)\n');
+    reciboModel = new ReciboModel(dbManager);
+    documentoModel = new DocumentoModel(dbManager);
+    catalogosModel = new CatalogosModel(dbManager);
+    auditoriaModel = new AuditoriaModel(dbManager);
+    console.log('✅ Modelos inicializados (User, Cliente, Poliza, Recibo, Documento, Catálogos, Auditoría)\n');
 
     // 3. Registrar handlers IPC
-    registerIPCHandlers(dbManager, userModel, clienteModel, polizaModel);
+    registerIPCHandlers(
+        dbManager,
+        {
+            userModel,
+            clienteModel,
+            polizaModel,
+            reciboModel,
+            documentoModel,
+            catalogosModel,
+            auditoriaModel
+        }
+    );
 
     // 4. Crear la ventana (Vista)
     createWindow();
