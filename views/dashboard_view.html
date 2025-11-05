@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Seguros Fianzas VILLALOBOS</title>
     <link rel="stylesheet" href="../assets/css/output.css">
+    <!-- Optimizaciones de rendimiento para equipos de bajos recursos -->
+    <link rel="stylesheet" href="../assets/css/performance.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -107,6 +109,8 @@
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 600;
+            z-index: 100;
+            pointer-events: none;
         }
 
         body.theme-dark {
@@ -146,13 +150,6 @@
 
         .alerts-panel {
             transform-origin: top right;
-            transform: translateX(calc(-100% + 3.5rem));
-        }
-
-        @media (min-width: 768px) {
-            .alerts-panel {
-                transform: translateX(-55%);
-            }
         }
 
 
@@ -281,6 +278,7 @@
                         <div
                             id="alertsPanel"
                             class="hidden alerts-panel absolute right-0 mt-3 w-[32rem] max-h-96 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto z-50"
+                            style="top: 100%; transform: none !important;"
                         >
                             <div class="px-4 py-3 border-b border-gray-200">
                                 <h3 class="text-sm font-semibold text-navy-700">Alertas de pólizas</h3>

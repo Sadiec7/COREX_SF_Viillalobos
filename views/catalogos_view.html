@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogos - Seguros Fianzas VILLALOBOS</title>
     <link rel="stylesheet" href="../assets/css/output.css">
+    <!-- Optimizaciones de rendimiento para equipos de bajos recursos -->
+    <link rel="stylesheet" href="../assets/css/performance.css">
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -46,23 +48,27 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
-    <header class="bg-navy-700 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-            <div>
-                <h1 class="text-2xl font-bold">Gestión de Catálogos</h1>
-                <p class="text-sm text-blue-100">Administra las aseguradoras y los ramos disponibles en el sistema.</p>
-            </div>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="bg-navy-700 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
             <button
                 id="btnBack"
-                class="bg-white text-navy-700 font-semibold px-6 py-2 rounded-lg hover:bg-blue-50 transition-all"
+                class="bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-4 py-2 rounded-lg transition-all btn-hover text-lg"
             >
-                ← Regresar al Dashboard
+                ←
             </button>
         </div>
-    </header>
+    </div>
 
-    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+    <!-- Title Section -->
+    <div class="container mx-auto px-6 py-8">
+        <h1 class="text-3xl font-bold text-navy-700">Gestión de Catálogos</h1>
+        <p class="text-gray-600 mt-2">Administra aseguradoras, ramos y otros catálogos</p>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 pb-8 space-y-8">
         <!-- Aseguradoras -->
         <section class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between mb-6 flex-wrap gap-4">

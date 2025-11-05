@@ -97,6 +97,12 @@ class DatabaseManager {
             this.db.run(seeds);
             console.log('✅ Datos iniciales cargados');
 
+            // 3.5. Aplicar índices de rendimiento
+            const indexesPath = path.join(__dirname, '..', 'migration', 'performance_indexes.sql');
+            const indexes = fs.readFileSync(indexesPath, 'utf8');
+            this.db.run(indexes);
+            console.log('✅ Índices de rendimiento aplicados (optimización para equipos de bajos recursos)');
+
             // 4. Guardar BD en disco
             this._saveToDisk();
 

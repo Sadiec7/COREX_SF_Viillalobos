@@ -1,0 +1,146 @@
+/* ========================================================
+   OPTIMIZACIONES DE RENDIMIENTO PARA EQUIPOS DE BAJOS RECURSOS
+   Target: Intel Celeron N4120, 4GB RAM, Intel UHD 600
+   ESTRATEGIA: CERO ANIMACIONES para máximo rendimiento
+   ======================================================== */
+
+/* DESHABILITAR TODAS LAS ANIMACIONES Y TRANSICIONES GLOBALMENTE */
+*,
+*::before,
+*::after {
+    /* Eliminar TODAS las animaciones */
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    /* Forzar compositing solo cuando sea necesario */
+    will-change: auto !important;
+}
+
+/* DESHABILITAR animaciones para máximo rendimiento en equipos de bajos recursos */
+.metric-card,
+.nav-item,
+.modal,
+.fade-in-stagger {
+    /* Eliminar todas las transiciones */
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Desactivar animaciones complejas en hover para tarjetas */
+.metric-card::before {
+    /* Eliminar animación de brillo que consume GPU */
+    display: none !important;
+}
+
+.metric-card:hover {
+    /* SIN transformaciones - máximo rendimiento */
+    transform: none !important;
+    /* Sombra simple sin animación */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Optimizar navegación - SIN animaciones */
+.nav-item:hover {
+    /* Solo cambio de color, sin movimiento */
+    transform: none !important;
+}
+
+.nav-item.active {
+    /* Solo indicador visual, sin movimiento */
+    transform: none !important;
+}
+
+/* Eliminar completamente animaciones de entrada */
+.fade-in-stagger {
+    animation: none !important;
+    opacity: 1 !important;
+}
+
+/* Optimizar scroll suave */
+html {
+    scroll-behavior: auto; /* Desactivar scroll suave que puede consumir CPU */
+}
+
+/* Reducir repaints en scroll */
+.overflow-auto,
+.overflow-y-auto {
+    /* Forzar layer de composición para scroll */
+    transform: translateZ(0);
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Optimizar imágenes */
+img {
+    /* Mejorar rendimiento de imágenes */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Reducir blur y efectos que consumen GPU */
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+/* Optimizar modales */
+.modal {
+    /* Simplificar backdrop */
+    backdrop-filter: none !important;
+}
+
+/* Eliminar gradientes complejos - usar color sólido */
+.sidebar {
+    /* Color sólido en lugar de gradiente para reducir uso de GPU */
+    background: #1B4F72 !important;
+    background-image: none !important;
+}
+
+/* Eliminar todos los gradientes de fondos */
+[style*="gradient"],
+.bg-gradient {
+    background-image: none !important;
+}
+
+/* Performance hint para el navegador */
+body {
+    /* Indicar al navegador que priorice velocidad sobre calidad */
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Desactivar transiciones en dispositivos de bajo rendimiento */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Optimizar contenedores flex */
+.flex,
+.flex-1 {
+    /* Reducir cálculos de flex */
+    contain: layout style;
+}
+
+/* Limitar repaints en elementos que cambian frecuentemente */
+#currentTime,
+#currentDate {
+    contain: layout paint;
+}
+
+/* CORRECCIÓN: Panel de alertas debe aparecer justo debajo del botón */
+.alerts-panel,
+#alertsPanel {
+    transform: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    margin-top: 0.75rem !important;
+}

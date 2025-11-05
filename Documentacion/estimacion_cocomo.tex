@@ -51,29 +51,46 @@ La secci\'on~\ref{sec:factores-funcionales} detalla la valoraci\'on de los facto
 Se elige el modo \emph{org\'anico} del COCOMO b\'asico por las siguientes razones:
 \begin{itemize}
     \item El alcance descrito en \textit{ESPECIFICACIONES\_COMPLETAS.md} se limita a operaciones CRUD (Create, Read, Update, Delete) locales para un corredor de seguros, sin integraciones externas ni requisitos de escalamiento.
-    \item El equipo de desarrollo est\'a conformado por cuatro estudiantes sin experiencia profesional previa, lo que alinea con las premisas del modo org\'anico.
+    \item El proyecto presenta caracter\'isticas de baja complejidad con requerimientos estables y bien definidos. El ambiente de desarrollo es familiar y no se requiere innovaci\'on significativa.
     \item El sistema se desplegar\'a en una sola estaci\'on de trabajo y se anticipa una comunicaci\'on directa con el usuario final, caracter\'istica prevista en el modo org\'anico.
+    \item El tama\~no del proyecto (8.731 KLOC) se encuentra dentro del rango t\'ipico para proyectos org\'anicos (2-50 KLOC seg\'un la literatura).
 \end{itemize}
 
 Los coeficientes empleados son los propuestos por Boehm para dicho modo: $a = 2.4$, $b = 1.05$, $c = 2.5$ y $d = 0.38$.
 
 \section{Resultados}
-El esfuerzo estimado en meses-persona (PM) es
+\subsection{Escenario \'optimo seg\'un COCOMO}
+El modelo COCOMO calcula primero el escenario \'optimo de desarrollo, que minimiza costos y maximiza eficiencia.
+
+El esfuerzo total estimado en meses-persona (PM) es
 \[
 E = a \times (KLOC)^{b} = 2.4 \times (8.731)^{1.05} = 23.35 \text{ PM}.
 \]
 
-El tiempo de desarrollo en meses resulta de
+El tiempo de desarrollo \'optimo en meses resulta de
 \[
 T = c \times (E)^{d} = 2.5 \times (23.35)^{0.38} = 8.28 \text{ meses}.
 \]
 
-El tama\~no promedio del equipo requerido es
+El tama\~no \'optimo del equipo requerido es
 \[
 P = \frac{E}{T} = \frac{23.35}{8.28} = 2.82 \text{ personas}.
 \]
 
-Para valorar el costo se asume un estipendio de \$20\,000 MXN (pesos mexicanos) por mes-persona acorde a un equipo estudiantil que opera en un entorno local, sin costos corporativos adicionales. 
+\textbf{Interpretaci\'on:} COCOMO recomienda un equipo de \textbf{2.82 personas} trabajando durante \textbf{8.28 meses} como la configuraci\'on \'optima para este proyecto.
+
+\subsection{Ajuste seg\'un recursos disponibles}
+El equipo real disponible est\'a conformado por \textbf{4 desarrolladores} a tiempo completo. Con esta configuraci\'on, el tiempo de desarrollo ajustado ser\'ia:
+\[
+T_{\text{ajustado}} = \frac{E}{P_{\text{disponible}}} = \frac{23.35}{4} = 5.84 \text{ meses}.
+\]
+
+Esto representa una aceleraci\'on del 29\% respecto al tiempo \'optimo (de 8.28 a 5.84 meses), lo cual es razonable y no genera sobrecarga excesiva de comunicaci\'on o coordinaci\'on.
+
+Para referencia, con una sola persona dedicada, el desarrollo implicar\'ia aproximadamente $23.35$ meses de trabajo.
+
+\subsection{Costo estimado}
+Para valorar el costo se asume un estipendio de \$20\,000 MXN (pesos mexicanos) por mes-persona acorde a un equipo estudiantil que opera en un entorno local, sin costos corporativos adicionales.
 Con este supuesto el costo directo estimado es
 \[
 \begin{aligned}
@@ -82,43 +99,96 @@ C &= E \times 20\,000 = \$467\,045 \text{ MXN} \\
 \end{aligned}
 \]
 
-La Tabla~\ref{tab:resumen} resume los indicadores principales.
-Adicionalmente, al disponer de cuatro desarrolladores a tiempo completo, el calendario podr\'ia acortarse a $E / 4 = 5.84$ meses, mientras que con una persona dedicada el esfuerzo implicar\'ia aproximadamente $23.35$ meses de trabajo.
+\textbf{Nota:} El costo total se mantiene constante (23.35 personas-mes) independientemente de si se usan 2.82 o 4 personas, ya que representa el esfuerzo total necesario.
 
 \begin{table}[h]
     \centering
-    \begin{tabular}{l r}
+    \begin{tabular}{l r r}
         \toprule
-        Indicador & Valor \\
+        Indicador & Escenario \'optimo & Escenario real (4 personas) \\
         \midrule
-        Esfuerzo & 23.35 PM \\
-        Duraci\'on & 8.28 meses \\
-        Tama\~no del equipo & 2.82 personas \\
-        Costo estimado & \$467\,045 MXN \\
+        Esfuerzo total & 23.35 PM & 23.35 PM \\
+        Duraci\'on & 8.28 meses & 5.84 meses \\
+        Tama\~no del equipo & 2.82 personas & 4 personas \\
+        Costo estimado & \$467\,045 MXN & \$467\,045 MXN \\
         \bottomrule
     \end{tabular}
-    \caption{Resumen de la estimaci\'on COCOMO en modo org\'anico.}
+    \caption{Comparaci\'on entre el escenario \'optimo calculado por COCOMO y el escenario ajustado con recursos disponibles.}
     \label{tab:resumen}
 \end{table}
 
+\section{Limitaciones de escalabilidad: Ley de Brooks}
+Es importante comprender que \textbf{no se pueden agregar personas indefinidamente} para acelerar el desarrollo. Frederick Brooks estableci\'o en su obra \textit{The Mythical Man-Month} que:
+
+\begin{quote}
+\textit{``Agregar m\'as personas a un proyecto de software retrasado, lo retrasa a\'un m\'as.''}
+\end{quote}
+
+\subsection{Factores limitantes}
+Existen tres factores principales que limitan la escalabilidad del equipo:
+
+\begin{enumerate}
+    \item \textbf{Sobrecarga de comunicaci\'on:} El n\'umero de canales de comunicaci\'on crece como $n(n-1)/2$, donde $n$ es el n\'umero de personas. Con 4 personas hay 6 canales; con 8 personas, 28 canales.
+
+    \item \textbf{Tareas secuenciales:} No todas las tareas pueden paralelizarse. Algunas actividades (an\'alisis de requerimientos, dise\~no de arquitectura, integraci\'on) son inherentemente secuenciales.
+
+    \item \textbf{Tiempo de \textit{ramping}:} Nuevos miembros requieren tiempo para familiarizarse con el c\'odigo, procesos y dominio del problema, reduciendo temporalmente la productividad del equipo.
+\end{enumerate}
+
+\subsection{An\'alisis para el proyecto actual}
+En el caso de este proyecto:
+\begin{itemize}
+    \item \textbf{Configuraci\'on:} 4 personas vs 2.82 recomendadas = 42\% m\'as recursos
+    \item \textbf{Evaluaci\'on:} Este exceso es \textbf{razonable y manejable} para un proyecto de tama\~no peque\~no-mediano
+    \item \textbf{Riesgos:} La sobrecarga de comunicaci\'on es m\'inima con solo 4 desarrolladores (6 canales de comunicaci\'on)
+    \item \textbf{Recomendaci\'on:} Mantener comunicaci\'on estrecha mediante reuniones diarias cortas y documentaci\'on clara de interfaces entre componentes
+\end{itemize}
+
+Si se intentara acelerar a\'un m\'as agregando 8 o m\'as personas, la eficiencia podr\'ia verse comprometida por la sobrecarga de coordinaci\'on, especialmente en un proyecto con alcance relativamente acotado.
+
 \section{Escenarios alternos}
-Se analiz\'o la sensibilidad del modelo ante variaciones de $\pm 10\%$ en el KLOC, manteniendo los mismos coeficientes. 
+
+\subsection{Variaciones en el tama\~no del c\'odigo}
+Se analiz\'o la sensibilidad del modelo ante variaciones de $\pm 10\%$ en el KLOC, manteniendo los mismos coeficientes.
 Los resultados se muestran en la Tabla~\ref{tab:escenarios}.
 
 \begin{table}[h]
     \centering
     \begin{tabular}{l r r r r}
         \toprule
-        Escenario & KLOC & Esfuerzo (PM) & Duraci\'on (meses) & Costo (MXN) \\
+        Escenario & KLOC & Esfuerzo (PM) & Duraci\'on \'optima (meses) & Costo (MXN) \\
         \midrule
         Conservador (-10\%) & 7.86 & 20.91 & 7.94 & \$418\,132 \\
         Base & 8.73 & 23.35 & 8.28 & \$467\,045 \\
         Ambicioso (+10\%) & 9.60 & 25.81 & 8.60 & \$516\,203 \\
         \bottomrule
     \end{tabular}
-    \caption{Sensibilidad del esfuerzo y costo ante variaciones en el tama\~no.}
+    \caption{Sensibilidad del esfuerzo y costo ante variaciones en el tama\~no del c\'odigo.}
     \label{tab:escenarios}
 \end{table}
+
+\subsection{Variaciones en el tama\~no del equipo}
+Para el escenario base (8.73 KLOC, 23.35 PM de esfuerzo), se analizan diferentes configuraciones de equipo y su impacto en la duraci\'on del proyecto.
+La Tabla~\ref{tab:escenarios-equipo} muestra estos escenarios.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{l r r l}
+        \toprule
+        Configuraci\'on & Personas & Duraci\'on (meses) & Observaciones \\
+        \midrule
+        1 persona & 1 & 23.35 & Proyecto individual, muy extenso \\
+        \'Optimo COCOMO & 2.82 & 8.28 & Configuraci\'on \'optima recomendada \\
+        Equipo actual & 4 & 5.84 & Razonable, 42\% m\'as recursos \\
+        Equipo ampliado & 6 & 3.89 & Riesgo moderado de sobrecarga \\
+        Equipo grande & 8 & 2.92 & Alto riesgo de ineficiencia \\
+        \bottomrule
+    \end{tabular}
+    \caption{Impacto del tama\~no del equipo en la duraci\'on del proyecto (esfuerzo constante: 23.35 PM).}
+    \label{tab:escenarios-equipo}
+\end{table}
+
+\textbf{Interpretaci\'on:} Aunque matem\'aticamente es posible calcular duraciones menores con equipos m\'as grandes, en la pr\'actica la eficiencia disminuye significativamente con equipos superiores a 4-6 personas para proyectos de este tama\~no, debido a la Ley de Brooks explicada en la secci\'on anterior.
 
 \section{Factores de ajuste por puntos funcionales}
 \label{sec:factores-funcionales}

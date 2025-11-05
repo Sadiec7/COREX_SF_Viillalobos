@@ -2,6 +2,32 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 
+// ========== OPTIMIZACIONES PARA EQUIPOS DE BAJOS RECURSOS ==========
+// CPU: Intel Celeron N4120 @ 1.10GHz
+// RAM: 4 GB (3.82 GB utilizable)
+// GPU: Intel UHD Graphics 600 (512 MB)
+
+// 1. Deshabilitar animaciones innecesarias de Electron
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows', 'true');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+
+// 2. Optimizar uso de memoria
+app.commandLine.appendSwitch('js-flags', '--max-old-space-size=512'); // Limitar heap de V8 a 512MB
+app.commandLine.appendSwitch('disable-software-rasterizer');
+
+// 3. Reducir uso de GPU (importante para GPU integrada básica)
+app.commandLine.appendSwitch('disable-gpu-vsync');
+app.commandLine.appendSwitch('disable-gpu-shader-disk-cache');
+
+// 4. Optimizar carga de imágenes
+app.commandLine.appendSwitch('disable-blink-features', 'AutomationControlled');
+
+// 5. Reducir procesos en segundo plano
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
+
+// ====================================================================
+
 // Importar DatabaseManager y Modelos v2
 const { initDatabase } = require('./models/database');
 const UserModel = require('./models/user_model_sqljs');
@@ -24,7 +50,7 @@ let catalogosModel;
 let auditoriaModel;
 
 function createWindow() {
-    // Crear la ventana del navegador con tamaño inicial más grande
+    // Crear la ventana del navegador optimizada para bajo rendimiento
     mainWindow = new BrowserWindow({
         width: 500,
         height: 750,
@@ -33,14 +59,22 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, 'preload.js'),
+            // Optimizaciones para bajo rendimiento
+            backgroundThrottling: false,  // Evitar ralentización en segundo plano
+            enableWebSQL: false,  // Deshabilitar WebSQL (no se usa)
+            spellcheck: false,  // Deshabilitar corrector ortográfico
+            offscreen: false,  // Renderizado normal (no offscreen)
+            disableHardwareAcceleration: false  // Mantener aceleración por hardware para GPU
         },
         title: "Seguros Fianzas VILLALOBOS",
         icon: path.join(__dirname, 'icon.png'),  // Ícono de la app
         resizable: true,  // Permitir redimensionar
         show: false,
         maximizable: true,
-        minimizable: true
+        minimizable: true,
+        // Optimización de memoria
+        backgroundColor: '#f9fafb'  // Color de fondo para evitar flash blanco
     });
 
     // Cargar la vista de login
@@ -52,15 +86,35 @@ function createWindow() {
         mainWindow.center();
     });
 
+    // Optimización: Limpiar memoria cuando se minimiza (ayuda en equipos con poca RAM)
+    mainWindow.on('minimize', () => {
+        if (global.gc) {
+            global.gc();
+        }
+    });
+
     // Manejar cierre de ventana
     mainWindow.on('closed', () => {
         mainWindow = null;
+        // Forzar garbage collection al cerrar
+        if (global.gc) {
+            global.gc();
+        }
     });
 
     // DevTools en modo desarrollo
     if (process.argv.includes('--dev')) {
         mainWindow.webContents.openDevTools();
     }
+
+    // Optimización: Reducir uso de CPU cuando la ventana está oculta
+    mainWindow.on('hide', () => {
+        mainWindow.webContents.setFrameRate(30);
+    });
+
+    mainWindow.on('show', () => {
+        mainWindow.webContents.setFrameRate(60);
+    });
 }
 
 async function initializeApp() {
