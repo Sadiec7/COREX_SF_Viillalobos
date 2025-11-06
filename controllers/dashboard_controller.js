@@ -128,7 +128,7 @@ class DashboardController {
                 }
 
                 if (this.metricCobrosPendientes) {
-                    this.metricCobrosPendientes.textContent = this.formatCurrency(metrics.cobros_pendientes || 0);
+                    this.metricCobrosPendientes.textContent = this.formatCurrencyAbbreviated(metrics.cobros_pendientes || 0);
                 }
 
                 if (this.metricNuevosClientes) {
@@ -311,6 +311,20 @@ class DashboardController {
         });
     }
 
+    formatCurrencyAbbreviated(amount) {
+        const num = Number(amount || 0);
+        if (num >= 1000000) {
+            return '$' + (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return '$' + (num / 1000).toFixed(1) + 'K';
+        } else {
+            return '$' + num.toLocaleString('es-MX', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    }
+
     formatDate(dateStr) {
         if (!dateStr) return 'Sin fecha';
         const date = new Date(dateStr);
@@ -376,6 +390,7 @@ class DashboardController {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.dashboardController = new DashboardController();
-});
+console.log('✅ DashboardController class loaded successfully');
+
+// Register in global scope
+window.DashboardController = DashboardController;

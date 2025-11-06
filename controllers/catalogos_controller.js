@@ -25,6 +25,10 @@ class CatalogosController {
         this.statAseguradoras = document.getElementById('statAseguradoras');
         this.statRamos = document.getElementById('statRamos');
 
+        // Búsqueda
+        this.searchAseguradoras = document.getElementById('searchAseguradoras');
+        this.searchRamos = document.getElementById('searchRamos');
+
         // Tablas
         this.tableAseguradoras = document.getElementById('aseguradorasTableBody');
         this.tableRamos = document.getElementById('ramosTableBody');
@@ -45,7 +49,10 @@ class CatalogosController {
     }
 
     initEventListeners() {
-        this.btnBack.addEventListener('click', () => (window.location.href = 'dashboard_view.html'));
+        // Back button (optional - only in standalone view, not SPA)
+        if (this.btnBack) {
+            this.btnBack.addEventListener('click', () => (window.location.href = 'dashboard_view.html'));
+        }
         this.btnAddAseguradora.addEventListener('click', () => this.openModal('aseguradora'));
         this.btnAddRamo.addEventListener('click', () => this.openModal('ramo'));
         this.btnCloseModal.addEventListener('click', () => this.closeModal());
@@ -61,6 +68,10 @@ class CatalogosController {
             event.preventDefault();
             this.handleSubmit();
         });
+
+        // Búsqueda en tiempo real
+        this.searchAseguradoras.addEventListener('input', () => this.filterAseguradoras());
+        this.searchRamos.addEventListener('input', () => this.filterRamos());
     }
 
     async loadData() {
@@ -119,14 +130,16 @@ class CatalogosController {
                                 title="Editar"
                                 onclick="window.catalogosController.openModal('aseguradora', ${item.aseguradora_id})"
                             >
-                                ✎
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
                             </button>
                             <button
                                 class="${item.activo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} transition-colors"
                                 title="${item.activo ? 'Desactivar' : 'Activar'}"
                                 onclick="window.catalogosController.toggleActivo('aseguradora', ${item.aseguradora_id})"
                             >
-                                ${item.activo ? '⏻' : '✔'}
+                                ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
                             </button>
                         </div>
                     </td>
@@ -161,14 +174,16 @@ class CatalogosController {
                                 title="Editar"
                                 onclick="window.catalogosController.openModal('ramo', ${item.ramo_id})"
                             >
-                                ✎
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
                             </button>
                             <button
                                 class="${item.activo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} transition-colors"
                                 title="${item.activo ? 'Desactivar' : 'Activar'}"
                                 onclick="window.catalogosController.toggleActivo('ramo', ${item.ramo_id})"
                             >
-                                ${item.activo ? '⏻' : '✔'}
+                                ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
                             </button>
                         </div>
                     </td>
@@ -322,8 +337,128 @@ class CatalogosController {
         div.textContent = text;
         return div.innerHTML;
     }
+
+    filterAseguradoras() {
+        const searchTerm = this.searchAseguradoras.value.toLowerCase().trim();
+
+        const filtered = this.aseguradoras.filter(item =>
+            item.nombre.toLowerCase().includes(searchTerm)
+        );
+
+        this.renderAseguradorasFiltered(filtered);
+        this.updateStatsFiltered(filtered, this.statAseguradoras, this.aseguradoras.length);
+    }
+
+    filterRamos() {
+        const searchTerm = this.searchRamos.value.toLowerCase().trim();
+
+        const filtered = this.ramos.filter(item =>
+            item.nombre.toLowerCase().includes(searchTerm) ||
+            (item.descripcion && item.descripcion.toLowerCase().includes(searchTerm))
+        );
+
+        this.renderRamosFiltered(filtered);
+        this.updateStatsFiltered(filtered, this.statRamos, this.ramos.length);
+    }
+
+    renderAseguradorasFiltered(data) {
+        if (!data.length) {
+            this.tableAseguradoras.innerHTML = '';
+            this.emptyAseguradoras.classList.remove('hidden');
+            return;
+        }
+        this.emptyAseguradoras.classList.add('hidden');
+
+        this.tableAseguradoras.innerHTML = data
+            .map((item) => `
+                <tr class="table-row transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.aseguradora_id}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}">
+                            ${item.activo ? 'Activa' : 'Inactiva'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        <div class="flex gap-2">
+                            <button
+                                class="text-blue-600 hover:text-blue-900 transition-colors"
+                                title="Editar"
+                                onclick="window.catalogosController.openModal('aseguradora', ${item.aseguradora_id})"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button
+                                class="${item.activo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} transition-colors"
+                                title="${item.activo ? 'Desactivar' : 'Activar'}"
+                                onclick="window.catalogosController.toggleActivo('aseguradora', ${item.aseguradora_id})"
+                            >
+                                ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `)
+            .join('');
+    }
+
+    renderRamosFiltered(data) {
+        if (!data.length) {
+            this.tableRamos.innerHTML = '';
+            this.emptyRamos.classList.remove('hidden');
+            return;
+        }
+        this.emptyRamos.classList.add('hidden');
+
+        this.tableRamos.innerHTML = data
+            .map((item) => `
+                <tr class="table-row transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.ramo_id}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${this.escapeHtml(item.descripcion || '-')}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}">
+                            ${item.activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        <div class="flex gap-2">
+                            <button
+                                class="text-blue-600 hover:text-blue-900 transition-colors"
+                                title="Editar"
+                                onclick="window.catalogosController.openModal('ramo', ${item.ramo_id})"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button
+                                class="${item.activo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} transition-colors"
+                                title="${item.activo ? 'Desactivar' : 'Activar'}"
+                                onclick="window.catalogosController.toggleActivo('ramo', ${item.ramo_id})"
+                            >
+                                ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `)
+            .join('');
+    }
+
+    updateStatsFiltered(filtered, statElement, total) {
+        const activeCount = filtered.filter(item => item.activo).length;
+        if (filtered.length === total) {
+            statElement.textContent = `${total} (${activeCount} activos)`;
+        } else {
+            statElement.textContent = `${filtered.length} de ${total} (${activeCount} activos)`;
+        }
+    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.catalogosController = new CatalogosController();
-});
+console.log('✅ CatalogosController class loaded successfully');
+
+// Register in global scope
+window.CatalogosController = CatalogosController;

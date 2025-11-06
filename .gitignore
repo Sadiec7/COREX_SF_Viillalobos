@@ -6,8 +6,14 @@ yarn-error.log*
 
 # Production builds
 dist/
-build/
 out/
+
+# Build resources (except icons)
+build/*
+!build/icon.ico
+!build/icon.icns
+!build/icon-256.png
+!build/.gitkeep
 
 # Environment variables
 .env

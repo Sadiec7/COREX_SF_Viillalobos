@@ -68,7 +68,7 @@ function createWindow() {
             disableHardwareAcceleration: false  // Mantener aceleración por hardware para GPU
         },
         title: "Seguros Fianzas VILLALOBOS",
-        icon: path.join(__dirname, 'icon.png'),  // Ícono de la app
+        icon: path.join(__dirname, 'assets/images/logo.png'),  // Ícono en barra de tareas
         resizable: true,  // Permitir redimensionar
         show: false,
         maximizable: true,
@@ -84,6 +84,12 @@ function createWindow() {
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
         mainWindow.center();
+    });
+
+    // Capturar logs de la consola del navegador
+    mainWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+        const levels = ['VERBOSE', 'INFO', 'WARNING', 'ERROR'];
+        console.log(`[RENDERER ${levels[level]}] ${message}`);
     });
 
     // Optimización: Limpiar memoria cuando se minimiza (ayuda en equipos con poca RAM)
@@ -194,16 +200,16 @@ ipcMain.handle('auth:authenticate', async (event, username, password) => {
 ipcMain.handle('app:login-success', async (event, user) => {
     console.log(`🎉 Login exitoso - Usuario: ${user.username}`);
 
-    // Cargar dashboard en la misma ventana con transición más rápida
+    // Cargar app principal con navegación persistente
     setTimeout(async () => {
         if (mainWindow) {
-            // Redimensionar ventana para dashboard
+            // Redimensionar ventana para la aplicación
             mainWindow.setSize(1200, 800);
             mainWindow.center();
 
-            // Cargar dashboard
-            await mainWindow.loadFile('views/dashboard_view.html');
-            console.log('✅ Dashboard cargado exitosamente');
+            // Cargar app view (con navbar persistente)
+            await mainWindow.loadFile('views/app_view.html');
+            console.log('✅ App principal cargada exitosamente');
         }
     }, 200);
 

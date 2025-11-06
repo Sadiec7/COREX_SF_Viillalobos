@@ -112,8 +112,10 @@ class PolizasController {
     }
 
     initEventListeners() {
-        // Back button
-        this.btnBack.addEventListener('click', () => this.goBack());
+        // Back button (optional - only in standalone view, not SPA)
+        if (this.btnBack) {
+            this.btnBack.addEventListener('click', () => this.goBack());
+        }
 
         // Add button
         this.btnAddPoliza.addEventListener('click', () => this.openAddModal());
@@ -933,3 +935,7 @@ class PolizasController {
         return date.toLocaleDateString('es-MX');
     }
 }
+console.log('✅ PolizasController class loaded successfully');
+
+// Register in global scope
+window.PolizasController = PolizasController;

@@ -99,8 +99,10 @@ class ClientesController {
     }
 
     initEventListeners() {
-        // Back button
-        this.btnBack.addEventListener('click', () => this.goBack());
+        // Back button (optional - only in standalone view, not SPA)
+        if (this.btnBack) {
+            this.btnBack.addEventListener('click', () => this.goBack());
+        }
 
         // Add button
         this.btnAddCliente.addEventListener('click', () => this.openAddModal());
@@ -824,3 +826,7 @@ class ClientesController {
     }
 
 }
+console.log('✅ ClientesController class loaded successfully');
+
+// Register in global scope
+window.ClientesController = ClientesController;

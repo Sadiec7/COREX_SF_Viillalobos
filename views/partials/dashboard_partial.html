@@ -1,0 +1,121 @@
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200 p-6">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+                <h1 class="text-2xl font-bold text-navy-700">¡Bienvenido, <span id="welcomeUser">admin</span>!</h1>
+                <p class="text-gray-600 text-sm">Panel de control - Seguros Fianzas VILLALOBOS</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-sm text-gray-500" id="currentDate"></p>
+                    <p class="text-xs text-gray-400" id="currentTime"></p>
+                </div>
+                <div class="relative">
+                    <button
+                        id="btnAlerts"
+                        class="relative flex items-center justify-center bg-white border border-gray-200 text-navy-700 w-11 h-11 rounded-full hover:bg-gold-50 transition-colors"
+                        title="Ver alertas de pólizas"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span id="alertsBadge" class="badge bg-red-500 text-white hidden absolute -top-1 -right-1"></span>
+                    </button>
+                    <div
+                        id="alertsPanel"
+                        class="hidden alerts-panel absolute right-0 mt-3 w-[32rem] max-h-96 bg-white border border-gray-200 rounded-xl shadow-xl overflow-y-auto z-50"
+                        style="top: 100%; transform: none !important;"
+                    >
+                        <div class="px-4 py-3 border-b border-gray-200">
+                            <h3 class="text-sm font-semibold text-navy-700">Alertas de pólizas</h3>
+                            <p class="text-xs text-gray-500">Pólizas que requieren atención.</p>
+                        </div>
+                        <div class="p-4 space-y-3" id="alertsList">
+                            <div class="text-center text-sm text-gray-500" id="alertsEmpty">
+                                No hay alertas pendientes por el momento.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content area -->
+    <main class="flex-1 overflow-auto p-6">
+        <!-- Metrics cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Policies -->
+            <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Total Pólizas</p>
+                        <p id="metricTotalPolizas" class="text-2xl font-bold text-navy-700">0</p>
+                    </div>
+                    <div class="text-navy-700">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expiring This Week -->
+            <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Vencen Esta Semana</p>
+                        <p id="metricVencenSemana" class="text-2xl font-bold text-orange-600">0</p>
+                    </div>
+                    <div class="text-orange-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Payments -->
+            <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Cobros Pendientes</p>
+                        <p id="metricCobrosPendientes" class="text-2xl font-bold text-green-600">$0.00</p>
+                    </div>
+                    <div class="text-green-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Clients -->
+            <div class="metric-card fade-in-stagger bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm font-medium">Nuevos Clientes</p>
+                        <p id="metricNuevosClientes" class="text-2xl font-bold text-blue-600">0</p>
+                    </div>
+                    <div class="text-blue-600">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Chart placeholder -->
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 p-8 text-center">
+            <div class="flex justify-center mb-4 text-navy-700">
+                <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-navy-700 mb-2">Gráficos de Rendimiento</h3>
+            <p class="text-gray-600">Sistema de gestión de seguros funcionando correctamente</p>
+            <p class="text-sm text-gray-500 mt-2">MVC Pattern implementado con Electron</p>
+        </div>
+    </main>

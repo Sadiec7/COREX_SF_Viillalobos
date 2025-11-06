@@ -10,7 +10,11 @@
     "watch:css": "npx tailwindcss -i ./assets/css/input.css -o ./assets/css/output.css --watch",
     "postinstall": "npm run build:css",
     "test:db": "node testing/db_integrity.test.js",
-    "test:ui": "node testing/ui_smoke.test.js"
+    "test:ui": "node testing/ui_smoke.test.js",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:all": "electron-builder --win --mac"
   },
   "keywords": [
     "electron",
@@ -20,13 +24,60 @@
   "author": "Sistema de Seguros",
   "license": "ISC",
   "type": "commonjs",
+  "build": {
+    "appId": "com.seguros.villalobos",
+    "productName": "Sistema de Seguros VILLALOBOS",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "**/*",
+      "!**/{.git,node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme},testing,dist,.vscode,.idea}/*",
+      "!**/{.DS_Store,.env,.env.*,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icon.icns",
+      "category": "public.app-category.business"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Sistema de Seguros VILLALOBOS",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerHeaderIcon": "build/icon.ico",
+      "deleteAppDataOnUninstall": false
+    }
+  },
   "devDependencies": {
     "@electron/rebuild": "^4.0.1",
     "@playwright/test": "^1.56.0",
     "electron": "^38.1.2",
+    "electron-builder": "^26.0.12",
     "playwright": "^1.56.0",
     "playwright-core": "^1.56.0",
-    "tailwindcss": "^3.4.17"
+    "png-to-ico": "^3.0.1",
+    "tailwindcss": "^3.4.17",
+    "to-ico": "^1.1.5"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

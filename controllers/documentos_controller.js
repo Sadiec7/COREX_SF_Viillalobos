@@ -49,7 +49,10 @@ class DocumentosController {
     }
 
     initEventListeners() {
-        this.btnBack.addEventListener('click', () => this.goBack());
+        // Back button (optional - only in standalone view, not SPA)
+        if (this.btnBack) {
+            this.btnBack.addEventListener('click', () => this.goBack());
+        }
         this.btnAddDocumento.addEventListener('click', () => this.openModal());
         this.btnCloseModal.addEventListener('click', () => this.closeModal());
         this.btnCancelForm.addEventListener('click', () => this.closeModal());
@@ -428,6 +431,7 @@ class DocumentosController {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.documentosController = new DocumentosController();
-});
+console.log('✅ DocumentosController class loaded successfully');
+
+// Register in global scope
+window.DocumentosController = DocumentosController;

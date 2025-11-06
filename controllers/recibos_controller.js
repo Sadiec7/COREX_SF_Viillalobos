@@ -58,7 +58,10 @@ class RecibosController {
     }
 
     initEventListeners() {
-        this.btnBack.addEventListener('click', () => this.goBack());
+        // Back button (optional - only in standalone view, not SPA)
+        if (this.btnBack) {
+            this.btnBack.addEventListener('click', () => this.goBack());
+        }
         this.btnAddRecibo.addEventListener('click', () => this.openCreateModal());
         this.btnCloseModal.addEventListener('click', () => this.closeModal());
         this.btnCancelForm.addEventListener('click', () => this.closeModal());
@@ -254,7 +257,9 @@ class RecibosController {
                                 title=\"Eliminar\"
                                 onclick=\"window.recibosController.deleteRecibo(${recibo.recibo_id})\"
                             >
-                                🗑
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
                             </button>
                         </div>
                     </td>
@@ -266,12 +271,11 @@ class RecibosController {
     updateStats() {
         const totals = this.recibos.reduce((acc, recibo) => {
             acc.total += 1;
-            acc.monto += Number(recibo.monto || 0);
             acc[recibo.estado] = (acc[recibo.estado] || 0) + 1;
             return acc;
-        }, { total: 0, monto: 0, pendiente: 0, pagado: 0, vencido: 0 });
+        }, { total: 0, pendiente: 0, pagado: 0, vencido: 0 });
 
-        this.statTotal.textContent = `${totals.total} (${this.formatCurrency(totals.monto)})`;
+        this.statTotal.textContent = totals.total;
         this.statPendientes.textContent = totals.pendiente;
         this.statPagados.textContent = totals.pagado;
         this.statVencidos.textContent = totals.vencido;
@@ -473,6 +477,20 @@ class RecibosController {
         });
     }
 
+    formatCurrencyAbbreviated(amount) {
+        const num = Number(amount || 0);
+        if (num >= 1000000) {
+            return '$' + (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 1000) {
+            return '$' + (num / 1000).toFixed(1) + 'K';
+        } else {
+            return '$' + num.toLocaleString('es-MX', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    }
+
     formatDate(dateStr) {
         if (!dateStr) return '-';
         const date = new Date(dateStr);
@@ -504,6 +522,7 @@ class RecibosController {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    window.recibosController = new RecibosController();
-});
+console.log('✅ RecibosController class loaded successfully');
+
+// Register in global scope
+window.RecibosController = RecibosController;
