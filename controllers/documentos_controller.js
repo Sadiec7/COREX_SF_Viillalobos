@@ -297,10 +297,12 @@ class DocumentosController {
         }
 
         this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
     }
 
     closeModal() {
         this.modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         this.form.reset();
     }
 
@@ -401,7 +403,12 @@ class DocumentosController {
     }
 
     goBack() {
-        window.location.href = 'dashboard_view.html';
+        // Navegar al dashboard usando SPA navigation
+        if (window.appNavigation) {
+            window.appNavigation.navigateTo('dashboard');
+        } else {
+            console.error('appNavigation no disponible');
+        }
     }
 
     showLoading(show) {

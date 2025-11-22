@@ -3,36 +3,7 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        background-color: rgba(0, 0, 0, 0.45);
-        align-items: center;
-        justify-content: center;
-        animation: fade 0.3s ease;
-    }
-
-    .modal.active {
-        display: flex;
-    }
-
-    .modal-content {
-        animation: zoom 0.25s ease;
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-
-    @keyframes fade {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes zoom {
-        from { opacity: 0; transform: scale(0.95); }
-        to { opacity: 1; transform: scale(1); }
-    }
+    /* Estilos específicos para documentos - Los generales están en modal-global.css */
 
     .btn-hover:hover {
         transform: translateY(-2px);

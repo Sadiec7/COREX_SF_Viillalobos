@@ -339,6 +339,97 @@ class DatabaseManager {
     }
 
     /**
+     * Obtener tendencia de pólizas (últimos 6 meses)
+     * @returns {Array} Datos para gráfica de línea
+     */
+    getPolizasTrend() {
+        try {
+            return this.query(`
+                SELECT
+                    strftime('%Y-%m', fecha_creacion) as mes,
+                    COUNT(*) as total
+                FROM Poliza
+                WHERE activo = 1
+                AND DATE(fecha_creacion) >= DATE('now', '-6 months')
+                GROUP BY strftime('%Y-%m', fecha_creacion)
+                ORDER BY mes ASC
+            `);
+        } catch (error) {
+            console.error('Error al obtener tendencia de pólizas:', error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Obtener distribución de pólizas por aseguradora
+     * @returns {Array} Datos para gráfica de barras
+     */
+    getPolizasByAseguradora() {
+        try {
+            return this.query(`
+                SELECT
+                    COALESCE(a.nombre, 'Sin aseguradora') as aseguradora,
+                    COUNT(*) as total
+                FROM Poliza p
+                LEFT JOIN Aseguradora a ON p.aseguradora_id = a.aseguradora_id
+                WHERE p.activo = 1
+                GROUP BY p.aseguradora_id, a.nombre
+                ORDER BY total DESC
+                LIMIT 8
+            `);
+        } catch (error) {
+            console.error('Error al obtener pólizas por aseguradora:', error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Obtener distribución de recibos por estado de cobro
+     * @returns {Array} Datos para gráfica de dona
+     */
+    getRecibosByEstado() {
+        try {
+            return this.query(`
+                SELECT
+                    r.estado,
+                    COUNT(*) as total
+                FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE p.activo = 1
+                GROUP BY r.estado
+                ORDER BY total DESC
+            `);
+        } catch (error) {
+            console.error('Error al obtener recibos por estado:', error.message);
+            return [];
+        }
+    }
+
+    /**
+     * Obtener cobros mensuales (últimos 6 meses)
+     * @returns {Array} Datos para gráfica de barras apiladas
+     */
+    getCobrosMensuales() {
+        try {
+            return this.query(`
+                SELECT
+                    strftime('%Y-%m', r.fecha_vencimiento_original) as mes,
+                    SUM(CASE WHEN r.estado = 'pagado' THEN r.monto ELSE 0 END) as cobrado,
+                    SUM(CASE WHEN r.estado != 'pagado' THEN r.monto ELSE 0 END) as pendiente
+                FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE p.activo = 1
+                AND DATE(r.fecha_vencimiento_original) >= DATE('now', '-6 months')
+                GROUP BY strftime('%Y-%m', r.fecha_vencimiento_original)
+                ORDER BY mes ASC
+            `);
+        } catch (error) {
+            console.error('Error al obtener cobros mensuales:', error.message);
+            return [];
+        }
+    }
+
+    /**
      * Cerrar la conexión a la base de datos
      */
     close() {

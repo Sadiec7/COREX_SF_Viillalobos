@@ -1,0 +1,473 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" class="  ext-strict"><head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Content-language" content="en">
+	<meta http-equiv="expires" content="-1">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta name="author" content="Martin Havlat">
+	<meta name="copyright" content="GNU">
+	<meta name="robots" content="NOFOLLOW">
+	<base href="http://localhost:8080/">
+	<title>TestLink</title>
+	<link rel="icon" href="http://localhost:8080/gui/themes/default/images/favicon.ico" type="image/x-icon">
+	
+ 
+	<style media="all" type="text/css">@import "http://localhost:8080/gui/themes/default/css/testlink.css";</style>
+	  
+	<style media="print" type="text/css">@import "http://localhost:8080/gui/themes/default/css/tl_print.css";</style>
+
+ 
+	<script type="text/javascript" src="http://localhost:8080/gui/javascript/testlink_library.js" language="javascript"></script>
+	<script type="text/javascript" src="http://localhost:8080/gui/javascript/test_automation.js" language="javascript"></script>
+	<script type="text/javascript" src="http://localhost:8080/third_party/prototype/prototype.js" language="javascript"></script>
+	   
+	
+		<script type="text/javascript" src="http://localhost:8080/gui/javascript/sorttable.js" language="javascript"></script>
+	
+	<script type="text/javascript" language="javascript">
+	<!--
+	var fRoot = 'http://localhost:8080/';
+	var menuUrl = 'lib/execute/execSetResults.php';
+	var args  = '&form_token=2132503577&setting_build=1&filter_assigned_user=a:1:{i:7;i:7;}&filter_assigned_user_include_unassigned=0';
+	var additionalArgs  = '';
+	
+	// To solve problem diplaying help
+	var SP_html_help_file  = '';
+	
+	//attachment related JS-Stuff
+	var attachmentDlg_refWindow = null;
+	var attachmentDlg_refLocation = null;
+	var attachmentDlg_bNoRefresh = false;
+	
+	// bug management (using logic similar to attachment)
+	var bug_dialog = new bug_dialog();
+
+	// for ext js
+	var extjsLocation = 'third_party/ext-js';
+	
+	//-->
+	</script> 
+
+
+  
+
+
+        	<link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/css/reset-min.css">
+    <link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/css/ext-all.css">
+  <link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/ux/gridfilters/css/GridFilters.css">
+  <link rel="stylesheet" type="text/css" href="http://localhost:8080/third_party/ext-js/ux/gridfilters/css/RangeMenu.css">
+  
+              <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/adapter/ext/ext-base.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ext-all.js" language="javascript"></script>
+      
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/Reorderer.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/ToolbarReorderer.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/ToolbarDroppable.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/Exporter-all.js" language="javascript"></script>
+      
+            <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/menu/RangeMenu.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/menu/ListMenu.js" language="javascript"></script>
+      
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/GridFilters.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/Filter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/StringFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/DateFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/ListFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/NumericFilter.js" language="javascript"></script>
+      <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/gridfilters/filter/BooleanFilter.js" language="javascript"></script>
+      
+      
+            <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/src/locale/ext-lang-es.js" language="javascript"></script>
+  
+            <script type="text/javascript" src="http://localhost:8080/third_party/ext-js/ux/TableGrid.js" language="javascript"></script>
+  
+
+<script type="text/javascript" src="gui/javascript/ext_extensions.js"></script>
+
+<script type="text/javascript">
+	treeCfg = {tree_div_id:'tree',root_name:"",root_id:0,root_href:"",
+	           loader:"", enableDD:false, dragDropBackEndUrl:'',children:""};
+	Ext.onReady(function() {
+		Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+
+		// Use a collapsible panel for filter settings
+		// and place a help icon in ther header
+		var settingsPanel = new Ext.ux.CollapsiblePanel({
+			id: 'tl_exec_filter',
+			applyTo: 'settings_panel',
+			tools: [{
+				id: 'help',
+				handler: function(event, toolEl, panel) {
+					show_help(help_localized_text);
+				}
+			}]
+		});
+		var filtersPanel = new Ext.ux.CollapsiblePanel({
+			id: 'tl_exec_settings',
+			applyTo: 'filter_panel'
+		});
+	});
+
+/**
+ * 
+ *
+ * internal revisions
+ * BUGID 3270 - Export Test Plan in XML Format
+ */
+function openExportTestPlan(windows_title,tproject_id,tplan_id,platform_id,build_id) 
+{
+  args = "tproject_id=" + tproject_id + "&tplan_id=" + tplan_id + "&platform_id=" + platform_id + "&build_id=" + build_id;  
+  args = args + "&exportContent=tree";
+	wref = window.open(fRoot+"lib/plan/planExport.php?"+args,
+	                   windows_title,"menubar=no,width=650,height=500,toolbar=no,scrollbars=yes");
+	wref.focus();
+}
+</script>
+
+
+
+<script type="text/javascript">
+	treeCfg.root_name='COREX - Sistema de Administración de Pólizas / Plan de Pruebas COREX - 2025 (0)(<span  class=\"light_not_run\"   title=\"No Ejecutado\">0,<\/span><span  class=\"light_passed\"   title=\"Pasado\">0,<\/span><span  class=\"light_failed\"   title=\"Fallado\">0,<\/span><span  class=\"light_blocked\"   title=\"Bloqueado\">0<\/span>)';
+	treeCfg.root_id=201;
+	treeCfg.root_href='javascript:SP(201,0)';
+	treeCfg.children=[];
+</script>
+
+<script type="text/javascript" src="gui/javascript/execTreeWithMenu.js"></script>
+
+<script language="JavaScript" src="gui/javascript/expandAndCollapseFunctions.js" type="text/javascript"></script>
+
+
+
+<script type="text/javascript">
+
+	
+		/**
+		 * Used to disable the "include unassigned testcases" checkbox when anything else 
+		 * but a username is selected in "assigned to" select box.
+		 * In case of a selected username the box will be activated again.
+		 * (testcase execution & testcase execution assignment, BUGID 2455, BUGID 3026)
+		 * 
+		 * @author Andreas Simon
+		 * @param filter_assigned_to combobox in which assignment is chosen
+		 * @param include_unassigned checkbox for including unassigned testcases
+		 * @param str_option_any string value anybody
+		 * @param str_option_none string value nobody
+		 * @param str_option_somebody string value somebody
+		 */
+		function triggerAssignedBox(filter_assigned_to_id, include_unassigned_id,
+									str_option_any, str_option_none, str_option_somebody) {
+			var filter_assigned_to = document.getElementById(filter_assigned_to_id);
+			var include_unassigned = document.getElementById(include_unassigned_id);
+			var index = filter_assigned_to.options.selectedIndex;
+			var choice = filter_assigned_to.options[index].label;
+			include_unassigned.disabled = false;
+		
+			if (choice == str_option_any || choice == str_option_none || choice == str_option_somebody) 
+			{
+				include_unassigned.disabled = true;
+				include_unassigned.checked = false;
+			} 
+		}
+	
+
+	
+		/**
+		 * If filter method ("filter on...") selection is set to "specific build",
+		 * enable build selector, otherwise disable it.
+		 * (testcase execution & testcase execution assignment, BUGID 2455, BUGID 3026)
+		 * 
+		 * @author Andreas Simon
+		 * @param build_id_combo box in which the build is chosen
+		 * @param filter_method_combo box in which the filter method is chosen
+		 * @param specific_build_value value for which the box shall be disabled
+		 */
+		function triggerBuildChooser(deactivatable_id, filter_method_combo_id, specific_build_value)
+		{
+			var deactivatable = document.getElementById(deactivatable_id);
+			var filter_method_combo = document.getElementById(filter_method_combo_id);
+			var index = filter_method_combo.options.selectedIndex;  
+			//deactivatable.style.visibility = "hidden";
+			
+			if(filter_method_combo[index].value == specific_build_value) {
+				deactivatable.style.visibility = "visible";
+			} else {
+				deactivatable.style.visibility = "hidden";
+			}
+		}
+		
+		/**
+		 * Disable unneeded filters in the filter method combo box.
+		 * If only one build is selectable in filter, then the filter method
+		 * gets set to "build chosen for execution" because no other method should
+		 * be used in that case.
+		 * (testcase execution & testcase execution assignment, BUGID 2455, BUGID 3026)
+		 *  
+		 * @author Andreas Simon
+		 * @param filter_method_combo_id the id of the box which shall be disabled
+		 * @param value2select the string which shall be selected in the box before disabling it
+		 */
+		function triggerFilterMethodSelector(filter_method_combo_id, value2select) {
+			filter_method_combo = document.getElementById(filter_method_combo_id);
+			var length = filter_method_combo.options.length;
+			
+			for (var index = 0; index < length; index ++) {
+				if (filter_method_combo.options[index].value == value2select) {
+					filter_method_combo.options.selectedIndex = index;
+				}
+			}
+			
+			filter_method_combo.disabled = true;
+		}
+	
+
+
+</script>
+
+</head>
+
+
+	<body onload="javascript:
+		
+							triggerFilterMethodSelector('filter_result_method',
+					5);
+						triggerBuildChooser('filter_result_build_row',
+			                    'filter_result_method',
+			                    4);
+				
+					triggerAssignedBox('filter_assigned_user',
+			                   'filter_assigned_user_include_unassigned',
+			                   '[cualquiera]',
+			                   '[Nobody]',
+			                   '[Somebody]');
+			" class="   ext-webkit ext-safari ext-safari4 ext-mac" id="ext-gen12">
+
+
+	
+
+
+<h1 class="title">Test Plan :  Plan de Pruebas COREX - 2025
+[Build : 
+AutoBuild-2025-10-13T02-33-08-849Z]</h1>
+
+
+
+
+
+
+
+<form method="post" id="filter_panel_form" name="filter_panel_form">
+
+  <input type="hidden" name="form_token" value="2132503577">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+<!--
+	var help_localized_text = "<img style='float: right' " +
+		"src='gui/themes/default/images//x-icon.gif' " +
+		"onclick='javascript: close_help();' /> <h2>Setup Filter and Build for test execution<\/h2>    <p>The left pane consists from navigator through test cases assigned to the current Test plan and table with settings and filter. These filters allows the user to refine offered set of test cases before they are executed.Setup your filter, press the &quot;Apply&quot; button and select appropriate Test Case from tree menu.<\/p>    <h3>Build<\/h3>  <p>Users must choose a build that will be connected with a test result. Builds are the basic component for the current Test Plan. Each test case may be run more times per build. However the last results is count only.   <br />Builds can be created by leads using the Create New Build page.<\/p>    <h3>Test Case ID filter<\/h3>  <p>Users can filter test cases by unique identifier. This ID is created automatically   during create time. Empty box means that the filter doesn&#39;t apply.<\/p>     <h3>Priority filter<\/h3>  <p>Users can filter test cases by test priority. Each test case importance is combinedwith test urgency within the current Test plan. For example &#39;HIGH&#39; priority test case is shown if importance or urgency is HIGH and second attribute is at least MEDIUM level.<\/p>     <h2>Result filter<\/h2>  <p>Users can filter test cases by results. Results are what happened to that test   case during a particular build. Test cases can pass, fail, be blocked, or not be run.This filter is disabled by default.<\/p>    <h3>User filter<\/h3>  <p>Users can filter test cases by their assignee. The check-box allows to include also &quot;unassigned&quot; tests into the resulted set in addtion.<\/p>";
+//-->
+</script>  
+
+
+	<div id="settings_panel" class=" x-panel">
+		
+
+		 	<div class="x-panel-header x-unselectable" id="ext-gen3" style="cursor: pointer;"><div class="x-tool x-tool-help" id="ext-gen6">&nbsp;</div><div class="x-tool x-tool-toggle" id="ext-gen5">&nbsp;</div><span class="x-panel-header-text">
+			Settings
+		</span></div><div class="x-panel-bwrap" id="ext-gen4"><div id="settings" class="x-panel-body exec_additional_info" "style="padding-top: 3px;">
+			<input type="hidden" id="tpn_view_settings" name="tpn_view_status" value="0">
+
+			<table class="smallGrey" style="width:98%;">
+
+							<tbody><tr>
+					<th>Test Plan</th>
+					<td>
+						<select name="setting_testplan" onchange="this.form.submit()">
+						<option label="Plan de Pruebas COREX - 2025" value="768" selected="selected">Plan de Pruebas COREX - 2025</option>
+
+						</select>
+					</td>
+				</tr>
+			
+			
+							<tr>
+					<th>Build to execute</th>
+					<td>
+						<select name="setting_build" onchange="this.form.submit()">
+						<option label="AutoBuild-2025-10-13T02-33-08-849Z" value="1" selected="selected">AutoBuild-2025-10-13T02-33-08-849Z</option>
+
+						</select>
+					</td>
+				</tr>
+			
+							<tr>
+		   			<td>Actualizar el Árbol de Navegación después de cada operación</td>
+		  			<td>
+		  			   <input type="hidden" id="hidden_setting_refresh_tree_on_action" name="hidden_setting_refresh_tree_on_action" value="1">
+
+		  			   <input type="checkbox" id="cbsetting_refresh_tree_on_action" name="setting_refresh_tree_on_action" checked="" style="font-size: 90%;" onclick="this.form.submit()">
+		  			</td>
+		  		</tr>
+			
+							<tr>
+		   			<td colspan="2">
+	          <input type="button" id="doTestPlanExport" name="doTestPlanExport" value="Export Test Plan" onclick="javascript: openExportTestPlan('export_testplan','201',
+         	                                                 '768','0',
+         	                                                 '1');">
+            </td>
+		  		</tr>
+						</tbody></table>
+		</div></div></div>  
+
+	<div id="filter_panel" class=" x-panel">
+		
+
+	 
+	<div class="x-panel-header x-unselectable" id="ext-gen8" style="cursor: pointer;"><div class="x-tool x-tool-toggle" id="ext-gen10">&nbsp;</div><span class="x-panel-header-text">
+			Filters
+		</span></div><div class="x-panel-bwrap" id="ext-gen9"><div id="filters" class="x-panel-body exec_additional_info" style="padding-top: 3px;">
+		
+		<table class="smallGrey" style="width:98%;">
+
+					<tbody><tr>
+				<td>ID del Test Case</td>
+				<td><input type="text" name="filter_tc_id" size="12" maxlength="30" value="COREX-">
+				</td>
+			</tr>
+		
+					<tr>
+				<td>Título del Test Case</td>
+				<td><input type="text" name="filter_testcase_name" size="32" maxlength="32" value="">
+				</td>
+			</tr>
+		
+					<tr>
+	    		<td>Test Suite</td>
+	    		<td>
+	    			<select name="filter_toplevel_testsuite">
+	    				<option label="" value="0"></option>
+<option label="Gestión de Clientes" value="202">Gestión de Clientes</option>
+<option label="Alertas" value="203">Alertas</option>
+<option label="Login" value="204">Login</option>
+<option label="Base de Datos" value="205">Base de Datos</option>
+<option label="Diseño (UI/UX)" value="206">Diseño (UI/UX)</option>
+<option label="Pólizas" value="207">Pólizas</option>
+
+	    			</select>
+	    		</td>
+	    	</tr>
+    	
+		
+		
+					<tr>
+				<td>Execution type</td>
+	  			<td>
+				<select name="filter_execution_type">
+					<option label="[cualquiera]" value="0">[cualquiera]</option>
+<option label="Manual" value="1">Manual</option>
+<option label="Automated" value="2">Automated</option>
+
+	    	  </select>
+				</td>
+			</tr>
+		
+				<tr>
+			<td>Asignado a</td>
+			<td>
+
+							<select name="filter_assigned_user" id="filter_assigned_user" onchange="javascript: triggerAssignedBox('filter_assigned_user',
+	                                                             'filter_assigned_user_include_unassigned',
+	                                                             '[cualquiera]',
+	                                                             '[Nobody]',
+	                                                             '[Somebody]');">
+				<option label="devAngel" value="0">devAngel</option>
+
+				</select>
+
+				<br>
+				
+				<input type="checkbox" id="filter_assigned_user_include_unassigned" name="filter_assigned_user_include_unassigned" value="1">
+				 - include unassigned Test Cases
+			
+ 			</td>
+		</tr>
+    	
+
+		
+		
+
+		
+		<tr><td>&nbsp;</td></tr> 
+	   		<tr>
+				<th>Resultado</th>
+				<td>
+								  	<select name="filter_result_result">
+								<option label="[cualquiera]" value="a" selected="selected">[cualquiera]</option>
+<option label="No Ejecutado" value="n">No Ejecutado</option>
+<option label="Pasado" value="p">Pasado</option>
+<option label="Fallado" value="f">Fallado</option>
+<option label="Bloqueado" value="b">Bloqueado</option>
+
+				</select>
+				</td>
+			</tr>
+
+			<tr>
+				<th>on</th>
+				<td>
+				  	<select name="filter_result_method" id="filter_result_method" onchange="javascript: triggerBuildChooser('filter_result_build_row',
+						                                                'filter_result_method',
+						      4);" disabled="">
+					<option label="latest execution" value="1">latest execution</option>
+<option label="ALL Builds" value="2">ALL Builds</option>
+<option label="ANY Build" value="3">ANY Build</option>
+<option label="specific Build" value="4">specific Build</option>
+<option label="Build chosen for execution" value="5" selected="selected">Build chosen for execution</option>
+
+				  	</select>
+				</td>
+			</tr>
+
+			<tr id="filter_result_build_row" style="visibility: hidden;">
+				<th>Build</th>
+				<td><select id="filter_result_build" name="filter_result_build">
+					<option label="AutoBuild-2025-10-13T02-33-08-849Z" value="1" selected="selected">AutoBuild-2025-10-13T02-33-08-849Z</option>
+
+					</select>
+				</td>
+			</tr>
+
+	
+		</tbody></table>
+
+		<div>
+			<input type="submit" value="Aplicar Filtro" id="doUpdateTree" name="doUpdateTree" style="font-size: 90%;">
+
+			<input type="submit" value="Reset Filters" id="doResetTree" name="btn_reset_filters" style="font-size: 90%;">
+			
+						
+						
+							
+				<input type="submit" id="toggleFilterMode" name="btn_advanced_filters" value="Advanced Filters" style="font-size: 90%;">
+      				</div>
+
+	</div></div></div> 
+ 
+
+ 
+ 
+</form>
+
+<div id="tree" style="overflow:auto; height:100%;border:1px solid #c3daf9;" class=" x-panel x-tree"><div class="x-panel-bwrap" id="ext-gen13"><div class="x-panel-body x-panel-body-noheader" id="ext-gen14" style="overflow: auto;"><ul class="x-tree-root-ct x-tree-arrows" id="ext-gen15"><li class="x-tree-node"><div ext:tree-node-id="201" class="x-tree-node-el x-unselectable x-tree-node-collapsed" unselectable="on"><span class="x-tree-node-indent"></span><img alt="" src="http://localhost:8080/third_party/ext-js/images/default/s.gif" class="x-tree-ec-icon x-tree-elbow-end"><img alt="" src="http://localhost:8080/third_party/ext-js/images/default/s.gif" class="x-tree-node-icon" unselectable="on"><a hidefocus="on" class="x-tree-node-anchor" href="javascript:SP(201,0)" tabindex="1"><span unselectable="on">COREX - Sistema de Administración de Pólizas / Plan de Pruebas COREX - 2025 (0)(<span class="light_not_run" title="No Ejecutado">0,</span><span class="light_passed" title="Pasado">0,</span><span class="light_failed" title="Fallado">0,</span><span class="light_blocked" title="Bloqueado">0</span>)</span></a></div><ul class="x-tree-node-ct" style=""></ul></li></ul></div></div></div>
+
+
+
+
+</body></html>

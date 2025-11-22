@@ -786,6 +786,50 @@ function registerIPCHandlers(dbManager, models) {
         }
     });
 
+    // Obtener datos para gráfica de tendencia de pólizas (últimos 6 meses)
+    ipcMain.handle('dashboard:getPolizasTrend', async () => {
+        try {
+            const data = dbManager.getPolizasTrend();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener tendencia de pólizas:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Obtener distribución de pólizas por aseguradora
+    ipcMain.handle('dashboard:getPolizasByAseguradora', async () => {
+        try {
+            const data = dbManager.getPolizasByAseguradora();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener pólizas por aseguradora:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Obtener distribución de recibos por estado de cobro
+    ipcMain.handle('dashboard:getRecibosByEstado', async () => {
+        try {
+            const data = dbManager.getRecibosByEstado();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener recibos por estado:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Obtener cobros mensuales (últimos 6 meses)
+    ipcMain.handle('dashboard:getCobrosMensuales', async () => {
+        try {
+            const data = dbManager.getCobrosMensuales();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener cobros mensuales:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
     console.log('✅ IPC Handlers registrados correctamente');
 }
 

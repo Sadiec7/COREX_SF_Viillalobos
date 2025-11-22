@@ -1,0 +1,135 @@
+[
+  {
+    "id": "TC-LOG-001",
+    "expectedTitle": "Inicio de sesión válido",
+    "testlinkTitle": "TC-LOG-001 - Inicio de sesión válido",
+    "suite": "Login",
+    "nodeId": "228"
+  },
+  {
+    "id": "TC-LOG-002",
+    "expectedTitle": "Contraseña incorrecta",
+    "testlinkTitle": "TC-LOG-002 - Contraseña incorrecta",
+    "suite": "Login",
+    "nodeId": "229"
+  },
+  {
+    "id": "TC-LOG-003",
+    "expectedTitle": "Usuario inexistente",
+    "testlinkTitle": "TC-LOG-003 - Usuario inexistente",
+    "suite": "Login",
+    "nodeId": "230"
+  },
+  {
+    "id": "TC-LOG-005",
+    "expectedTitle": "Campo contraseña vacío",
+    "testlinkTitle": "TC-LOG-005 - Mostrar mensaje de error cuando el campo contraseña está vacío",
+    "suite": "Login",
+    "nodeId": "232"
+  },
+  {
+    "id": "TC-LOG-006",
+    "expectedTitle": "Campo usuario vacío",
+    "testlinkTitle": "TC-LOG-006 - Mostrar mensaje de error cuando el campo usuario está vacío",
+    "suite": "Login",
+    "nodeId": "233"
+  },
+  {
+    "id": "TC-LOG-009",
+    "expectedTitle": "Cierre de sesión exitoso",
+    "testlinkTitle": "TC-LOG-009 - Cierre de sesión exitoso",
+    "suite": "Login",
+    "nodeId": "236"
+  },
+  {
+    "id": "TC-LOG-010",
+    "expectedTitle": "Redirección al dashboard",
+    "testlinkTitle": "TC-LOG-010 - Redirección automática al dashboard después del login",
+    "suite": "Login",
+    "nodeId": "237"
+  },
+  {
+    "id": "TC-CLI-001",
+    "expectedTitle": "Registro de cliente con datos válidos",
+    "testlinkTitle": "TC-CLI-001 - Registro de cliente con datos válidos",
+    "suite": "Gestión de Clientes",
+    "nodeId": "208"
+  },
+  {
+    "id": "TC-CLI-002",
+    "expectedTitle": "Bloqueo por RFC duplicado",
+    "testlinkTitle": "TC-CLI-002 - Bloqueo por RFC duplicado",
+    "suite": "Gestión de Clientes",
+    "nodeId": "209"
+  },
+  {
+    "id": "TC-CLI-003",
+    "expectedTitle": "Edición básica de contacto",
+    "testlinkTitle": "TC-CLI-003 - Edición básica de contacto",
+    "suite": "Gestión de Clientes",
+    "nodeId": "210"
+  },
+  {
+    "id": "TC-CLI-005",
+    "expectedTitle": "Correo electrónico con formato inválido",
+    "testlinkTitle": "TC-CLI-005 - Correo electrónico con formato inválido",
+    "suite": "Gestión de Clientes",
+    "nodeId": "212"
+  },
+  {
+    "id": "TC-POL-005",
+    "expectedTitle": "Validación de duplicidad de número de póliza",
+    "testlinkTitle": "TC-POL-005 - Validación de duplicidad de número de póliza",
+    "suite": "Pólizas",
+    "nodeId": "259"
+  },
+  {
+    "id": "TC-POL-007",
+    "expectedTitle": "Filtrado por estado de póliza",
+    "testlinkTitle": "TC-POL-007 - Filtrado por estado de póliza",
+    "suite": "Pólizas",
+    "nodeId": "261"
+  },
+  {
+    "id": "TC-UI-001",
+    "expectedTitle": "Consistencia visual formulario clientes",
+    "testlinkTitle": "TC-UI-001 - Consistencia visual de formulario de cliente",
+    "suite": "Diseño (UI/UX)",
+    "nodeId": "248"
+  },
+  {
+    "id": "TC-UI-004",
+    "expectedTitle": "Contraste de colores y legibilidad",
+    "testlinkTitle": "TC-UI-004 - Validar contraste de colores y legibilidad del texto",
+    "suite": "Diseño (UI/UX)",
+    "nodeId": "251"
+  },
+  {
+    "id": "TC-UI-007",
+    "expectedTitle": "Logo visible en vistas clave",
+    "testlinkTitle": "TC-UI-007 - Verificar que el logo y nombre de la aplicación se muestren correctamente",
+    "suite": "Diseño (UI/UX)",
+    "nodeId": "254"
+  },
+  {
+    "id": "TC-UI-008",
+    "expectedTitle": "Alineación y espaciado",
+    "testlinkTitle": "TC-UI-008 - Verificar alineación y espaciado uniforme en formularios",
+    "suite": "Diseño (UI/UX)",
+    "nodeId": "255"
+  },
+  {
+    "id": "TC-UI-009",
+    "expectedTitle": "Estados hover y active en botones",
+    "testlinkTitle": "TC-UI-009 - Validar que los botones tengan estados hover y active",
+    "suite": "Diseño (UI/UX)",
+    "nodeId": "256"
+  },
+  {
+    "id": "TC-UI-010",
+    "expectedTitle": "Iconografía e imágenes cargan correctamente",
+    "testlinkTitle": "TC-UI-010 - Comprobar que los iconos y elementos visuales cargan correctamente",
+    "suite": "Diseño (UI/UX)",
+    "nodeId": "257"
+  }
+]

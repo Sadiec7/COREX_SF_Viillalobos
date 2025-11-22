@@ -1,0 +1,143 @@
+/* Modal Global Styles - Sistema de Seguros VILLALOBOS */
+/* Este archivo define estilos consistentes para todos los modales de la aplicación */
+
+/* Estilos base del modal - Overlay bloqueante MEJORADO */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999; /* Máxima prioridad */
+    background-color: rgba(0, 0, 0, 0.8); /* Más oscuro para mejor bloqueo visual */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px); /* Safari support */
+    align-items: center;
+    justify-content: center;
+    animation: modalFadeIn 0.3s ease;
+    overflow: auto;
+    padding: 20px;
+    cursor: default; /* Evitar que parezca clickeable */
+}
+
+/* Estado activo del modal - Con !important para asegurar prioridad */
+.modal.active {
+    display: flex !important;
+}
+
+/* Capa adicional para asegurar bloqueo de interacciones */
+.modal.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    cursor: default;
+}
+
+/* Contenido del modal */
+.modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalSlideUp 0.3s ease;
+    max-height: calc(100vh - 40px);
+    max-width: 100%;
+    overflow-y: auto;
+    margin: auto;
+}
+
+/* Evitar que el scroll del body cuando el modal está activo */
+body.modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+/* Animaciones del modal */
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Estilos para cerrar el modal al hacer clic fuera */
+.modal-backdrop-close {
+    position: absolute;
+    inset: 0;
+    cursor: default;
+}
+
+/* Scrollbar personalizado para el contenido del modal */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+    .modal {
+        padding: 10px;
+    }
+
+    .modal-content {
+        max-height: calc(100vh - 20px);
+        width: 100%;
+    }
+}
+
+/* Utilidades para z-index en caso de modales anidados */
+.modal.z-higher {
+    z-index: 10100;
+}
+
+.modal.z-highest {
+    z-index: 10200;
+}
+
+/* Transición suave al cerrar */
+.modal.closing {
+    animation: modalFadeOut 0.2s ease;
+}
+
+@keyframes modalFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}

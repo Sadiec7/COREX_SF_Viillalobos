@@ -51,7 +51,14 @@ class CatalogosController {
     initEventListeners() {
         // Back button (optional - only in standalone view, not SPA)
         if (this.btnBack) {
-            this.btnBack.addEventListener('click', () => (window.location.href = 'dashboard_view.html'));
+            this.btnBack.addEventListener('click', () => {
+                // Navegar al dashboard usando SPA navigation
+                if (window.appNavigation) {
+                    window.appNavigation.navigateTo('dashboard');
+                } else {
+                    console.error('appNavigation no disponible');
+                }
+            });
         }
         this.btnAddAseguradora.addEventListener('click', () => this.openModal('aseguradora'));
         this.btnAddRamo.addEventListener('click', () => this.openModal('ramo'));
@@ -229,10 +236,12 @@ class CatalogosController {
         }
 
         this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
     }
 
     closeModal() {
         this.modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         this.form.reset();
         this.currentId = null;
     }

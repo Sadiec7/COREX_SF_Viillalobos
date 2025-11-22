@@ -181,7 +181,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('dashboard:getMetrics'),
 
         getPolizasConAlertas: () =>
-            ipcRenderer.invoke('dashboard:getPolizasConAlertas')
+            ipcRenderer.invoke('dashboard:getPolizasConAlertas'),
+
+        getPolizasTrend: () =>
+            ipcRenderer.invoke('dashboard:getPolizasTrend'),
+
+        getPolizasByAseguradora: () =>
+            ipcRenderer.invoke('dashboard:getPolizasByAseguradora'),
+
+        getRecibosByEstado: () =>
+            ipcRenderer.invoke('dashboard:getRecibosByEstado'),
+
+        getCobrosMensuales: () =>
+            ipcRenderer.invoke('dashboard:getCobrosMensuales')
     },
 
     // Información del sistema

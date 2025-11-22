@@ -1,45 +1,9 @@
 <style>
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
-        animation: fadeIn 0.3s ease;
-        padding: 20px 0;
-    }
+    /* Estilos específicos para clientes - Los generales están en modal-global.css */
 
+    /* Ajuste específico para el modal de clientes */
     .modal.active {
-        display: flex;
         align-items: flex-start;
-        justify-content: center;
-    }
-
-    .modal-content {
-        animation: slideIn 0.3s ease;
-        max-height: calc(100vh - 40px);
-        overflow-y: auto;
-        margin: auto 0;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
     }
 
     .btn-hover:hover {

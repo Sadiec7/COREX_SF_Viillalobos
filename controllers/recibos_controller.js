@@ -293,6 +293,7 @@ class RecibosController {
         }
 
         this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
     }
 
     async openEditModal(reciboId) {
@@ -320,6 +321,7 @@ class RecibosController {
             this.inputFechaPago.value = recibo.fecha_pago ? this.toInputDate(recibo.fecha_pago) : '';
 
             this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
         } catch (error) {
             console.error('Error al cargar recibo:', error);
             alert('No se pudo cargar el recibo seleccionado.');
@@ -423,13 +425,19 @@ class RecibosController {
 
     closeModal() {
         this.modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         this.form.reset();
         this.currentRecibo = null;
         this.isEditMode = false;
     }
 
     goBack() {
-        window.location.href = 'dashboard_view.html';
+        // Navegar al dashboard usando SPA navigation
+        if (window.appNavigation) {
+            window.appNavigation.navigateTo('dashboard');
+        } else {
+            console.error('appNavigation no disponible');
+        }
     }
 
     showLoading(show) {

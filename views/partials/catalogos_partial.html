@@ -16,36 +16,7 @@
             background-color: rgba(212, 175, 55, 0.1);
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background-color: rgba(0, 0, 0, 0.45);
-            align-items: center;
-            justify-content: center;
-            animation: fade 0.3s ease;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            animation: rise 0.25s ease;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        @keyframes fade {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Estilos específicos para catálogos - Los generales están en modal-global.css */
     </style>
 
     <!-- Title Section -->

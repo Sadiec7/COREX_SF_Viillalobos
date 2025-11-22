@@ -491,6 +491,7 @@ class PolizasController {
         }
 
         this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
     }
 
     async openEditModal(polizaId) {
@@ -529,10 +530,12 @@ class PolizasController {
         }
 
         this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
     }
 
     closeModal() {
         this.modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         this.form.reset();
         this.currentPoliza = null;
         this.isEditMode = false;
@@ -540,6 +543,7 @@ class PolizasController {
 
     closeRecibosModal() {
         this.modalRecibos.classList.remove('active');
+        document.body.classList.remove('modal-open');
         this.recibosContent.innerHTML = '';
     }
 
@@ -681,6 +685,7 @@ class PolizasController {
                 `;
 
                 this.modalRecibos.classList.add('active');
+                document.body.classList.add('modal-open');
             } else {
                 this.showError('Error al cargar recibos');
             }
@@ -881,11 +886,21 @@ class PolizasController {
         } catch (error) {
             console.warn('No se pudo guardar el contexto en localStorage:', error);
         }
-        window.location.href = 'recibos_view.html';
+        // Navegar a recibos usando SPA navigation
+        if (window.appNavigation) {
+            window.appNavigation.navigateTo('recibos');
+        } else {
+            console.error('appNavigation no disponible');
+        }
     }
 
     goBack() {
-        window.location.href = 'dashboard_view.html';
+        // Navegar al dashboard usando SPA navigation
+        if (window.appNavigation) {
+            window.appNavigation.navigateTo('dashboard');
+        } else {
+            console.error('appNavigation no disponible');
+        }
     }
 
     showLoading(show) {

@@ -10,11 +10,15 @@ class DashboardController {
             theme: 'default'
         };
 
+        this.charts = {}; // Store chart instances
+
         this.initElements();
         this.initEventListeners();
         this.loadUserSettings();
         this.applyUserSettings();
         this.loadMetrics();
+        this.initCharts();
+        this.startClock();
     }
 
     initElements() {
@@ -27,6 +31,10 @@ class DashboardController {
         // Información de usuario
         this.userName = document.getElementById('userName');
         this.welcomeUser = document.getElementById('welcomeUser');
+
+        // Fecha y hora
+        this.currentDate = document.getElementById('currentDate');
+        this.currentTime = document.getElementById('currentTime');
 
         // Botones principales
         this.logoutButton = document.getElementById('logoutButton');
@@ -387,6 +395,248 @@ class DashboardController {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    startClock() {
+        this.updateDateTime();
+        setInterval(() => this.updateDateTime(), 1000);
+    }
+
+    updateDateTime() {
+        const now = new Date();
+
+        if (this.currentDate) {
+            const dateOptions = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            this.currentDate.textContent = now.toLocaleDateString('es-MX', dateOptions);
+        }
+
+        if (this.currentTime) {
+            const timeOptions = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            this.currentTime.textContent = now.toLocaleTimeString('es-MX', timeOptions);
+        }
+    }
+
+    async initCharts() {
+        // Wait for DOM elements to be ready
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        try {
+            await this.createPolizasTrendChart();
+            await this.createAseguradorasChart();
+            await this.createEstadosCobroChart();
+            await this.createCobrosMensualesChart();
+        } catch (error) {
+            console.error('Error initializing charts:', error);
+        }
+    }
+
+    async createPolizasTrendChart() {
+        const canvas = document.getElementById('chartPolizasTrend');
+        if (!canvas) return;
+
+        try {
+            const result = await window.electronAPI.dashboard.getPolizasTrend();
+            const data = result.success && result.data ? result.data : [];
+
+            const labels = data.map(item => item.mes || '');
+            const values = data.map(item => item.total || 0);
+
+            this.charts.polizasTrend = new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Pólizas Emitidas',
+                        data: values,
+                        borderColor: '#2E86AB',
+                        backgroundColor: 'rgba(46, 134, 171, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating polizas trend chart:', error);
+        }
+    }
+
+    async createAseguradorasChart() {
+        const canvas = document.getElementById('chartAseguradoras');
+        if (!canvas) return;
+
+        try {
+            const result = await window.electronAPI.dashboard.getPolizasByAseguradora();
+            const data = result.success && result.data ? result.data : [];
+
+            const labels = data.map(item => item.aseguradora || 'Sin aseguradora');
+            const values = data.map(item => item.total || 0);
+
+            const colors = [
+                '#1B4F72', '#2E86AB', '#F4D03F', '#A93226',
+                '#27AE60', '#8E44AD', '#E67E22', '#34495E'
+            ];
+
+            this.charts.aseguradoras = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Número de Pólizas',
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating aseguradoras chart:', error);
+        }
+    }
+
+    async createEstadosCobroChart() {
+        const canvas = document.getElementById('chartEstadosCobro');
+        if (!canvas) return;
+
+        try {
+            const result = await window.electronAPI.dashboard.getRecibosByEstado();
+            const data = result.success && result.data ? result.data : [];
+
+            const labels = data.map(item => item.estado_cobro || 'Sin estado');
+            const values = data.map(item => item.total || 0);
+
+            const colors = ['#27AE60', '#F4D03F', '#E67E22', '#A93226'];
+
+            this.charts.estadosCobro = new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating estados cobro chart:', error);
+        }
+    }
+
+    async createCobrosMensualesChart() {
+        const canvas = document.getElementById('chartCobrosMensuales');
+        if (!canvas) return;
+
+        try {
+            const result = await window.electronAPI.dashboard.getCobrosMensuales();
+            const data = result.success && result.data ? result.data : [];
+
+            const labels = data.map(item => item.mes || '');
+            const cobrado = data.map(item => item.cobrado || 0);
+            const pendiente = data.map(item => item.pendiente || 0);
+
+            this.charts.cobrosMensuales = new Chart(canvas, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Cobrado',
+                            data: cobrado,
+                            backgroundColor: '#27AE60',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Pendiente',
+                            data: pendiente,
+                            backgroundColor: '#E67E22',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString('es-MX');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error creating cobros mensuales chart:', error);
+        }
     }
 }
 
