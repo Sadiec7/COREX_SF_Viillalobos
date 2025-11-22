@@ -143,6 +143,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
         create: (documentoData) =>
             ipcRenderer.invoke('documentos:create', documentoData),
 
+        getAll: () =>
+            ipcRenderer.invoke('documentos:getAll'),
+
         getByCliente: (clienteId) =>
             ipcRenderer.invoke('documentos:getByCliente', clienteId),
 
@@ -156,7 +159,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('documentos:openFile', payload),
 
         exportCliente: (payload) =>
-            ipcRenderer.invoke('documentos:exportCliente', payload)
+            ipcRenderer.invoke('documentos:exportCliente', payload),
+
+        exportSelected: (payload) =>
+            ipcRenderer.invoke('documentos:exportSelected', payload)
     },
 
     // ============================================

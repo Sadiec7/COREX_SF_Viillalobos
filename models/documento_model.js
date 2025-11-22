@@ -43,6 +43,21 @@ class DocumentoModel {
         );
     }
 
+    getAll() {
+        return this.dbManager.query(
+            `
+            SELECT
+                d.*,
+                c.nombre as cliente_nombre,
+                p.numero_poliza
+            FROM Documento d
+            LEFT JOIN Cliente c ON d.cliente_id = c.cliente_id
+            LEFT JOIN Poliza p ON d.poliza_id = p.poliza_id
+            ORDER BY d.fecha_creacion DESC
+        `
+        );
+    }
+
     getByCliente(clienteId) {
         return this.dbManager.query(
             `

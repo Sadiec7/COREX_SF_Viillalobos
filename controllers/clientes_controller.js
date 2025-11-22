@@ -8,6 +8,18 @@ class ClientesController {
         this.isEditMode = false;
         this.documentDrafts = [];
         this.documentExisting = [];
+        this.activeFilters = {
+            fisica: false,
+            moral: false,
+            conEmail: false,
+            conTelefono: false,
+            conDireccion: false
+        };
+
+        // Paginación
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+        this.totalPages = 1;
 
         this.initElements();
         this.initEventListeners();
@@ -72,6 +84,11 @@ class ClientesController {
         this.emptyState = document.getElementById('emptyState');
         this.loadingState = document.getElementById('loadingState');
 
+        // Paginación
+        this.paginationContainer = document.getElementById('paginationContainer');
+        this.paginationInfo = document.getElementById('paginationInfo');
+        this.itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
+
         // Modal
         this.modal = document.getElementById('modalCliente');
         this.modalTitle = document.getElementById('modalTitle');
@@ -96,6 +113,21 @@ class ClientesController {
         this.documentExistingContainer = document.getElementById('documentExistingContainer');
         this.documentExistingList = document.getElementById('documentExistingList');
         this.documentExistingTemplate = document.getElementById('documentExistingTemplate');
+
+        // Filters Modal
+        this.btnOpenFilters = document.getElementById('btnOpenFilters');
+        this.modalFiltros = document.getElementById('modalFiltros');
+        this.btnCloseFiltros = document.getElementById('btnCloseFiltros');
+        this.btnApplyFilters = document.getElementById('btnApplyFilters');
+        this.btnClearFilters = document.getElementById('btnClearFilters');
+        this.filterBadge = document.getElementById('filterBadge');
+
+        // Filter Checkboxes
+        this.filterFisica = document.getElementById('filterFisica');
+        this.filterMoral = document.getElementById('filterMoral');
+        this.filterConEmail = document.getElementById('filterConEmail');
+        this.filterConTelefono = document.getElementById('filterConTelefono');
+        this.filterConDireccion = document.getElementById('filterConDireccion');
     }
 
     initEventListeners() {
@@ -128,6 +160,13 @@ class ClientesController {
         this.searchInput.addEventListener('input', (e) => {
             this.handleSearch(e.target.value);
         });
+
+        // Items per page selector
+        if (this.itemsPerPageSelect) {
+            this.itemsPerPageSelect.addEventListener('change', (e) => {
+                this.changeItemsPerPage(e.target.value);
+            });
+        }
 
         // RFC uppercase
         this.inputRFC.addEventListener('input', (e) => {
@@ -165,6 +204,19 @@ class ClientesController {
         if (this.documentExistingList) {
             this.documentExistingList.addEventListener('click', (event) => this.handleExistingAction(event));
         }
+
+        // Filters Modal
+        this.btnOpenFilters.addEventListener('click', () => this.openFiltersModal());
+        this.btnCloseFiltros.addEventListener('click', () => this.closeFiltersModal());
+        this.btnApplyFilters.addEventListener('click', () => this.applyFilters());
+        this.btnClearFilters.addEventListener('click', () => this.clearFilters());
+
+        // Close filters modal on outside click
+        this.modalFiltros.addEventListener('click', (e) => {
+            if (e.target === this.modalFiltros) {
+                this.closeFiltersModal();
+            }
+        });
     }
 
     async loadClientes() {
@@ -192,18 +244,31 @@ class ClientesController {
     }
 
     renderTable(clientesToRender = null) {
-        const clientes = clientesToRender || this.clientes;
+        let clientes = clientesToRender || this.clientes;
+
+        // Apply active filters
+        clientes = this.applyActiveFilters(clientes);
 
         if (clientes.length === 0) {
             this.tableBody.innerHTML = '';
             this.emptyState.classList.remove('hidden');
+            if (this.paginationContainer) {
+                this.paginationContainer.classList.add('hidden');
+            }
             return;
         }
 
         this.emptyState.classList.add('hidden');
 
-        this.tableBody.innerHTML = clientes.map(cliente => `
-            <tr class="table-row transition-colors" data-cliente-id="${cliente.cliente_id}">
+        // Calcular paginación
+        this.totalPages = PaginationHelper.getTotalPages(clientes.length, this.itemsPerPage);
+        this.currentPage = PaginationHelper.getValidPage(this.currentPage, this.totalPages);
+
+        // Obtener elementos de la página actual
+        const paginatedClientes = PaginationHelper.getPaginatedItems(clientes, this.currentPage, this.itemsPerPage);
+
+        this.tableBody.innerHTML = paginatedClientes.map(cliente => `
+            <tr class="group transition-colors cursor-pointer hover:bg-gray-50" data-cliente-id="${cliente.cliente_id}">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     ${cliente.cliente_id}
                 </td>
@@ -228,12 +293,12 @@ class ClientesController {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     ${cliente.telefono || '-'}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div class="flex gap-2">
+                <td class="sticky right-0 bg-white group-hover:bg-gray-50 px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
+                    <div class="flex gap-2 whitespace-nowrap">
                         <button
                             data-action="edit"
                             data-cliente-id="${cliente.cliente_id}"
-                            class="text-gold-600 hover:text-gold-900 transition-colors"
+                            class="p-1 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
                             title="Editar"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,10 +306,19 @@ class ClientesController {
                             </svg>
                         </button>
                         <button
+                            data-action="toggle"
+                            data-cliente-id="${cliente.cliente_id}"
+                            data-cliente-activo="${cliente.activo ? '1' : '0'}"
+                            class="p-1 ${cliente.activo ? 'text-orange-600 hover:text-orange-900 hover:bg-orange-50' : 'text-green-600 hover:text-green-900 hover:bg-green-50'} rounded transition-colors"
+                            title="${cliente.activo ? 'Desactivar' : 'Activar'}"
+                        >
+                            ${cliente.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
+                        </button>
+                        <button
                             data-action="delete"
                             data-cliente-id="${cliente.cliente_id}"
                             data-cliente-nombre=${JSON.stringify(cliente.nombre)}
-                            class="text-red-600 hover:text-red-900 transition-colors"
+                            class="p-1 text-red-600 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
                             title="Eliminar"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -255,6 +329,32 @@ class ClientesController {
                 </td>
             </tr>
         `).join('');
+
+        // Renderizar controles de paginación
+        this.renderPagination(clientes.length);
+    }
+
+    renderPagination(totalItems) {
+        PaginationHelper.renderPagination({
+            currentPage: this.currentPage,
+            itemsPerPage: this.itemsPerPage,
+            totalItems: totalItems,
+            container: this.paginationContainer,
+            infoElement: this.paginationInfo,
+            onPageChange: 'window.clientesController.goToPage'
+        });
+    }
+
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages) return;
+        this.currentPage = page;
+        this.renderTable();
+    }
+
+    changeItemsPerPage(value) {
+        this.itemsPerPage = parseInt(value);
+        this.currentPage = 1; // Resetear a la primera página
+        this.renderTable();
     }
 
     updateStats() {
@@ -268,22 +368,33 @@ class ClientesController {
     }
 
     handleActionClick(event) {
+        // Check if click was on an action button
         const button = event.target.closest('button[data-action]');
-        if (!button) {
+        if (button) {
+            const clienteId = Number(button.dataset.clienteId);
+            if (!clienteId) {
+                return;
+            }
+
+            const action = button.dataset.action;
+            if (action === 'edit') {
+                this.openEditModal(clienteId);
+            } else if (action === 'toggle') {
+                this.toggleActivo(clienteId);
+            } else if (action === 'delete') {
+                const nombre = button.dataset.clienteNombre || null;
+                this.deleteCliente(clienteId, nombre);
+            }
             return;
         }
 
-        const clienteId = Number(button.dataset.clienteId);
-        if (!clienteId) {
-            return;
-        }
-
-        const action = button.dataset.action;
-        if (action === 'edit') {
-            this.openEditModal(clienteId);
-        } else if (action === 'delete') {
-            const nombre = button.dataset.clienteNombre || null;
-            this.deleteCliente(clienteId, nombre);
+        // If not a button, check if click was on a table row
+        const row = event.target.closest('tr[data-cliente-id]');
+        if (row) {
+            const clienteId = Number(row.dataset.clienteId);
+            if (clienteId) {
+                this.openEditModal(clienteId);
+            }
         }
     }
 
@@ -831,6 +942,111 @@ class ClientesController {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // ========== Filters Modal Methods ==========
+
+    openFiltersModal() {
+        // Set current active filters in checkboxes
+        this.filterFisica.checked = this.activeFilters.fisica;
+        this.filterMoral.checked = this.activeFilters.moral;
+        this.filterConEmail.checked = this.activeFilters.conEmail;
+        this.filterConTelefono.checked = this.activeFilters.conTelefono;
+        this.filterConDireccion.checked = this.activeFilters.conDireccion;
+
+        this.modalFiltros.classList.add('active');
+        document.body.classList.add('modal-open');
+    }
+
+    closeFiltersModal() {
+        this.modalFiltros.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+
+    applyFilters() {
+        // Update active filters
+        this.activeFilters.fisica = this.filterFisica.checked;
+        this.activeFilters.moral = this.filterMoral.checked;
+        this.activeFilters.conEmail = this.filterConEmail.checked;
+        this.activeFilters.conTelefono = this.filterConTelefono.checked;
+        this.activeFilters.conDireccion = this.filterConDireccion.checked;
+
+        // Update filter badge
+        this.updateFilterBadge();
+
+        // Apply filters to table
+        this.renderTable();
+
+        // Close modal
+        this.closeFiltersModal();
+    }
+
+    clearFilters() {
+        // Reset all filters
+        this.activeFilters = {
+            fisica: false,
+            moral: false,
+            conEmail: false,
+            conTelefono: false,
+            conDireccion: false
+        };
+
+        // Uncheck all checkboxes
+        this.filterFisica.checked = false;
+        this.filterMoral.checked = false;
+        this.filterConEmail.checked = false;
+        this.filterConTelefono.checked = false;
+        this.filterConDireccion.checked = false;
+
+        // Update filter badge
+        this.updateFilterBadge();
+
+        // Apply filters to table
+        this.renderTable();
+
+        // Close modal
+        this.closeFiltersModal();
+    }
+
+    updateFilterBadge() {
+        const activeCount = Object.values(this.activeFilters).filter(v => v).length;
+
+        if (activeCount > 0) {
+            this.filterBadge.textContent = activeCount;
+            this.filterBadge.classList.remove('hidden');
+        } else {
+            this.filterBadge.classList.add('hidden');
+        }
+    }
+
+    applyActiveFilters(clientes) {
+        let filtered = [...clientes];
+
+        // Filter by tipo_persona
+        const tipoFilters = [];
+        if (this.activeFilters.fisica) tipoFilters.push('Física');
+        if (this.activeFilters.moral) tipoFilters.push('Moral');
+
+        if (tipoFilters.length > 0) {
+            filtered = filtered.filter(c => tipoFilters.includes(c.tipo_persona));
+        }
+
+        // Filter by email
+        if (this.activeFilters.conEmail) {
+            filtered = filtered.filter(c => c.email && c.email.trim() !== '');
+        }
+
+        // Filter by telefono
+        if (this.activeFilters.conTelefono) {
+            filtered = filtered.filter(c => c.telefono && c.telefono.trim() !== '');
+        }
+
+        // Filter by direccion
+        if (this.activeFilters.conDireccion) {
+            filtered = filtered.filter(c => c.direccion && c.direccion.trim() !== '');
+        }
+
+        return filtered;
     }
 
 }

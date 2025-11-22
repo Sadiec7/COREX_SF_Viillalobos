@@ -564,6 +564,90 @@ function registerIPCHandlers(dbManager, models) {
         }
     });
 
+    ipcMain.handle('catalogos:deleteAseguradora', async (event, id) => {
+        try {
+            const deleted = catalogosModel.eliminarAseguradora(id);
+            return { success: deleted };
+        } catch (error) {
+            console.error('Error al eliminar aseguradora:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:deleteRamo', async (event, id) => {
+        try {
+            const deleted = catalogosModel.eliminarRamo(id);
+            return { success: deleted };
+        } catch (error) {
+            console.error('Error al eliminar ramo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Periodicidades
+    ipcMain.handle('catalogos:createPeriodicidad', async (event, nombre, meses) => {
+        try {
+            const id = catalogosModel.crearPeriodicidad(nombre, meses);
+            return { success: true, data: { periodicidad_id: id } };
+        } catch (error) {
+            console.error('Error al crear periodicidad:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:updatePeriodicidad', async (event, payload) => {
+        try {
+            const { periodicidad_id, nombre, meses } = payload;
+            const updated = catalogosModel.actualizarPeriodicidad(periodicidad_id, nombre, meses);
+            return { success: updated };
+        } catch (error) {
+            console.error('Error al actualizar periodicidad:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:deletePeriodicidad', async (event, id) => {
+        try {
+            const deleted = catalogosModel.eliminarPeriodicidad(id);
+            return { success: deleted };
+        } catch (error) {
+            console.error('Error al eliminar periodicidad:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Métodos de Pago
+    ipcMain.handle('catalogos:createMetodoPago', async (event, nombre) => {
+        try {
+            const id = catalogosModel.crearMetodoPago(nombre);
+            return { success: true, data: { metodo_pago_id: id } };
+        } catch (error) {
+            console.error('Error al crear método de pago:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:updateMetodoPago', async (event, payload) => {
+        try {
+            const { metodo_pago_id, nombre } = payload;
+            const updated = catalogosModel.actualizarMetodoPago(metodo_pago_id, nombre);
+            return { success: updated };
+        } catch (error) {
+            console.error('Error al actualizar método de pago:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('catalogos:deleteMetodoPago', async (event, id) => {
+        try {
+            const deleted = catalogosModel.eliminarMetodoPago(id);
+            return { success: deleted };
+        } catch (error) {
+            console.error('Error al eliminar método de pago:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
     // ============================================
     // DOCUMENTOS
     // ============================================
@@ -616,6 +700,16 @@ function registerIPCHandlers(dbManager, models) {
             return { success: true, data: documento };
         } catch (error) {
             console.error('Error al crear documento:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:getAll', async () => {
+        try {
+            const documentos = documentoModel.getAll();
+            return { success: true, data: documentos };
+        } catch (error) {
+            console.error('Error al listar todos los documentos:', error);
             return { success: false, message: error.message };
         }
     });
@@ -682,8 +776,8 @@ function registerIPCHandlers(dbManager, models) {
 
             const documentos = documentoModel.getByCliente(cliente_id) || [];
             if (!documentos.length) {
-                return { success: false, message: 'El cliente no tiene documentos registrados.' };
-            }
+            return { success: false, message: 'El cliente no tiene documentos registrados.' };
+        }
 
             await fsp.mkdir(destino, { recursive: true });
             const resumen = {
@@ -723,6 +817,58 @@ function registerIPCHandlers(dbManager, models) {
             return { success: true, data: resumen, message };
         } catch (error) {
             console.error('Error al exportar documentos del cliente:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('documentos:exportSelected', async (event, payload = {}) => {
+        try {
+            const { documentos = [], destino } = payload;
+            if (!destino) {
+                throw new Error('Selecciona una carpeta de destino.');
+            }
+            if (!Array.isArray(documentos) || !documentos.length) {
+                throw new Error('No se proporcionaron documentos para exportar.');
+            }
+
+            await fsp.mkdir(destino, { recursive: true });
+            const resumen = {
+                copiados: 0,
+                omitidos: []
+            };
+
+            for (const documento of documentos) {
+                const origenAbsoluto = resolveDocumentAbsolutePath(documento.ruta_relativa);
+                if (!origenAbsoluto) {
+                    resumen.omitidos.push({
+                        documento_id: documento.documento_id,
+                        nombre_archivo: documento.nombre_archivo,
+                        motivo: 'Archivo no encontrado'
+                    });
+                    continue;
+                }
+
+                const relativeDestino = await ensureUniqueTarget(
+                    destino,
+                    buildRelativePath(
+                        documento.cliente_id,
+                        documento.ruta_relativa,
+                        documento.nombre_archivo
+                    )
+                );
+                const destinoAbsoluto = path.join(destino, relativeDestino);
+                await fsp.mkdir(path.dirname(destinoAbsoluto), { recursive: true });
+                await fsp.copyFile(origenAbsoluto, destinoAbsoluto);
+                resumen.copiados += 1;
+            }
+
+            const message = resumen.omitidos.length
+                ? `Documentos exportados: ${resumen.copiados}. Omitidos: ${resumen.omitidos.length}.`
+                : 'Todos los documentos se exportaron correctamente.';
+
+            return { success: true, data: resumen, message };
+        } catch (error) {
+            console.error('Error al exportar documentos seleccionados:', error);
             return { success: false, message: error.message };
         }
     });

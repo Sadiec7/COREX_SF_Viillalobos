@@ -77,6 +77,72 @@ class CatalogosModel {
         );
         return result.changes > 0;
     }
+
+    eliminarAseguradora(id) {
+        const result = this.dbManager.execute(
+            `DELETE FROM Aseguradora WHERE aseguradora_id = ?`,
+            [id]
+        );
+        return result.changes > 0;
+    }
+
+    eliminarRamo(id) {
+        const result = this.dbManager.execute(
+            `DELETE FROM Ramo WHERE ramo_id = ?`,
+            [id]
+        );
+        return result.changes > 0;
+    }
+
+    // Periodicidades
+    crearPeriodicidad(nombre, meses) {
+        const result = this.dbManager.execute(
+            `INSERT INTO Periodicidad (nombre, meses) VALUES (?, ?)`,
+            [nombre.trim(), meses]
+        );
+        return result.lastInsertRowid;
+    }
+
+    actualizarPeriodicidad(id, nombre, meses) {
+        const result = this.dbManager.execute(
+            `UPDATE Periodicidad SET nombre = ?, meses = ? WHERE periodicidad_id = ?`,
+            [nombre.trim(), meses, id]
+        );
+        return result.changes > 0;
+    }
+
+    eliminarPeriodicidad(id) {
+        const result = this.dbManager.execute(
+            `DELETE FROM Periodicidad WHERE periodicidad_id = ?`,
+            [id]
+        );
+        return result.changes > 0;
+    }
+
+    // Métodos de Pago
+    crearMetodoPago(nombre) {
+        const result = this.dbManager.execute(
+            `INSERT INTO MetodoPago (nombre) VALUES (?)`,
+            [nombre.trim()]
+        );
+        return result.lastInsertRowid;
+    }
+
+    actualizarMetodoPago(id, nombre) {
+        const result = this.dbManager.execute(
+            `UPDATE MetodoPago SET nombre = ? WHERE metodo_pago_id = ?`,
+            [nombre.trim(), id]
+        );
+        return result.changes > 0;
+    }
+
+    eliminarMetodoPago(id) {
+        const result = this.dbManager.execute(
+            `DELETE FROM MetodoPago WHERE metodo_pago_id = ?`,
+            [id]
+        );
+        return result.changes > 0;
+    }
 }
 
 module.exports = CatalogosModel;

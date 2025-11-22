@@ -35,16 +35,16 @@ class AppNavigation {
                 controller: 'AseguradorasController'
             },
             'ramos': {
-                file: 'partials/catalogos_partial.html',
-                controller: 'CatalogosController'
+                file: 'partials/ramos_partial.html',
+                controller: 'RamosController'
             },
-            'periodicidad': {
-                file: 'partials/catalogos_partial.html',
-                controller: 'CatalogosController'
+            'periodicidades': {
+                file: 'partials/periodicidades_partial.html',
+                controller: 'PeriodicidadesController'
             },
             'metodos-pago': {
-                file: 'partials/catalogos_partial.html',
-                controller: 'CatalogosController'
+                file: 'partials/metodos_pago_partial.html',
+                controller: 'MetodosPagoController'
             },
             'documentos': {
                 file: 'partials/documentos_partial.html',

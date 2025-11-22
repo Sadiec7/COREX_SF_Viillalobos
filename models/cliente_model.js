@@ -40,7 +40,22 @@ class ClienteModel {
      */
     getById(clienteId) {
         return this.dbManager.queryOne(`
-            SELECT * FROM Cliente
+            SELECT
+                cliente_id,
+                rfc,
+                nombre,
+                tipo_persona,
+                telefono,
+                celular,
+                correo AS email,
+                direccion,
+                notas,
+                fecha_nacimiento,
+                activo,
+                fecha_eliminacion,
+                fecha_creacion,
+                fecha_modificacion
+            FROM Cliente
             WHERE cliente_id = ? AND activo = 1
         `, [clienteId]);
     }
@@ -52,7 +67,22 @@ class ClienteModel {
      */
     getByRFC(rfc) {
         return this.dbManager.queryOne(`
-            SELECT * FROM Cliente
+            SELECT
+                cliente_id,
+                rfc,
+                nombre,
+                tipo_persona,
+                telefono,
+                celular,
+                correo AS email,
+                direccion,
+                notas,
+                fecha_nacimiento,
+                activo,
+                fecha_eliminacion,
+                fecha_creacion,
+                fecha_modificacion
+            FROM Cliente
             WHERE rfc = ? AND activo = 1
         `, [rfc]);
     }
@@ -64,7 +94,22 @@ class ClienteModel {
      */
     search(term) {
         return this.dbManager.query(`
-            SELECT * FROM Cliente
+            SELECT
+                cliente_id,
+                rfc,
+                nombre,
+                tipo_persona,
+                telefono,
+                celular,
+                correo AS email,
+                direccion,
+                notas,
+                fecha_nacimiento,
+                activo,
+                fecha_eliminacion,
+                fecha_creacion,
+                fecha_modificacion
+            FROM Cliente
             WHERE (nombre LIKE ? OR rfc LIKE ?) AND activo = 1
             ORDER BY nombre ASC
         `, [`%${term}%`, `%${term}%`]);
@@ -77,7 +122,22 @@ class ClienteModel {
      */
     searchByName(nombre) {
         return this.dbManager.query(`
-            SELECT * FROM Cliente
+            SELECT
+                cliente_id,
+                rfc,
+                nombre,
+                tipo_persona,
+                telefono,
+                celular,
+                correo AS email,
+                direccion,
+                notas,
+                fecha_nacimiento,
+                activo,
+                fecha_eliminacion,
+                fecha_creacion,
+                fecha_modificacion
+            FROM Cliente
             WHERE nombre LIKE ? AND activo = 1
             ORDER BY nombre ASC
         `, [`%${nombre}%`]);
@@ -91,7 +151,22 @@ class ClienteModel {
      */
     getAll(limit = 1000, offset = 0) {
         return this.dbManager.query(`
-            SELECT * FROM Cliente
+            SELECT
+                cliente_id,
+                rfc,
+                nombre,
+                tipo_persona,
+                telefono,
+                celular,
+                correo AS email,
+                direccion,
+                notas,
+                fecha_nacimiento,
+                activo,
+                fecha_eliminacion,
+                fecha_creacion,
+                fecha_modificacion
+            FROM Cliente
             WHERE activo = 1
             ORDER BY fecha_creacion DESC
             LIMIT ? OFFSET ?

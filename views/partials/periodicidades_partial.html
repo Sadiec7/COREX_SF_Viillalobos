@@ -1,7 +1,7 @@
 <style>
-    /* Estilos específicos para aseguradoras - Los generales están en modal-global.css */
+    /* Estilos específicos para periodicidades - Los generales están en modal-global.css */
 
-    /* Ajuste específico para el modal de aseguradoras */
+    /* Ajuste específico para el modal de periodicidades */
     .modal.active {
         align-items: flex-start;
     }
@@ -14,13 +14,12 @@
     .btn-hover:active {
         transform: translateY(0);
     }
-
 </style>
 
 <!-- Title Section -->
 <div class="container mx-auto px-6 py-8">
-    <h1 class="text-3xl font-bold text-navy-700">Gestión de Aseguradoras</h1>
-    <p class="text-gray-600 mt-2">Administra las compañías aseguradoras</p>
+    <h1 class="text-3xl font-bold text-navy-700">Gestión de Periodicidades</h1>
+    <p class="text-gray-600 mt-2">Administra las periodicidades de pago</p>
 </div>
 
 <!-- Main Content -->
@@ -33,8 +32,8 @@
                 <div class="relative">
                     <input
                         type="text"
-                        id="searchAseguradoras"
-                        placeholder="Buscar aseguradoras por nombre..."
+                        id="searchPeriodicidades"
+                        placeholder="Buscar periodicidades..."
                         class="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500"
                     >
                     <svg class="w-5 h-5 text-gray-400 absolute left-3 top-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,42 +44,28 @@
 
             <!-- Add Button -->
             <button
-                id="btnAddAseguradora"
+                id="btnAddPeriodicidad"
                 class="bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2"
             >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                 </svg>
-                Nueva Aseguradora
+                Nueva Periodicidad
             </button>
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Stats Card -->
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-6">
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-gray-500 text-sm">Total Aseguradoras</p>
+                    <p class="text-gray-500 text-sm">Total Periodicidades</p>
                     <p id="statTotal" class="text-3xl font-bold text-navy-700">0</p>
                 </div>
                 <div class="bg-blue-100 rounded-full p-3">
                     <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Aseguradoras Activas</p>
-                    <p id="statActivas" class="text-3xl font-bold text-navy-700">0</p>
-                </div>
-                <div class="bg-green-100 rounded-full p-3">
-                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
                 </div>
             </div>
@@ -96,11 +81,11 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Nombre</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Meses</th>
                             <th class="sticky right-0 bg-navy-700 px-6 py-3 text-left text-xs font-medium uppercase tracking-wider shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.1)]">Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="aseguradorasTableBody" class="bg-white divide-y divide-gray-200">
+                    <tbody id="periodicidadesTableBody" class="bg-white divide-y divide-gray-200">
                         <!-- Dynamic content -->
                     </tbody>
                 </table>
@@ -108,35 +93,31 @@
         </div>
 
         <!-- Empty State -->
-        <div id="emptyAseguradoras" class="hidden text-center py-12">
+        <div id="emptyPeriodicidades" class="hidden text-center py-12">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No hay aseguradoras</h3>
-            <p class="mt-1 text-sm text-gray-500">Comienza agregando una nueva aseguradora.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No hay periodicidades</h3>
+            <p class="mt-1 text-sm text-gray-500">Comienza agregando una nueva periodicidad.</p>
         </div>
 
         <!-- Loading State -->
-        <div id="loadingAseguradoras" class="text-center py-12">
+        <div id="loadingPeriodicidades" class="text-center py-12">
             <svg class="animate-spin h-10 w-10 text-gold-500 mx-auto" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <p class="mt-2 text-sm text-gray-500">Cargando aseguradoras...</p>
+            <p class="mt-2 text-sm text-gray-500">Cargando periodicidades...</p>
         </div>
 
         <!-- Paginación -->
         <div id="paginationContainer" class="bg-white border-t border-gray-200 px-6 py-4 hidden">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <!-- Info de paginación e items por página -->
                 <div class="flex items-center gap-4">
                     <span id="paginationInfo" class="text-sm text-gray-700"></span>
                     <div class="flex items-center gap-2">
                         <label for="itemsPerPageSelect" class="text-sm text-gray-700">Por página:</label>
-                        <select
-                            id="itemsPerPageSelect"
-                            class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold-500"
-                        >
+                        <select id="itemsPerPageSelect" class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gold-500">
                             <option value="10">10</option>
                             <option value="25">25</option>
                             <option value="50">50</option>
@@ -144,8 +125,6 @@
                         </select>
                     </div>
                 </div>
-
-                <!-- Botones de paginación -->
                 <div id="paginationButtons" class="flex items-center gap-2"></div>
             </div>
         </div>
@@ -153,12 +132,12 @@
 
 </div>
 
-<!-- Modal: Add/Edit Aseguradora -->
-<div id="modalAseguradora" class="modal">
+<!-- Modal: Add/Edit Periodicidad -->
+<div id="modalPeriodicidad" class="modal">
     <div class="modal-content bg-white rounded-lg shadow-2xl max-w-lg w-full mx-4">
         <!-- Modal Header -->
         <div class="bg-navy-700 text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
-            <h2 id="modalTitle" class="text-xl font-bold">Nueva Aseguradora</h2>
+            <h2 id="modalTitle" class="text-xl font-bold">Nueva Periodicidad</h2>
             <button id="btnCloseModal" class="text-white hover:text-gray-300 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -167,18 +146,34 @@
         </div>
 
         <!-- Modal Body -->
-        <form id="formAseguradora" class="p-6">
+        <form id="formPeriodicidad" class="p-6 space-y-4">
             <!-- Nombre -->
             <div>
                 <label for="inputNombre" class="block text-sm font-medium text-gray-700 mb-2">
-                    Nombre de la Aseguradora *
+                    Nombre *
                 </label>
                 <input
                     type="text"
                     id="inputNombre"
                     name="nombre"
                     required
-                    placeholder="Ej: AXA Seguros"
+                    placeholder="Ej: Mensual, Trimestral, Anual"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500"
+                >
+            </div>
+
+            <!-- Meses -->
+            <div>
+                <label for="inputMeses" class="block text-sm font-medium text-gray-700 mb-2">
+                    Meses *
+                </label>
+                <input
+                    type="number"
+                    id="inputMeses"
+                    name="meses"
+                    required
+                    min="1"
+                    placeholder="Ej: 1, 3, 6, 12"
                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gold-500"
                 >
             </div>

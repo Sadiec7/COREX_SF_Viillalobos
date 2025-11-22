@@ -11,6 +11,16 @@ class RecibosController {
         this.prefillPolizaNumero = '';
         this.currentRecibo = null;
         this.isEditMode = false;
+        this.activeFilters = {
+            pendiente: false,
+            pagado: false,
+            vencido: false
+        };
+
+        // Pagination
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+        this.totalPages = 1;
 
         this.initElements();
         this.initEventListeners();
@@ -28,6 +38,19 @@ class RecibosController {
         // Búsqueda
         this.searchInput = document.getElementById('searchInput');
 
+        // Filters Modal
+        this.btnOpenFilters = document.getElementById('btnOpenFilters');
+        this.modalFiltros = document.getElementById('modalFiltros');
+        this.btnCloseFiltros = document.getElementById('btnCloseFiltros');
+        this.btnApplyFilters = document.getElementById('btnApplyFilters');
+        this.btnClearFilters = document.getElementById('btnClearFilters');
+        this.filterBadge = document.getElementById('filterBadge');
+
+        // Filter Checkboxes
+        this.filterPendiente = document.getElementById('filterPendiente');
+        this.filterPagado = document.getElementById('filterPagado');
+        this.filterVencido = document.getElementById('filterVencido');
+
         // Estadísticas
         this.statTotal = document.getElementById('statTotal');
         this.statPendientes = document.getElementById('statPendientes');
@@ -38,6 +61,11 @@ class RecibosController {
         this.tableBody = document.getElementById('recibosTableBody');
         this.emptyState = document.getElementById('emptyState');
         this.loadingState = document.getElementById('loadingState');
+
+        // Pagination
+        this.paginationContainer = document.getElementById('paginationContainer');
+        this.paginationInfo = document.getElementById('paginationInfo');
+        this.itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
 
         // Modal
         this.modal = document.getElementById('modalRecibo');
@@ -79,6 +107,29 @@ class RecibosController {
 
         this.searchInput.addEventListener('input', (event) => {
             this.applySearch(event.target.value);
+        });
+
+        // Items per page selector
+        if (this.itemsPerPageSelect) {
+            this.itemsPerPageSelect.addEventListener('change', (e) => {
+                this.changeItemsPerPage(e.target.value);
+            });
+        }
+
+        // Table click handler (for rows and action buttons)
+        this.tableBody.addEventListener('click', (e) => this.handleActionClick(e));
+
+        // Filters Modal
+        this.btnOpenFilters.addEventListener('click', () => this.openFiltersModal());
+        this.btnCloseFiltros.addEventListener('click', () => this.closeFiltersModal());
+        this.btnApplyFilters.addEventListener('click', () => this.applyFilters());
+        this.btnClearFilters.addEventListener('click', () => this.clearFilters());
+
+        // Close modal on outside click
+        this.modalFiltros.addEventListener('click', (e) => {
+            if (e.target === this.modalFiltros) {
+                this.closeFiltersModal();
+            }
         });
     }
 
@@ -183,79 +234,176 @@ class RecibosController {
             });
         }
 
+        // Apply active filters
+        this.recibos = this.applyActiveFilters(this.recibos);
+
         this.renderTable();
         this.updateStats();
         this.showLoading(false);
+    }
+
+    openFiltersModal() {
+        this.modalFiltros.classList.add('active');
+    }
+
+    closeFiltersModal() {
+        this.modalFiltros.classList.remove('active');
+    }
+
+    applyFilters() {
+        // Save filter state
+        this.activeFilters.pendiente = this.filterPendiente.checked;
+        this.activeFilters.pagado = this.filterPagado.checked;
+        this.activeFilters.vencido = this.filterVencido.checked;
+
+        // Update badge
+        this.updateFilterBadge();
+
+        // Close modal
+        this.closeFiltersModal();
+
+        // Re-apply search with new filters
+        this.applySearch(this.searchInput.value);
+    }
+
+    clearFilters() {
+        // Reset checkboxes
+        this.filterPendiente.checked = false;
+        this.filterPagado.checked = false;
+        this.filterVencido.checked = false;
+
+        // Reset active filters
+        this.activeFilters = {
+            pendiente: false,
+            pagado: false,
+            vencido: false
+        };
+
+        // Update badge
+        this.updateFilterBadge();
+
+        // Re-apply search without filters
+        this.applySearch(this.searchInput.value);
+    }
+
+    updateFilterBadge() {
+        let count = 0;
+        if (this.activeFilters.pendiente) count++;
+        if (this.activeFilters.pagado) count++;
+        if (this.activeFilters.vencido) count++;
+
+        if (count > 0) {
+            this.filterBadge.textContent = count;
+            this.filterBadge.classList.remove('hidden');
+        } else {
+            this.filterBadge.classList.add('hidden');
+        }
+    }
+
+    applyActiveFilters(recibos) {
+        let filtered = [...recibos];
+
+        // Filter by estado
+        const estadoFilters = [];
+        if (this.activeFilters.pendiente) estadoFilters.push('Pendiente');
+        if (this.activeFilters.pagado) estadoFilters.push('Pagado');
+        if (this.activeFilters.vencido) estadoFilters.push('Vencido');
+
+        if (estadoFilters.length > 0) {
+            filtered = filtered.filter(r => estadoFilters.includes(r.estado));
+        }
+
+        return filtered;
     }
 
     renderTable() {
         if (!this.recibos.length) {
             this.tableBody.innerHTML = '';
             this.emptyState.classList.remove('hidden');
+            if (this.paginationContainer) {
+                this.paginationContainer.classList.add('hidden');
+            }
             return;
         }
 
         this.emptyState.classList.add('hidden');
 
-        this.tableBody.innerHTML = this.recibos.map(recibo => {
+        // Calculate pagination
+        this.totalPages = PaginationHelper.getTotalPages(this.recibos.length, this.itemsPerPage);
+        this.currentPage = PaginationHelper.getValidPage(this.currentPage, this.totalPages);
+
+        // Get items for current page
+        const paginatedRecibos = PaginationHelper.getPaginatedItems(this.recibos, this.currentPage, this.itemsPerPage);
+
+        this.tableBody.innerHTML = paginatedRecibos.map(recibo => {
             const estadoClass = this.getEstadoBadge(recibo.estado, recibo.fecha_corte);
             return `
-                <tr class=\"table-row transition-colors\">
-                    <td class=\"px-6 py-4 text-sm text-gray-900 font-semibold\">
+                <tr class="group transition-colors cursor-pointer hover:bg-blue-50/50" data-recibo-id="${recibo.recibo_id}">
+                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">
                         ${this.escapeHtml(recibo.numero_recibo || `#${recibo.recibo_id}`)}
                     </td>
-                    <td class=\"px-6 py-4 text-sm text-gray-500\">
-                        <div class=\"font-medium text-gray-900\">${this.escapeHtml(recibo.numero_poliza || '')}</div>
-                        <div class=\"text-xs text-gray-500\">${this.escapeHtml(recibo.cliente_nombre || '')}</div>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        <div class="font-medium text-gray-900">${this.escapeHtml(recibo.numero_poliza || '')}</div>
+                        <div class="text-xs text-gray-500">${this.escapeHtml(recibo.cliente_nombre || '')}</div>
                     </td>
-                    <td class=\"px-6 py-4 text-sm text-gray-500\">
+                    <td class="px-6 py-4 text-sm text-gray-500">
                         ${this.formatDate(recibo.fecha_inicio_periodo)} - ${this.formatDate(recibo.fecha_fin_periodo)}
                     </td>
-                    <td class=\"px-6 py-4 text-sm text-gray-900 font-semibold\">
+                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">
                         ${this.formatCurrency(recibo.monto)}
                     </td>
-                    <td class=\"px-6 py-4 text-sm text-gray-500\">
+                    <td class="px-6 py-4 text-sm text-gray-500">
                         ${this.formatDate(recibo.fecha_corte)}
                     </td>
-                    <td class=\"px-6 py-4 text-sm\">
-                        <span class=\"status-badge ${estadoClass}\">
+                    <td class="px-6 py-4 text-sm">
+                        <span class="status-badge ${estadoClass}">
                             ${this.capitalize(recibo.estado)}
                         </span>
-                        ${recibo.fecha_pago ? `<div class=\"text-xs text-gray-500 mt-1\">Pago: ${this.formatDate(recibo.fecha_pago)}</div>` : ''}
+                        ${recibo.fecha_pago ? `<div class="text-xs text-gray-500 mt-1">Pago: ${this.formatDate(recibo.fecha_pago)}</div>` : ''}
                     </td>
-                    <td class=\"px-6 py-4 text-sm text-gray-500\">
+                    <td class="px-6 py-4 text-sm text-gray-500">
                         ${this.escapeHtml(recibo.aseguradora_nombre || '-')}
                     </td>
-                    <td class=\"px-6 py-4 whitespace-nowrap text-sm font-medium\">
-                        <div class=\"flex gap-2\">
+                    <td class="sticky right-0 bg-white group-hover:bg-blue-50/50 px-6 py-4 whitespace-nowrap text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
+                        <div class="flex gap-2">
                             ${recibo.estado !== 'pagado' ? `
                                 <button
-                                    class=\"text-green-600 hover:text-green-900 transition-colors\"
-                                    title=\"Marcar como pagado\"
-                                    onclick=\"window.recibosController.markAsPaid(${recibo.recibo_id})\"
+                                    data-action="mark-paid"
+                                    data-recibo-id="${recibo.recibo_id}"
+                                    class="p-1 text-green-600 hover:text-white hover:bg-green-600 rounded transition-all duration-150"
+                                    title="Marcar como pagado"
                                 >
-                                    ✔
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
                                 </button>
                             ` : `
                                 <button
-                                    class=\"text-yellow-600 hover:text-yellow-900 transition-colors\"
-                                    title=\"Marcar como pendiente\"
-                                    onclick=\"window.recibosController.markAsPending(${recibo.recibo_id})\"
+                                    data-action="mark-pending"
+                                    data-recibo-id="${recibo.recibo_id}"
+                                    class="p-1 text-yellow-600 hover:text-white hover:bg-yellow-600 rounded transition-all duration-150"
+                                    title="Marcar como pendiente"
                                 >
-                                    ⟳
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
                                 </button>
                             `}
                             <button
-                                class=\"text-indigo-600 hover:text-indigo-900 transition-colors\"
-                                title=\"Editar\"
-                                onclick=\"window.recibosController.openEditModal(${recibo.recibo_id})\"
+                                data-action="edit"
+                                data-recibo-id="${recibo.recibo_id}"
+                                class="p-1 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded transition-all duration-150"
+                                title="Editar"
                             >
-                                ✎
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
                             </button>
                             <button
-                                class=\"text-red-600 hover:text-red-900 transition-colors\"
-                                title=\"Eliminar\"
-                                onclick=\"window.recibosController.deleteRecibo(${recibo.recibo_id})\"
+                                data-action="delete"
+                                data-recibo-id="${recibo.recibo_id}"
+                                class="p-1 text-red-600 hover:text-white hover:bg-red-600 rounded transition-all duration-150"
+                                title="Eliminar"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -266,6 +414,9 @@ class RecibosController {
                 </tr>
             `;
         }).join('');
+
+        // Render pagination controls
+        this.renderPagination(this.recibos.length);
     }
 
     updateStats() {
@@ -279,6 +430,29 @@ class RecibosController {
         this.statPendientes.textContent = totals.pendiente;
         this.statPagados.textContent = totals.pagado;
         this.statVencidos.textContent = totals.vencido;
+    }
+
+    renderPagination(totalItems) {
+        PaginationHelper.renderPagination({
+            currentPage: this.currentPage,
+            itemsPerPage: this.itemsPerPage,
+            totalItems: totalItems,
+            container: this.paginationContainer,
+            infoElement: this.paginationInfo,
+            onPageChange: 'window.recibosController.goToPage'
+        });
+    }
+
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages) return;
+        this.currentPage = page;
+        this.renderTable();
+    }
+
+    changeItemsPerPage(value) {
+        this.itemsPerPage = parseInt(value);
+        this.currentPage = 1; // Reset to first page
+        this.renderTable();
     }
 
     openCreateModal() {
@@ -378,7 +552,19 @@ class RecibosController {
     }
 
     async deleteRecibo(reciboId) {
-        if (!confirm('¿Eliminar este recibo de forma permanente?')) {
+        const recibo = this.recibos.find(r => r.recibo_id === reciboId);
+        const displayName = recibo?.numero_fraccion
+            ? `Recibo ${recibo.numero_fraccion}`
+            : `Recibo #${reciboId}`;
+
+        let confirmed = false;
+        if (window.confirmModal) {
+            confirmed = await window.confirmModal.confirmDelete(displayName);
+        } else {
+            confirmed = confirm('¿Eliminar este recibo de forma permanente?');
+        }
+
+        if (!confirmed) {
             return;
         }
         try {
@@ -420,6 +606,37 @@ class RecibosController {
         } catch (error) {
             console.error('Error al marcar recibo como pendiente:', error);
             alert(error.message || 'Error al actualizar el recibo.');
+        }
+    }
+
+    handleActionClick(event) {
+        // Check if click was on an action button
+        const button = event.target.closest('button[data-action]');
+        if (button) {
+            const reciboId = Number(button.dataset.reciboId);
+            if (!reciboId) return;
+
+            const action = button.dataset.action;
+
+            if (action === 'mark-paid') {
+                this.markAsPaid(reciboId);
+            } else if (action === 'mark-pending') {
+                this.markAsPending(reciboId);
+            } else if (action === 'edit') {
+                this.openEditModal(reciboId);
+            } else if (action === 'delete') {
+                this.deleteRecibo(reciboId);
+            }
+            return;
+        }
+
+        // If not a button, check if click was on a table row
+        const row = event.target.closest('tr[data-recibo-id]');
+        if (row) {
+            const reciboId = Number(row.dataset.reciboId);
+            if (reciboId) {
+                this.openEditModal(reciboId);
+            }
         }
     }
 

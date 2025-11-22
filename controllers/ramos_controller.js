@@ -1,9 +1,9 @@
-// controllers/aseguradoras_controller.js
-// Controlador para gestión de Aseguradoras
+// controllers/ramos_controller.js
+// Controlador para gestión de Ramos
 
-class AseguradorasController {
+class RamosController {
     constructor() {
-        this.aseguradoras = [];
+        this.ramos = [];
         this.currentId = null;
 
         // Paginación
@@ -18,23 +18,23 @@ class AseguradorasController {
 
     initElements() {
         // Botones
-        this.btnAddAseguradora = document.getElementById('btnAddAseguradora');
+        this.btnAddRamo = document.getElementById('btnAddRamo');
         this.btnCloseModal = document.getElementById('btnCloseModal');
         this.btnCancelForm = document.getElementById('btnCancelForm');
 
         // Indicadores
         this.statTotal = document.getElementById('statTotal');
-        this.statActivas = document.getElementById('statActivas');
+        this.statActivos = document.getElementById('statActivos');
 
         // Búsqueda
-        this.searchAseguradoras = document.getElementById('searchAseguradoras');
+        this.searchRamos = document.getElementById('searchRamos');
 
         // Tabla
-        this.tableAseguradoras = document.getElementById('aseguradorasTableBody');
+        this.tableRamos = document.getElementById('ramosTableBody');
 
         // Estados vacíos/carga
-        this.emptyAseguradoras = document.getElementById('emptyAseguradoras');
-        this.loadingAseguradoras = document.getElementById('loadingAseguradoras');
+        this.emptyRamos = document.getElementById('emptyRamos');
+        this.loadingRamos = document.getElementById('loadingRamos');
 
         // Paginación
         this.paginationContainer = document.getElementById('paginationContainer');
@@ -42,14 +42,15 @@ class AseguradorasController {
         this.itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
 
         // Modal
-        this.modal = document.getElementById('modalAseguradora');
+        this.modal = document.getElementById('modalRamo');
         this.modalTitle = document.getElementById('modalTitle');
-        this.form = document.getElementById('formAseguradora');
+        this.form = document.getElementById('formRamo');
         this.inputNombre = document.getElementById('inputNombre');
+        this.inputDescripcion = document.getElementById('inputDescripcion');
     }
 
     initEventListeners() {
-        this.btnAddAseguradora.addEventListener('click', () => this.openModal());
+        this.btnAddRamo.addEventListener('click', () => this.openModal());
         this.btnCloseModal.addEventListener('click', () => this.closeModal());
         this.btnCancelForm.addEventListener('click', () => this.closeModal());
 
@@ -65,7 +66,7 @@ class AseguradorasController {
         });
 
         // Búsqueda en tiempo real
-        this.searchAseguradoras.addEventListener('input', () => this.filterAseguradoras());
+        this.searchRamos.addEventListener('input', () => this.filterRamos());
 
         // Items per page selector
         if (this.itemsPerPageSelect) {
@@ -78,61 +79,62 @@ class AseguradorasController {
     async loadData() {
         this.showLoading(true);
         try {
-            const response = await window.electronAPI.catalogos.getAseguradoras();
+            const response = await window.electronAPI.catalogos.getRamos();
 
             if (response.success) {
-                this.aseguradoras = response.data || [];
-                this.renderAseguradoras();
+                this.ramos = response.data || [];
+                this.renderRamos();
                 this.updateStats();
             } else {
-                throw new Error(response.message || 'Error al obtener aseguradoras');
+                throw new Error(response.message || 'Error al obtener ramos');
             }
         } catch (error) {
-            console.error('Error al cargar aseguradoras:', error);
+            console.error('Error al cargar ramos:', error);
             if (window.toastManager) {
-                window.toastManager.show('Error al cargar aseguradoras', 'error');
+                window.toastManager.show('Error al cargar ramos', 'error');
             } else {
-                alert(error.message || 'No se pudieron cargar las aseguradoras');
+                alert(error.message || 'No se pudieron cargar los ramos');
             }
         } finally {
             this.showLoading(false);
         }
     }
 
-    renderAseguradoras() {
-        if (!this.aseguradoras.length) {
-            this.tableAseguradoras.innerHTML = '';
-            this.emptyAseguradoras.classList.remove('hidden');
+    renderRamos() {
+        if (!this.ramos.length) {
+            this.tableRamos.innerHTML = '';
+            this.emptyRamos.classList.remove('hidden');
             if (this.paginationContainer) {
                 this.paginationContainer.classList.add('hidden');
             }
             return;
         }
-        this.emptyAseguradoras.classList.add('hidden');
+        this.emptyRamos.classList.add('hidden');
 
         // Calcular paginación
-        this.totalPages = PaginationHelper.getTotalPages(this.aseguradoras.length, this.itemsPerPage);
+        this.totalPages = PaginationHelper.getTotalPages(this.ramos.length, this.itemsPerPage);
         this.currentPage = PaginationHelper.getValidPage(this.currentPage, this.totalPages);
 
         // Obtener elementos de la página actual
-        const paginatedAseguradoras = PaginationHelper.getPaginatedItems(this.aseguradoras, this.currentPage, this.itemsPerPage);
+        const paginatedRamos = PaginationHelper.getPaginatedItems(this.ramos, this.currentPage, this.itemsPerPage);
 
-        this.tableAseguradoras.innerHTML = paginatedAseguradoras
+        this.tableRamos.innerHTML = paginatedRamos
             .map((item) => `
-                <tr class="table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.aseguradorasController.handleRowClick(event, ${item.aseguradora_id})">
-                    <td class="px-6 py-4 text-sm text-gray-500">${item.aseguradora_id}</td>
+                <tr class="table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.ramosController.handleRowClick(event, ${item.ramo_id})">
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.ramo_id}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${this.escapeHtml(item.descripcion) || '-'}</td>
                     <td class="px-6 py-4 text-sm">
                         <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}">
-                            ${item.activo ? 'Activa' : 'Inactiva'}
+                            ${item.activo ? 'Activo' : 'Inactivo'}
                         </span>
                     </td>
                     <td class="sticky right-0 bg-white px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 whitespace-nowrap">
                             <button
                                 class="text-blue-600 hover:text-blue-900 transition-colors p-1 hover:bg-blue-50 rounded"
                                 title="Editar"
-                                onclick="event.stopPropagation(); window.aseguradorasController.openModal(${item.aseguradora_id})"
+                                onclick="event.stopPropagation(); window.ramosController.openModal(${item.ramo_id})"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -141,14 +143,14 @@ class AseguradorasController {
                             <button
                                 class="${item.activo ? 'text-orange-600 hover:text-orange-900 hover:bg-orange-50' : 'text-green-600 hover:text-green-900 hover:bg-green-50'} transition-colors p-1 rounded"
                                 title="${item.activo ? 'Desactivar' : 'Activar'}"
-                                onclick="event.stopPropagation(); window.aseguradorasController.toggleActivo(${item.aseguradora_id})"
+                                onclick="event.stopPropagation(); window.ramosController.toggleActivo(${item.ramo_id})"
                             >
                                 ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
                             </button>
                             <button
                                 class="text-red-600 hover:text-red-900 transition-colors p-1 hover:bg-red-50 rounded"
                                 title="Eliminar"
-                                onclick="event.stopPropagation(); window.aseguradorasController.deleteAseguradora(${item.aseguradora_id})"
+                                onclick="event.stopPropagation(); window.ramosController.deleteRamo(${item.ramo_id})"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -161,7 +163,7 @@ class AseguradorasController {
             .join('');
 
         // Renderizar controles de paginación
-        this.renderPagination(this.aseguradoras.length);
+        this.renderPagination(this.ramos.length);
     }
 
     renderPagination(totalItems) {
@@ -171,27 +173,27 @@ class AseguradorasController {
             totalItems: totalItems,
             container: this.paginationContainer,
             infoElement: this.paginationInfo,
-            onPageChange: 'window.aseguradorasController.goToPage'
+            onPageChange: 'window.ramosController.goToPage'
         });
     }
 
     goToPage(page) {
         if (page < 1 || page > this.totalPages) return;
         this.currentPage = page;
-        this.renderAseguradoras();
+        this.renderRamos();
     }
 
     changeItemsPerPage(value) {
         this.itemsPerPage = parseInt(value);
         this.currentPage = 1;
-        this.renderAseguradoras();
+        this.renderRamos();
     }
 
     updateStats() {
-        const total = this.aseguradoras.length;
-        const activas = this.aseguradoras.filter((a) => a.activo).length;
+        const total = this.ramos.length;
+        const activos = this.ramos.filter((r) => r.activo).length;
         this.statTotal.textContent = total;
-        this.statActivas.textContent = activas;
+        this.statActivos.textContent = activos;
     }
 
     handleRowClick(event, id) {
@@ -204,19 +206,20 @@ class AseguradorasController {
         this.form.reset();
 
         if (id) {
-            const item = this.aseguradoras.find((a) => a.aseguradora_id === id);
+            const item = this.ramos.find((r) => r.ramo_id === id);
             if (!item) {
                 if (window.toastManager) {
-                    window.toastManager.show('Aseguradora no encontrada', 'error');
+                    window.toastManager.show('Ramo no encontrado', 'error');
                 } else {
-                    alert('Aseguradora no encontrada');
+                    alert('Ramo no encontrado');
                 }
                 return;
             }
             this.inputNombre.value = item.nombre;
-            this.modalTitle.textContent = 'Editar Aseguradora';
+            this.inputDescripcion.value = item.descripcion || '';
+            this.modalTitle.textContent = 'Editar Ramo';
         } else {
-            this.modalTitle.textContent = 'Nueva Aseguradora';
+            this.modalTitle.textContent = 'Nuevo Ramo';
         }
 
         this.modal.classList.add('active');
@@ -235,6 +238,8 @@ class AseguradorasController {
 
     async handleSubmit() {
         const nombre = this.inputNombre.value.trim();
+        const descripcion = this.inputDescripcion.value.trim() || null;
+
         if (!nombre) {
             if (window.toastManager) {
                 window.toastManager.show('El nombre es obligatorio', 'warning');
@@ -253,15 +258,16 @@ class AseguradorasController {
             let response;
             if (this.currentId) {
                 // Update existing
-                const item = this.aseguradoras.find((a) => a.aseguradora_id === this.currentId);
-                response = await window.electronAPI.catalogos.updateAseguradora({
-                    aseguradora_id: this.currentId,
+                const item = this.ramos.find((r) => r.ramo_id === this.currentId);
+                response = await window.electronAPI.catalogos.updateRamo({
+                    ramo_id: this.currentId,
                     nombre,
+                    descripcion,
                     activo: item ? item.activo : true
                 });
             } else {
                 // Create new
-                response = await window.electronAPI.catalogos.createAseguradora(nombre);
+                response = await window.electronAPI.catalogos.createRamo(nombre, descripcion);
             }
 
             if (!response.success) {
@@ -275,14 +281,14 @@ class AseguradorasController {
             // Show success message
             if (window.toastManager) {
                 window.toastManager.show(
-                    this.currentId ? 'Aseguradora actualizada correctamente' : 'Aseguradora creada correctamente',
+                    this.currentId ? 'Ramo actualizado correctamente' : 'Ramo creado correctamente',
                     'success'
                 );
             } else {
                 alert('Cambios guardados correctamente.');
             }
         } catch (error) {
-            console.error('Error al guardar aseguradora:', error);
+            console.error('Error al guardar ramo:', error);
             if (window.toastManager) {
                 window.toastManager.show(error.message || 'Error al guardar', 'error');
             } else {
@@ -296,13 +302,13 @@ class AseguradorasController {
     }
 
     async toggleActivo(id) {
-        const item = this.aseguradoras.find((a) => a.aseguradora_id === id);
+        const item = this.ramos.find((r) => r.ramo_id === id);
 
         if (!item) {
             if (window.toastManager) {
-                window.toastManager.show('Aseguradora no encontrada', 'error');
+                window.toastManager.show('Ramo no encontrado', 'error');
             } else {
-                alert('Aseguradora no encontrada.');
+                alert('Ramo no encontrado.');
             }
             return;
         }
@@ -311,7 +317,7 @@ class AseguradorasController {
         const accion = nuevoEstado ? 'activar' : 'desactivar';
 
         // Confirm action with custom modal when available
-        const confirmMessage = `¿Está seguro de que desea ${accion} esta aseguradora?\nSe ${accion}á "${item.nombre}".`;
+        const confirmMessage = `¿Está seguro de que desea ${accion} este ramo?\nSe ${accion}á "${item.nombre}".`;
         let confirmed = false;
         if (window.confirmModal) {
             confirmed = await window.confirmModal.show({
@@ -335,9 +341,10 @@ class AseguradorasController {
         }
 
         try {
-            const response = await window.electronAPI.catalogos.updateAseguradora({
-                aseguradora_id: id,
+            const response = await window.electronAPI.catalogos.updateRamo({
+                ramo_id: id,
                 nombre: item.nombre,
+                descripcion: item.descripcion,
                 activo: nuevoEstado
             });
 
@@ -351,7 +358,7 @@ class AseguradorasController {
             // Show success message
             if (window.toastManager) {
                 window.toastManager.show(
-                    `Aseguradora ${nuevoEstado ? 'activada' : 'desactivada'} correctamente`,
+                    `Ramo ${nuevoEstado ? 'activado' : 'desactivado'} correctamente`,
                     'success'
                 );
             }
@@ -369,20 +376,20 @@ class AseguradorasController {
         }
     }
 
-    async deleteAseguradora(id) {
-        const item = this.aseguradoras.find((a) => a.aseguradora_id === id);
+    async deleteRamo(id) {
+        const item = this.ramos.find((r) => r.ramo_id === id);
 
         if (!item) {
             if (window.toastManager) {
-                window.toastManager.show('Aseguradora no encontrada', 'error');
+                window.toastManager.show('Ramo no encontrado', 'error');
             } else {
-                alert('Aseguradora no encontrada.');
+                alert('Ramo no encontrado.');
             }
             return;
         }
 
         // Confirm deletion
-        const confirmMessage = `¿Está seguro de que desea eliminar la aseguradora "${item.nombre}"?\n\nEsta acción no se puede deshacer.`;
+        const confirmMessage = `¿Está seguro de que desea eliminar el ramo "${item.nombre}"?\n\nEsta acción no se puede deshacer.`;
         let confirmed = false;
         if (window.confirmModal) {
             confirmed = await window.confirmModal.show({
@@ -406,10 +413,10 @@ class AseguradorasController {
         }
 
         try {
-            const response = await window.electronAPI.catalogos.deleteAseguradora(id);
+            const response = await window.electronAPI.catalogos.deleteRamo(id);
 
             if (!response.success) {
-                throw new Error(response.message || 'No se pudo eliminar la aseguradora');
+                throw new Error(response.message || 'No se pudo eliminar el ramo');
             }
 
             // Reload data
@@ -417,16 +424,16 @@ class AseguradorasController {
 
             // Show success message
             if (window.toastManager) {
-                window.toastManager.show('Aseguradora eliminada correctamente', 'success');
+                window.toastManager.show('Ramo eliminado correctamente', 'success');
             } else {
-                alert('Aseguradora eliminada correctamente.');
+                alert('Ramo eliminado correctamente.');
             }
         } catch (error) {
-            console.error('Error al eliminar aseguradora:', error);
+            console.error('Error al eliminar ramo:', error);
             if (window.toastManager) {
                 window.toastManager.show(error.message || 'Error al eliminar', 'error');
             } else {
-                alert(error.message || 'No se pudo eliminar la aseguradora.');
+                alert(error.message || 'No se pudo eliminar el ramo.');
             }
         } finally {
             if (window.loadingSpinner) {
@@ -436,7 +443,7 @@ class AseguradorasController {
     }
 
     showLoading(show) {
-        this.loadingAseguradoras.classList.toggle('hidden', !show);
+        this.loadingRamos.classList.toggle('hidden', !show);
     }
 
     escapeHtml(text) {
@@ -446,41 +453,43 @@ class AseguradorasController {
         return div.innerHTML;
     }
 
-    filterAseguradoras() {
-        const searchTerm = this.searchAseguradoras.value.toLowerCase().trim();
+    filterRamos() {
+        const searchTerm = this.searchRamos.value.toLowerCase().trim();
 
-        const filtered = this.aseguradoras.filter(item =>
-            item.nombre.toLowerCase().includes(searchTerm)
+        const filtered = this.ramos.filter(item =>
+            item.nombre.toLowerCase().includes(searchTerm) ||
+            (item.descripcion && item.descripcion.toLowerCase().includes(searchTerm))
         );
 
-        this.renderAseguradorasFiltered(filtered);
+        this.renderRamosFiltered(filtered);
         this.updateStatsFiltered(filtered);
     }
 
-    renderAseguradorasFiltered(data) {
+    renderRamosFiltered(data) {
         if (!data.length) {
-            this.tableAseguradoras.innerHTML = '';
-            this.emptyAseguradoras.classList.remove('hidden');
+            this.tableRamos.innerHTML = '';
+            this.emptyRamos.classList.remove('hidden');
             return;
         }
-        this.emptyAseguradoras.classList.add('hidden');
+        this.emptyRamos.classList.add('hidden');
 
-        this.tableAseguradoras.innerHTML = data
+        this.tableRamos.innerHTML = data
             .map((item) => `
-                <tr class="table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.aseguradorasController.handleRowClick(event, ${item.aseguradora_id})">
-                    <td class="px-6 py-4 text-sm text-gray-500">${item.aseguradora_id}</td>
+                <tr class="table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.ramosController.handleRowClick(event, ${item.ramo_id})">
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.ramo_id}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${this.escapeHtml(item.descripcion) || '-'}</td>
                     <td class="px-6 py-4 text-sm">
                         <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}">
-                            ${item.activo ? 'Activa' : 'Inactiva'}
+                            ${item.activo ? 'Activo' : 'Inactivo'}
                         </span>
                     </td>
                     <td class="sticky right-0 bg-white px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 whitespace-nowrap">
                             <button
                                 class="text-blue-600 hover:text-blue-900 transition-colors p-1 hover:bg-blue-50 rounded"
                                 title="Editar"
-                                onclick="event.stopPropagation(); window.aseguradorasController.openModal(${item.aseguradora_id})"
+                                onclick="event.stopPropagation(); window.ramosController.openModal(${item.ramo_id})"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -489,14 +498,14 @@ class AseguradorasController {
                             <button
                                 class="${item.activo ? 'text-orange-600 hover:text-orange-900 hover:bg-orange-50' : 'text-green-600 hover:text-green-900 hover:bg-green-50'} transition-colors p-1 rounded"
                                 title="${item.activo ? 'Desactivar' : 'Activar'}"
-                                onclick="event.stopPropagation(); window.aseguradorasController.toggleActivo(${item.aseguradora_id})"
+                                onclick="event.stopPropagation(); window.ramosController.toggleActivo(${item.ramo_id})"
                             >
                                 ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
                             </button>
                             <button
                                 class="text-red-600 hover:text-red-900 transition-colors p-1 hover:bg-red-50 rounded"
                                 title="Eliminar"
-                                onclick="event.stopPropagation(); window.aseguradorasController.deleteAseguradora(${item.aseguradora_id})"
+                                onclick="event.stopPropagation(); window.ramosController.deleteRamo(${item.ramo_id})"
                             >
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -512,11 +521,11 @@ class AseguradorasController {
     updateStatsFiltered(filtered) {
         const activeCount = filtered.filter(item => item.activo).length;
         this.statTotal.textContent = filtered.length;
-        this.statActivas.textContent = activeCount;
+        this.statActivos.textContent = activeCount;
     }
 }
 
-console.log('✅ AseguradorasController class loaded successfully');
+console.log('✅ RamosController class loaded successfully');
 
 // Register in global scope
-window.AseguradorasController = AseguradorasController;
+window.RamosController = RamosController;

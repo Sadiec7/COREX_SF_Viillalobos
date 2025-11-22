@@ -11,6 +11,18 @@ class PolizasController {
         this.metodosPago = [];
         this.currentPoliza = null;
         this.isEditMode = false;
+        this.activeFilters = {
+            vigente: false,
+            porVencer: false,
+            vencida: false,
+            aseguradoraId: '',
+            ramoId: ''
+        };
+
+        // Paginación
+        this.currentPage = 1;
+        this.itemsPerPage = 10;
+        this.totalPages = 1;
 
         this.initElements();
         this.initEventListeners();
@@ -65,8 +77,21 @@ class PolizasController {
         this.btnCancelForm = document.getElementById('btnCancelForm');
         this.btnCloseRecibosModal = document.getElementById('btnCloseRecibosModal');
 
-        // Filters
-        this.filterEstado = document.getElementById('filterEstado');
+        // Search
+        this.searchInput = document.getElementById('searchPolizas');
+
+        // Filters Modal
+        this.btnOpenFilters = document.getElementById('btnOpenFilters');
+        this.modalFiltros = document.getElementById('modalFiltros');
+        this.btnCloseFiltros = document.getElementById('btnCloseFiltros');
+        this.btnApplyFilters = document.getElementById('btnApplyFilters');
+        this.btnClearFilters = document.getElementById('btnClearFilters');
+        this.filterBadge = document.getElementById('filterBadge');
+
+        // Filter Checkboxes and Selects
+        this.filterVigente = document.getElementById('filterVigente');
+        this.filterPorVencer = document.getElementById('filterPorVencer');
+        this.filterVencida = document.getElementById('filterVencida');
         this.filterAseguradora = document.getElementById('filterAseguradora');
         this.filterRamo = document.getElementById('filterRamo');
 
@@ -80,6 +105,11 @@ class PolizasController {
         this.tableBody = document.getElementById('polizasTableBody');
         this.emptyState = document.getElementById('emptyState');
         this.loadingState = document.getElementById('loadingState');
+
+        // Paginación
+        this.paginationContainer = document.getElementById('paginationContainer');
+        this.paginationInfo = document.getElementById('paginationInfo');
+        this.itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
 
         // Modal
         this.modal = document.getElementById('modalPoliza');
@@ -152,10 +182,46 @@ class PolizasController {
             this.handleSubmit();
         });
 
-        // Filters
-        this.filterEstado.addEventListener('change', () => this.applyFilters());
-        this.filterAseguradora.addEventListener('change', () => this.applyFilters());
-        this.filterRamo.addEventListener('change', () => this.applyFilters());
+        // Table click handler (for rows and action buttons)
+        this.tableBody.addEventListener('click', (e) => this.handleActionClick(e));
+
+        // Search
+        this.searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = this.polizas.filter(p => {
+                const cliente = this.clientes.find(c => c.cliente_id === p.cliente_id);
+                const aseguradora = this.aseguradoras.find(a => a.aseguradora_id === p.aseguradora_id);
+                const ramo = this.ramos.find(r => r.ramo_id === p.ramo_id);
+
+                return (
+                    p.numero_poliza.toLowerCase().includes(searchTerm) ||
+                    (cliente && cliente.nombre_completo.toLowerCase().includes(searchTerm)) ||
+                    (aseguradora && aseguradora.nombre.toLowerCase().includes(searchTerm)) ||
+                    (ramo && ramo.nombre.toLowerCase().includes(searchTerm))
+                );
+            });
+            this.renderTable(this.applyActiveFilters(filtered));
+        });
+
+        // Items per page selector
+        if (this.itemsPerPageSelect) {
+            this.itemsPerPageSelect.addEventListener('change', (e) => {
+                this.changeItemsPerPage(e.target.value);
+            });
+        }
+
+        // Filters Modal
+        this.btnOpenFilters.addEventListener('click', () => this.openFiltersModal());
+        this.btnCloseFiltros.addEventListener('click', () => this.closeFiltersModal());
+        this.btnApplyFilters.addEventListener('click', () => this.applyFilters());
+        this.btnClearFilters.addEventListener('click', () => this.clearFilters());
+
+        // Close modal on outside click
+        this.modalFiltros.addEventListener('click', (e) => {
+            if (e.target === this.modalFiltros) {
+                this.closeFiltersModal();
+            }
+        });
     }
 
     async loadCatalogos() {
@@ -300,24 +366,39 @@ class PolizasController {
     }
 
     renderTable(polizasToRender = null) {
-        const polizas = polizasToRender || this.polizas;
+        let polizas = polizasToRender || this.polizas;
+
+        // Apply active filters if no specific polizas provided
+        if (!polizasToRender) {
+            polizas = this.applyActiveFilters(polizas);
+        }
 
         if (polizas.length === 0) {
             this.tableBody.innerHTML = '';
             this.emptyState.classList.remove('hidden');
+            if (this.paginationContainer) {
+                this.paginationContainer.classList.add('hidden');
+            }
             return;
         }
 
         this.emptyState.classList.add('hidden');
 
-        this.tableBody.innerHTML = polizas.map(poliza => {
+        // Calcular paginación
+        this.totalPages = PaginationHelper.getTotalPages(polizas.length, this.itemsPerPage);
+        this.currentPage = PaginationHelper.getValidPage(this.currentPage, this.totalPages);
+
+        // Obtener elementos de la página actual
+        const paginatedPolizas = PaginationHelper.getPaginatedItems(polizas, this.currentPage, this.itemsPerPage);
+
+        this.tableBody.innerHTML = paginatedPolizas.map(poliza => {
             const estado = this.getEstadoPoliza(poliza);
             const statusClass = this.getStatusClass(estado);
             const vigenciaInicio = poliza.vigencia_inicio || poliza.fecha_inicio;
             const vigenciaFin = poliza.vigencia_fin || poliza.fecha_fin;
 
             return `
-            <tr class="table-row transition-colors">
+            <tr class="group transition-colors cursor-pointer hover:bg-blue-50/50" data-poliza-id="${poliza.poliza_id}">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     ${this.escapeHtml(poliza.numero_poliza)}
                 </td>
@@ -341,11 +422,12 @@ class PolizasController {
                         ${estado}
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td class="sticky right-0 bg-white group-hover:bg-blue-50/50 px-6 py-4 whitespace-nowrap text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
                     <div class="flex gap-2">
                         <button
-                            onclick="window.polizasController.viewRecibos(${poliza.poliza_id})"
-                            class="text-blue-600 hover:text-blue-900 transition-colors"
+                            data-action="view-recibos"
+                            data-poliza-id="${poliza.poliza_id}"
+                            class="p-1 text-blue-600 hover:text-white hover:bg-blue-600 rounded transition-all duration-150"
                             title="Ver recibos"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -353,8 +435,10 @@ class PolizasController {
                             </svg>
                         </button>
                         <button
-                            onclick="window.polizasController.manageRecibos(${poliza.poliza_id}, '${this.escapeHtml(poliza.numero_poliza)}')"
-                            class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                            data-action="manage-recibos"
+                            data-poliza-id="${poliza.poliza_id}"
+                            data-poliza-numero="${this.escapeHtml(poliza.numero_poliza)}"
+                            class="p-1 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded transition-all duration-150"
                             title="Gestionar recibos"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,8 +446,9 @@ class PolizasController {
                             </svg>
                         </button>
                         <button
-                            onclick="window.polizasController.viewDetails(${poliza.poliza_id})"
-                            class="text-blue-600 hover:text-blue-900 transition-colors"
+                            data-action="view-details"
+                            data-poliza-id="${poliza.poliza_id}"
+                            class="p-1 text-blue-600 hover:text-white hover:bg-blue-600 rounded transition-all duration-150"
                             title="Ver detalles"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,8 +457,9 @@ class PolizasController {
                             </svg>
                         </button>
                         <button
-                            onclick="window.polizasController.openEditModal(${poliza.poliza_id})"
-                            class="text-gold-600 hover:text-gold-900 transition-colors"
+                            data-action="edit"
+                            data-poliza-id="${poliza.poliza_id}"
+                            class="p-1 text-gold-600 hover:text-white hover:bg-gold-600 rounded transition-all duration-150"
                             title="Editar"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -381,8 +467,10 @@ class PolizasController {
                             </svg>
                         </button>
                         <button
-                            onclick="window.polizasController.deletePoliza(${poliza.poliza_id}, '${this.escapeHtml(poliza.numero_poliza)}')"
-                            class="text-red-600 hover:text-red-900 transition-colors"
+                            data-action="delete"
+                            data-poliza-id="${poliza.poliza_id}"
+                            data-poliza-numero="${this.escapeHtml(poliza.numero_poliza)}"
+                            class="p-1 text-red-600 hover:text-white hover:bg-red-600 rounded transition-all duration-150"
                             title="Eliminar"
                         >
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,6 +481,32 @@ class PolizasController {
                 </td>
             </tr>
         `}).join('');
+
+        // Renderizar controles de paginación
+        this.renderPagination(polizas.length);
+    }
+
+    renderPagination(totalItems) {
+        PaginationHelper.renderPagination({
+            currentPage: this.currentPage,
+            itemsPerPage: this.itemsPerPage,
+            totalItems: totalItems,
+            container: this.paginationContainer,
+            infoElement: this.paginationInfo,
+            onPageChange: 'window.polizasController.goToPage'
+        });
+    }
+
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages) return;
+        this.currentPage = page;
+        this.renderTable();
+    }
+
+    changeItemsPerPage(value) {
+        this.itemsPerPage = parseInt(value);
+        this.currentPage = 1; // Resetear a la primera página
+        this.renderTable();
     }
 
     getEstadoPoliza(poliza) {
@@ -441,30 +555,132 @@ class PolizasController {
         this.statVencidas.textContent = vencidas;
     }
 
-    applyFilters() {
-        const estado = this.filterEstado.value;
-        const aseguradoraId = this.filterAseguradora.value;
-        const ramoId = this.filterRamo.value;
+    openFiltersModal() {
+        this.modalFiltros.classList.add('active');
+    }
 
+    closeFiltersModal() {
+        this.modalFiltros.classList.remove('active');
+    }
+
+    applyFilters() {
+        // Save filter state
+        this.activeFilters.vigente = this.filterVigente.checked;
+        this.activeFilters.porVencer = this.filterPorVencer.checked;
+        this.activeFilters.vencida = this.filterVencida.checked;
+        this.activeFilters.aseguradoraId = this.filterAseguradora.value;
+        this.activeFilters.ramoId = this.filterRamo.value;
+
+        // Update badge
+        this.updateFilterBadge();
+
+        // Close modal
+        this.closeFiltersModal();
+
+        // Apply filters to current view
+        const searchTerm = this.searchInput.value.toLowerCase();
         let filtered = this.polizas;
 
-        if (estado) {
-            if (estado === 'Por Vencer') {
-                filtered = filtered.filter(p => this.getEstadoPoliza(p) === 'Por Vencer');
-            } else {
-                filtered = filtered.filter(p => this.getEstadoPoliza(p) === estado);
-            }
+        if (searchTerm) {
+            filtered = filtered.filter(p => {
+                const cliente = this.clientes.find(c => c.cliente_id === p.cliente_id);
+                const aseguradora = this.aseguradoras.find(a => a.aseguradora_id === p.aseguradora_id);
+                const ramo = this.ramos.find(r => r.ramo_id === p.ramo_id);
+
+                return (
+                    p.numero_poliza.toLowerCase().includes(searchTerm) ||
+                    (cliente && cliente.nombre_completo.toLowerCase().includes(searchTerm)) ||
+                    (aseguradora && aseguradora.nombre.toLowerCase().includes(searchTerm)) ||
+                    (ramo && ramo.nombre.toLowerCase().includes(searchTerm))
+                );
+            });
         }
 
-        if (aseguradoraId) {
-            filtered = filtered.filter(p => p.aseguradora_id == aseguradoraId);
-        }
+        this.renderTable(this.applyActiveFilters(filtered));
+    }
 
-        if (ramoId) {
-            filtered = filtered.filter(p => p.ramo_id == ramoId);
+    clearFilters() {
+        // Reset checkboxes
+        this.filterVigente.checked = false;
+        this.filterPorVencer.checked = false;
+        this.filterVencida.checked = false;
+        this.filterAseguradora.value = '';
+        this.filterRamo.value = '';
+
+        // Reset active filters
+        this.activeFilters = {
+            vigente: false,
+            porVencer: false,
+            vencida: false,
+            aseguradoraId: '',
+            ramoId: ''
+        };
+
+        // Update badge
+        this.updateFilterBadge();
+
+        // Re-render with current search
+        const searchTerm = this.searchInput.value.toLowerCase();
+        let filtered = this.polizas;
+
+        if (searchTerm) {
+            filtered = filtered.filter(p => {
+                const cliente = this.clientes.find(c => c.cliente_id === p.cliente_id);
+                const aseguradora = this.aseguradoras.find(a => a.aseguradora_id === p.aseguradora_id);
+                const ramo = this.ramos.find(r => r.ramo_id === p.ramo_id);
+
+                return (
+                    p.numero_poliza.toLowerCase().includes(searchTerm) ||
+                    (cliente && cliente.nombre_completo.toLowerCase().includes(searchTerm)) ||
+                    (aseguradora && aseguradora.nombre.toLowerCase().includes(searchTerm)) ||
+                    (ramo && ramo.nombre.toLowerCase().includes(searchTerm))
+                );
+            });
         }
 
         this.renderTable(filtered);
+    }
+
+    updateFilterBadge() {
+        let count = 0;
+        if (this.activeFilters.vigente) count++;
+        if (this.activeFilters.porVencer) count++;
+        if (this.activeFilters.vencida) count++;
+        if (this.activeFilters.aseguradoraId) count++;
+        if (this.activeFilters.ramoId) count++;
+
+        if (count > 0) {
+            this.filterBadge.textContent = count;
+            this.filterBadge.classList.remove('hidden');
+        } else {
+            this.filterBadge.classList.add('hidden');
+        }
+    }
+
+    applyActiveFilters(polizas) {
+        let filtered = [...polizas];
+
+        // Filter by estado
+        const estadoFilters = [];
+        if (this.activeFilters.vigente) estadoFilters.push('Vigente');
+        if (this.activeFilters.porVencer) estadoFilters.push('Por Vencer');
+        if (this.activeFilters.vencida) estadoFilters.push('Vencida');
+
+        if (estadoFilters.length > 0) {
+            filtered = filtered.filter(p => estadoFilters.includes(this.getEstadoPoliza(p)));
+        }
+
+        // Filter by aseguradora
+        if (this.activeFilters.aseguradoraId) {
+            filtered = filtered.filter(p => p.aseguradora_id == this.activeFilters.aseguradoraId);
+        }
+
+        // Filter by ramo
+        if (this.activeFilters.ramoId) {
+            filtered = filtered.filter(p => p.ramo_id == this.activeFilters.ramoId);
+        }
+
+        return filtered;
     }
 
     openAddModal() {
@@ -849,13 +1065,7 @@ class PolizasController {
         // Use elegant confirm modal if available
         let confirmed = false;
         if (window.confirmModal) {
-            confirmed = await window.confirmModal.show({
-                title: 'Eliminar póliza',
-                message: `¿Estás seguro de eliminar la póliza "${displayName}"?\n\nEsta acción no se puede deshacer.`,
-                type: 'danger',
-                confirmText: 'Eliminar',
-                cancelText: 'Cancelar'
-            });
+            confirmed = await window.confirmModal.confirmDelete(displayName, `¿Estás seguro de eliminar la póliza "${displayName}"?\n\nEsta acción no se puede deshacer.`);
         } else {
             confirmed = confirm(`¿Estás seguro de eliminar la póliza "${displayName}"?\n\nEsta acción no se puede deshacer.`);
         }
@@ -876,6 +1086,41 @@ class PolizasController {
         } catch (error) {
             console.error('Error al eliminar póliza:', error);
             this.showError('Error al eliminar póliza');
+        }
+    }
+
+    handleActionClick(event) {
+        // Check if click was on an action button
+        const button = event.target.closest('button[data-action]');
+        if (button) {
+            const polizaId = Number(button.dataset.polizaId);
+            if (!polizaId) return;
+
+            const action = button.dataset.action;
+
+            if (action === 'view-recibos') {
+                this.viewRecibos(polizaId);
+            } else if (action === 'manage-recibos') {
+                const numeroPoliza = button.dataset.polizaNumero || '';
+                this.manageRecibos(polizaId, numeroPoliza);
+            } else if (action === 'view-details') {
+                this.viewDetails(polizaId);
+            } else if (action === 'edit') {
+                this.openEditModal(polizaId);
+            } else if (action === 'delete') {
+                const numeroPoliza = button.dataset.polizaNumero || '';
+                this.deletePoliza(polizaId, numeroPoliza);
+            }
+            return;
+        }
+
+        // If not a button, check if click was on a table row
+        const row = event.target.closest('tr[data-poliza-id]');
+        if (row) {
+            const polizaId = Number(row.dataset.polizaId);
+            if (polizaId) {
+                this.openEditModal(polizaId);
+            }
         }
     }
 
