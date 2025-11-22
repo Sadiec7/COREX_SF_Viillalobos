@@ -42,6 +42,14 @@ Thumbs.db
 logs/
 *.log
 
+# LaTeX temporary files
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
 # Runtime data
 pids/
 *.pid

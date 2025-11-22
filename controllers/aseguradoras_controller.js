@@ -1,0 +1,374 @@
+// controllers/aseguradoras_controller.js
+// Controlador para gestión de Aseguradoras
+
+class AseguradorasController {
+    constructor() {
+        this.aseguradoras = [];
+        this.currentId = null;
+
+        this.initElements();
+        this.initEventListeners();
+        this.loadData();
+    }
+
+    initElements() {
+        // Botones
+        this.btnAddAseguradora = document.getElementById('btnAddAseguradora');
+        this.btnCloseModal = document.getElementById('btnCloseModal');
+        this.btnCancelForm = document.getElementById('btnCancelForm');
+
+        // Indicadores
+        this.statTotal = document.getElementById('statTotal');
+        this.statActivas = document.getElementById('statActivas');
+
+        // Búsqueda
+        this.searchAseguradoras = document.getElementById('searchAseguradoras');
+
+        // Tabla
+        this.tableAseguradoras = document.getElementById('aseguradorasTableBody');
+
+        // Estados vacíos/carga
+        this.emptyAseguradoras = document.getElementById('emptyAseguradoras');
+        this.loadingAseguradoras = document.getElementById('loadingAseguradoras');
+
+        // Modal
+        this.modal = document.getElementById('modalAseguradora');
+        this.modalTitle = document.getElementById('modalTitle');
+        this.form = document.getElementById('formAseguradora');
+        this.inputNombre = document.getElementById('inputNombre');
+    }
+
+    initEventListeners() {
+        this.btnAddAseguradora.addEventListener('click', () => this.openModal());
+        this.btnCloseModal.addEventListener('click', () => this.closeModal());
+        this.btnCancelForm.addEventListener('click', () => this.closeModal());
+
+        this.modal.addEventListener('click', (event) => {
+            if (event.target === this.modal) {
+                this.closeModal();
+            }
+        });
+
+        this.form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            this.handleSubmit();
+        });
+
+        // Búsqueda en tiempo real
+        this.searchAseguradoras.addEventListener('input', () => this.filterAseguradoras());
+    }
+
+    async loadData() {
+        this.showLoading(true);
+        try {
+            const response = await window.electronAPI.catalogos.getAseguradoras();
+
+            if (response.success) {
+                this.aseguradoras = response.data || [];
+                this.renderAseguradoras();
+                this.updateStats();
+            } else {
+                throw new Error(response.message || 'Error al obtener aseguradoras');
+            }
+        } catch (error) {
+            console.error('Error al cargar aseguradoras:', error);
+            if (window.toastManager) {
+                window.toastManager.show('Error al cargar aseguradoras', 'error');
+            } else {
+                alert(error.message || 'No se pudieron cargar las aseguradoras');
+            }
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    renderAseguradoras() {
+        if (!this.aseguradoras.length) {
+            this.tableAseguradoras.innerHTML = '';
+            this.emptyAseguradoras.classList.remove('hidden');
+            return;
+        }
+        this.emptyAseguradoras.classList.add('hidden');
+
+        this.tableAseguradoras.innerHTML = this.aseguradoras
+            .map((item) => `
+                <tr class="table-row">
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.aseguradora_id}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}">
+                            ${item.activo ? 'Activa' : 'Inactiva'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        <div class="flex gap-2">
+                            <button
+                                class="text-blue-600 hover:text-blue-900 transition-colors"
+                                title="Editar"
+                                onclick="window.aseguradorasController.openModal(${item.aseguradora_id})"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button
+                                class="${item.activo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} transition-colors"
+                                title="${item.activo ? 'Desactivar' : 'Activar'}"
+                                onclick="window.aseguradorasController.toggleActivo(${item.aseguradora_id})"
+                            >
+                                ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `)
+            .join('');
+    }
+
+    updateStats() {
+        const total = this.aseguradoras.length;
+        const activas = this.aseguradoras.filter((a) => a.activo).length;
+        this.statTotal.textContent = total;
+        this.statActivas.textContent = activas;
+    }
+
+    openModal(id = null) {
+        this.currentId = id;
+        this.form.reset();
+
+        if (id) {
+            const item = this.aseguradoras.find((a) => a.aseguradora_id === id);
+            if (!item) {
+                if (window.toastManager) {
+                    window.toastManager.show('Aseguradora no encontrada', 'error');
+                } else {
+                    alert('Aseguradora no encontrada');
+                }
+                return;
+            }
+            this.inputNombre.value = item.nombre;
+            this.modalTitle.textContent = 'Editar Aseguradora';
+        } else {
+            this.modalTitle.textContent = 'Nueva Aseguradora';
+        }
+
+        this.modal.classList.add('active');
+        document.body.classList.add('modal-open');
+
+        // Focus on input
+        setTimeout(() => this.inputNombre.focus(), 100);
+    }
+
+    closeModal() {
+        this.modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        this.form.reset();
+        this.currentId = null;
+    }
+
+    async handleSubmit() {
+        const nombre = this.inputNombre.value.trim();
+        if (!nombre) {
+            if (window.toastManager) {
+                window.toastManager.show('El nombre es obligatorio', 'warning');
+            } else {
+                alert('El nombre es obligatorio.');
+            }
+            return;
+        }
+
+        // Show loading spinner
+        if (window.loadingSpinner) {
+            window.loadingSpinner.show();
+        }
+
+        try {
+            let response;
+            if (this.currentId) {
+                // Update existing
+                const item = this.aseguradoras.find((a) => a.aseguradora_id === this.currentId);
+                response = await window.electronAPI.catalogos.updateAseguradora({
+                    aseguradora_id: this.currentId,
+                    nombre,
+                    activo: item ? item.activo : true
+                });
+            } else {
+                // Create new
+                response = await window.electronAPI.catalogos.createAseguradora(nombre);
+            }
+
+            if (!response.success) {
+                throw new Error(response.message || 'Error al guardar');
+            }
+
+            // Reload data
+            await this.loadData();
+            this.closeModal();
+
+            // Show success message
+            if (window.toastManager) {
+                window.toastManager.show(
+                    this.currentId ? 'Aseguradora actualizada correctamente' : 'Aseguradora creada correctamente',
+                    'success'
+                );
+            } else {
+                alert('Cambios guardados correctamente.');
+            }
+        } catch (error) {
+            console.error('Error al guardar aseguradora:', error);
+            if (window.toastManager) {
+                window.toastManager.show(error.message || 'Error al guardar', 'error');
+            } else {
+                alert(error.message || 'No se pudo guardar la información.');
+            }
+        } finally {
+            if (window.loadingSpinner) {
+                window.loadingSpinner.hide();
+            }
+        }
+    }
+
+    async toggleActivo(id) {
+        const item = this.aseguradoras.find((a) => a.aseguradora_id === id);
+
+        if (!item) {
+            if (window.toastManager) {
+                window.toastManager.show('Aseguradora no encontrada', 'error');
+            } else {
+                alert('Aseguradora no encontrada.');
+            }
+            return;
+        }
+
+        const nuevoEstado = !item.activo;
+        const accion = nuevoEstado ? 'activar' : 'desactivar';
+
+        // Confirm action
+        if (window.confirmModal) {
+            const confirmed = await window.confirmModal.show(
+                `¿Está seguro de que desea ${accion} esta aseguradora?`,
+                `Se ${accion}á "${item.nombre}"`
+            );
+            if (!confirmed) return;
+        } else {
+            if (!confirm(`¿Está seguro de que desea ${accion} esta aseguradora?`)) {
+                return;
+            }
+        }
+
+        // Show loading
+        if (window.loadingSpinner) {
+            window.loadingSpinner.show();
+        }
+
+        try {
+            const response = await window.electronAPI.catalogos.updateAseguradora({
+                aseguradora_id: id,
+                nombre: item.nombre,
+                activo: nuevoEstado
+            });
+
+            if (!response.success) {
+                throw new Error(response.message || 'No se pudo actualizar el estado');
+            }
+
+            // Reload data
+            await this.loadData();
+
+            // Show success message
+            if (window.toastManager) {
+                window.toastManager.show(
+                    `Aseguradora ${nuevoEstado ? 'activada' : 'desactivada'} correctamente`,
+                    'success'
+                );
+            }
+        } catch (error) {
+            console.error('Error al cambiar estado:', error);
+            if (window.toastManager) {
+                window.toastManager.show(error.message || 'Error al actualizar el estado', 'error');
+            } else {
+                alert(error.message || 'No se pudo actualizar el estado.');
+            }
+        } finally {
+            if (window.loadingSpinner) {
+                window.loadingSpinner.hide();
+            }
+        }
+    }
+
+    showLoading(show) {
+        this.loadingAseguradoras.classList.toggle('hidden', !show);
+    }
+
+    escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    filterAseguradoras() {
+        const searchTerm = this.searchAseguradoras.value.toLowerCase().trim();
+
+        const filtered = this.aseguradoras.filter(item =>
+            item.nombre.toLowerCase().includes(searchTerm)
+        );
+
+        this.renderAseguradorasFiltered(filtered);
+        this.updateStatsFiltered(filtered);
+    }
+
+    renderAseguradorasFiltered(data) {
+        if (!data.length) {
+            this.tableAseguradoras.innerHTML = '';
+            this.emptyAseguradoras.classList.remove('hidden');
+            return;
+        }
+        this.emptyAseguradoras.classList.add('hidden');
+
+        this.tableAseguradoras.innerHTML = data
+            .map((item) => `
+                <tr class="table-row">
+                    <td class="px-6 py-4 text-sm text-gray-500">${item.aseguradora_id}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${item.activo ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}">
+                            ${item.activo ? 'Activa' : 'Inactiva'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium">
+                        <div class="flex gap-2">
+                            <button
+                                class="text-blue-600 hover:text-blue-900 transition-colors"
+                                title="Editar"
+                                onclick="window.aseguradorasController.openModal(${item.aseguradora_id})"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button
+                                class="${item.activo ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'} transition-colors"
+                                title="${item.activo ? 'Desactivar' : 'Activar'}"
+                                onclick="window.aseguradorasController.toggleActivo(${item.aseguradora_id})"
+                            >
+                                ${item.activo ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>' : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'}
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `)
+            .join('');
+    }
+
+    updateStatsFiltered(filtered) {
+        const activeCount = filtered.filter(item => item.activo).length;
+        this.statTotal.textContent = filtered.length;
+        this.statActivas.textContent = activeCount;
+    }
+}
+
+console.log('✅ AseguradorasController class loaded successfully');
+
+// Register in global scope
+window.AseguradorasController = AseguradorasController;

@@ -30,6 +30,22 @@ class AppNavigation {
                 file: 'partials/catalogos_partial.html',
                 controller: 'CatalogosController'
             },
+            'aseguradoras': {
+                file: 'partials/aseguradoras_partial.html',
+                controller: 'AseguradorasController'
+            },
+            'ramos': {
+                file: 'partials/catalogos_partial.html',
+                controller: 'CatalogosController'
+            },
+            'periodicidad': {
+                file: 'partials/catalogos_partial.html',
+                controller: 'CatalogosController'
+            },
+            'metodos-pago': {
+                file: 'partials/catalogos_partial.html',
+                controller: 'CatalogosController'
+            },
             'documentos': {
                 file: 'partials/documentos_partial.html',
                 controller: 'DocumentosController'
