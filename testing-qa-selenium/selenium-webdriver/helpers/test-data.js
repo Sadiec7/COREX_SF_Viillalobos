@@ -33,22 +33,22 @@ const testData = {
   // Clientes para pruebas
   clientes: {
     personaFisica: {
+      tipo_persona: 'Física',
       nombre: 'Juan Pérez López',
       rfc: 'PELJ850101ABC',
       email: 'juan.perez@test.com',
       telefono: '5551234567',
       celular: '5559876543',
-      direccion: 'Calle Principal 123, Col. Centro',
-      tipoPersona: 'Física'
+      direccion: 'Calle Principal 123, Col. Centro'
     },
     personaMoral: {
+      tipo_persona: 'Moral',
       nombre: 'Empresa Test SA de CV',
       rfc: 'ETE850101XYZ',
       email: 'contacto@empresa.test',
       telefono: '5559876543',
       celular: '5551234567',
-      direccion: 'Av. Empresarial 456, Col. Industrial',
-      tipoPersona: 'Moral'
+      direccion: 'Av. Empresarial 456, Col. Industrial'
     },
     rfcInvalido: {
       nombre: 'Cliente RFC Inválido',
