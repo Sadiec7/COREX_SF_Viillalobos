@@ -148,6 +148,10 @@ class UserModel {
      * Cambiar contraseña de usuario
      */
     async changePassword(usuarioId, oldPassword, newPassword) {
+        if (!newPassword || newPassword.length < 8) {
+            throw new Error('La nueva contraseña debe tener al menos 8 caracteres');
+        }
+
         const user = this.dbManager.queryOne(`
             SELECT password_hash FROM Usuario WHERE usuario_id = ?
         `, [usuarioId]);
@@ -177,6 +181,66 @@ class UserModel {
         `, [passwordHash, salt, usuarioId]);
 
         return true;
+    }
+
+    /**
+     * Actualizar datos básicos de la cuenta (username y email)
+     */
+    async updateProfile(usuarioId, username, email = null) {
+        if (!usuarioId) {
+            throw new Error('Usuario inválido');
+        }
+
+        const current = this.dbManager.queryOne(`
+            SELECT usuario_id FROM Usuario WHERE usuario_id = ?
+        `, [usuarioId]);
+
+        if (!current) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        const sanitizedUsername = username?.trim();
+        if (!sanitizedUsername) {
+            throw new Error('El nombre de usuario no puede estar vacío');
+        }
+
+        const sanitizedEmail = email?.trim() || null;
+
+        const usernameExists = this.dbManager.queryOne(`
+            SELECT usuario_id FROM Usuario WHERE username = ? AND usuario_id != ?
+        `, [sanitizedUsername, usuarioId]);
+
+        if (usernameExists) {
+            throw new Error('El nombre de usuario ya está en uso');
+        }
+
+        if (sanitizedEmail) {
+            const emailExists = this.dbManager.queryOne(`
+                SELECT usuario_id FROM Usuario WHERE email = ? AND usuario_id != ?
+            `, [sanitizedEmail, usuarioId]);
+
+            if (emailExists) {
+                throw new Error('El correo ya está en uso');
+            }
+        }
+
+        const result = this.dbManager.execute(`
+            UPDATE Usuario
+            SET username = ?,
+                email = ?,
+                fecha_modificacion = CURRENT_TIMESTAMP
+            WHERE usuario_id = ?
+        `, [sanitizedUsername, sanitizedEmail, usuarioId]);
+
+        if (result.changes > 0) {
+            return {
+                usuario_id: usuarioId,
+                username: sanitizedUsername,
+                email: sanitizedEmail
+            };
+        }
+
+        throw new Error('No se pudo actualizar la cuenta');
     }
 
     /**

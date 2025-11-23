@@ -16,6 +16,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.invoke('app:logout'),
 
     // ============================================
+    // USUARIOS
+    // ============================================
+    user: {
+        updateProfile: (payload) =>
+            ipcRenderer.invoke('user:updateProfile', payload),
+
+        changePassword: (payload) =>
+            ipcRenderer.invoke('user:changePassword', payload)
+    },
+
+    // ============================================
     // CLIENTES
     // ============================================
     clientes: {

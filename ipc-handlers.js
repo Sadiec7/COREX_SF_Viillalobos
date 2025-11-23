@@ -198,6 +198,31 @@ function registerIPCHandlers(dbManager, models) {
     });
 
     // ============================================
+    // USUARIOS
+    // ============================================
+    ipcMain.handle('user:updateProfile', async (event, payload = {}) => {
+        try {
+            const { usuario_id, username, email } = payload;
+            const updated = await userModel.updateProfile(usuario_id, username, email);
+            return { success: true, data: updated };
+        } catch (error) {
+            console.error('Error al actualizar perfil de usuario:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    ipcMain.handle('user:changePassword', async (event, payload = {}) => {
+        try {
+            const { usuario_id, currentPassword, newPassword } = payload;
+            const changed = await userModel.changePassword(usuario_id, currentPassword, newPassword);
+            return { success: changed };
+        } catch (error) {
+            console.error('Error al cambiar contraseña:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // ============================================
     // CLIENTES
     // ============================================
 

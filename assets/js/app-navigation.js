@@ -50,13 +50,9 @@ class AppNavigation {
                 file: 'partials/documentos_partial.html',
                 controller: 'DocumentosController'
             },
-            'reportes': {
-                file: 'partials/reportes_partial.html',
-                controller: null
-            },
             'config': {
                 file: 'partials/config_partial.html',
-                controller: null
+                controller: 'ConfigController'
             }
         };
 

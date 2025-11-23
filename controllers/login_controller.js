@@ -44,6 +44,13 @@ class LoginController {
                 // Mostrar animación de éxito en el botón
                 this.view.showSuccessAnimation();
 
+                // Persistir sesión básica para la app (sidebar, config)
+                try {
+                    sessionStorage.setItem('userInfo', JSON.stringify(result.user || {}));
+                } catch (error) {
+                    console.warn('No se pudo persistir la sesión en sessionStorage:', error);
+                }
+
                 // Transición inmediata al dashboard
                 setTimeout(() => {
                     // Notificar al proceso principal del login exitoso
