@@ -320,15 +320,6 @@
             // Load initial view (dashboard)
             window.appNavigation.loadView('dashboard');
 
-            // Setup logout
-            document.getElementById('logoutButton').addEventListener('click', async () => {
-                try {
-                    await window.electronAPI.logout();
-                } catch (error) {
-                    console.error('Error al cerrar sesión:', error);
-                }
-            });
-
             // Get user info from session
             const userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');
             const storedSettings = JSON.parse(localStorage.getItem('dashboardUserSettings') || '{}');

@@ -223,8 +223,8 @@ ipcMain.handle('app:logout', async (event) => {
     // Volver al login
     setTimeout(async () => {
         if (mainWindow) {
-            // Redimensionar ventana para login
-            mainWindow.setSize(450, 650);
+            // Redimensionar ventana para login (debe coincidir con createWindow)
+            mainWindow.setSize(500, 750);
             mainWindow.center();
 
             // Cargar login
