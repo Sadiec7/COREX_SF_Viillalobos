@@ -446,7 +446,7 @@ class DocumentosController {
             const poliza = this.polizas.find(p => p.poliza_id === doc.poliza_id);
             const isSelected = this.documentosSeleccionados.has(doc.documento_id);
             return `
-                <tr class="group transition-colors cursor-pointer hover:bg-blue-50/50 ${isSelected ? 'bg-blue-50/50' : ''}" data-documento-id="${doc.documento_id}">
+                <tr class="group transition-colors cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-blue-100' : ''}" data-documento-id="${doc.documento_id}">
                     <td class="px-6 py-4">
                         <input type="checkbox" class="row-checkbox w-4 h-4 text-gold-500 border-gray-300 rounded" data-documento-id="${doc.documento_id}" ${isSelected ? 'checked' : ''}>
                     </td>
@@ -465,7 +465,7 @@ class DocumentosController {
                     <td class="px-6 py-4 text-sm text-gray-500">
                         ${this.formatDate(doc.fecha_creacion)}
                     </td>
-                    <td class="sticky right-0 bg-white group-hover:bg-blue-50/50 px-6 py-4 whitespace-nowrap text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
+                    <td class="sticky right-0 bg-white group-hover:bg-gray-50 px-6 py-4 whitespace-nowrap text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
                         <div class="flex gap-2">
                             <button
                                 data-action="delete"

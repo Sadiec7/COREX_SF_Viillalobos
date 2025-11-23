@@ -166,8 +166,18 @@ class PolizaModel {
         const periodos = this._buildPeriodos(inicio, fin, mesesPorRecibo);
         const montos = this._splitAmount(primaTotal, periodos.length);
 
+        // Validar que los montos sean > 0 antes de insertar
+        if (!montos.length || montos.some(m => m <= 0)) {
+            throw new Error('Los recibos generados deben tener monto mayor a cero. Revisa prima total y periodicidad.');
+        }
+
         periodos.forEach((periodo, index) => {
             const numeroRecibo = `${polizaId}-${String(index + 1).padStart(2, '0')}`;
+
+            // ✅ CORREGIDO: Calcular fecha de corte ANTES del inicio del periodo
+            const diasAnticipacion = periodicidad.dias_anticipacion_alerta || 7;
+            const fechaCorte = this._calcularFechaCorte(periodo.inicio, diasAnticipacion);
+            const fechaVencimiento = new Date(periodo.inicio.getTime()); // Vence el día que inicia la cobertura
 
             this.dbManager.execute(
                 `
@@ -191,8 +201,8 @@ class PolizaModel {
                     this._formatDate(periodo.fin),
                     index + 1,
                     montos[index],
-                    this._formatDate(periodo.fin),
-                    this._formatDate(periodo.fin),
+                    this._formatDate(fechaCorte),           // ← Vence ANTES del inicio
+                    this._formatDate(fechaVencimiento),     // ← Vencimiento = inicio del periodo
                     periodicidad.dias_anticipacion_alerta || 0,
                     'pendiente'
                 ]
@@ -258,6 +268,20 @@ class PolizaModel {
 
     _formatDate(date) {
         return date.toISOString().split('T')[0];
+    }
+
+    /**
+     * Calcula la fecha de corte (vencimiento) del recibo.
+     * En seguros, el pago debe hacerse ANTES del inicio del periodo cubierto.
+     * @private
+     * @param {Date} fechaInicioPeriodo - Inicio del periodo que cubre el recibo
+     * @param {number} diasAnticipacion - Días antes del inicio para que venza
+     * @returns {Date}
+     */
+    _calcularFechaCorte(fechaInicioPeriodo, diasAnticipacion = 7) {
+        const fechaCorte = new Date(fechaInicioPeriodo.getTime());
+        fechaCorte.setUTCDate(fechaCorte.getUTCDate() - diasAnticipacion);
+        return fechaCorte;
     }
 
     /**
@@ -422,57 +446,318 @@ class PolizaModel {
     }
 
     /**
-     * Actualiza una póliza existente.
+     * Actualiza una póliza existente y regenera recibos si es necesario
+     * @param {number} polizaId
+     * @param {object} polizaData
+     * @returns {object} { success, recibos_regenerados, recibos_eliminados, recibos_mantenidos }
      */
     update(polizaId, polizaData) {
         const payload = this._normalizePolizaData(polizaData);
 
-        const result = this.dbManager.execute(
+        try {
+            // 1. Obtener póliza actual para comparar
+            const polizaActual = this.getById(polizaId);
+
+            if (!polizaActual) {
+                throw new Error('Póliza no encontrada');
+            }
+
+            // 2. Detectar si cambió algo que requiera regenerar recibos
+            const cambiosRequierenRegeneracion = this._requiereRegenerarRecibos(
+                polizaActual,
+                payload
+            );
+
+            this.dbManager.execute('BEGIN TRANSACTION');
+
+            // 3. Actualizar póliza
+            this.dbManager.execute(
+                `UPDATE Poliza SET
+                    numero_poliza = ?,
+                    cliente_id = ?,
+                    aseguradora_id = ?,
+                    ramo_id = ?,
+                    tipo_poliza = ?,
+                    prima_neta = ?,
+                    prima_total = ?,
+                    vigencia_inicio = ?,
+                    vigencia_fin = ?,
+                    vigencia_renovacion_automatica = ?,
+                    periodicidad_id = ?,
+                    metodo_pago_id = ?,
+                    domiciliada = ?,
+                    estado_pago = ?,
+                    comision_porcentaje = ?,
+                    suma_asegurada = ?,
+                    notas = ?,
+                    fecha_modificacion = CURRENT_TIMESTAMP
+                WHERE poliza_id = ? AND activo = 1`,
+                [
+                    payload.numero_poliza,
+                    payload.cliente_id,
+                    payload.aseguradora_id,
+                    payload.ramo_id,
+                    payload.tipo_poliza,
+                    payload.prima_neta,
+                    payload.prima_total,
+                    payload.vigencia_inicio,
+                    payload.vigencia_fin,
+                    payload.vigencia_renovacion_automatica,
+                    payload.periodicidad_id,
+                    payload.metodo_pago_id,
+                    payload.domiciliada,
+                    payload.estado_pago,
+                    payload.comision_porcentaje,
+                    payload.suma_asegurada,
+                    payload.notas,
+                    polizaId
+                ]
+            );
+
+            let resultadoRecibos = {
+                regenerados: 0,
+                eliminados: 0,
+                mantenidos: 0
+            };
+
+            // 4. Regenerar recibos si es necesario
+            if (cambiosRequierenRegeneracion) {
+                resultadoRecibos = this._regenerarRecibosPendientes(
+                    polizaId,
+                    payload.periodicidad_id,
+                    payload.vigencia_inicio,
+                    payload.vigencia_fin,
+                    payload.prima_total
+                );
+            }
+
+            this.dbManager.execute('COMMIT');
+
+            return {
+                success: true,
+                poliza_id: polizaId,
+                cambios_requirieron_regeneracion: cambiosRequierenRegeneracion,
+                ...resultadoRecibos
+            };
+
+        } catch (error) {
+            try {
+                this.dbManager.execute('ROLLBACK');
+            } catch (rollbackError) {
+                console.error('Error en rollback:', rollbackError);
+            }
+
+            if (error.message && error.message.includes('UNIQUE')) {
+                throw new Error(`El número de póliza ${polizaData.numero_poliza} ya existe`);
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Determina si los cambios a una póliza requieren regenerar recibos.
+     * @private
+     * @param {Object} polizaActual - Póliza antes de la modificación
+     * @param {Object} nuevoDatos - Datos nuevos a aplicar
+     * @returns {boolean}
+     */
+    _requiereRegenerarRecibos(polizaActual, nuevoDatos) {
+        // Cambios que requieren regeneración de recibos
+        const cambiosRelevantes = [
+            'periodicidad_id',
+            'prima_total',
+            'fecha_inicio_vigencia',
+            'fecha_fin_vigencia'
+        ];
+
+        for (const campo of cambiosRelevantes) {
+            if (nuevoDatos.hasOwnProperty(campo)) {
+                // Comparar valores normalizados
+                const valorActual = polizaActual[campo];
+                const valorNuevo = nuevoDatos[campo];
+
+                if (valorActual !== valorNuevo) {
+                    console.log(`🔄 Campo "${campo}" cambió: ${valorActual} → ${valorNuevo}`);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Obtiene la fecha de finalización del último recibo pagado.
+     * @private
+     * @param {number} polizaId
+     * @returns {string|null} - Fecha en formato YYYY-MM-DD o null si no hay recibos pagados
+     */
+    _getUltimaFechaPagada(polizaId) {
+        const ultimoPagado = this.dbManager.queryOne(
             `
-            UPDATE Poliza
-            SET numero_poliza = ?,
-                cliente_id = ?,
-                aseguradora_id = ?,
-                ramo_id = ?,
-                tipo_poliza = ?,
-                prima_neta = ?,
-                prima_total = ?,
-                vigencia_inicio = ?,
-                vigencia_fin = ?,
-                vigencia_renovacion_automatica = ?,
-                periodicidad_id = ?,
-                metodo_pago_id = ?,
-                domiciliada = ?,
-                estado_pago = ?,
-                comision_porcentaje = ?,
-                suma_asegurada = ?,
-                notas = ?,
-                fecha_modificacion = CURRENT_TIMESTAMP
-            WHERE poliza_id = ? AND activo = 1
+            SELECT fecha_fin_periodo
+            FROM Recibo
+            WHERE poliza_id = ? AND estado = 'pagado'
+            ORDER BY numero_fraccion DESC
+            LIMIT 1
         `,
-            [
-                payload.numero_poliza,
-                payload.cliente_id,
-                payload.aseguradora_id,
-                payload.ramo_id,
-                payload.tipo_poliza,
-                payload.prima_neta,
-                payload.prima_total,
-                payload.vigencia_inicio,
-                payload.vigencia_fin,
-                payload.vigencia_renovacion_automatica,
-                payload.periodicidad_id,
-                payload.metodo_pago_id,
-                payload.domiciliada,
-                payload.estado_pago,
-                payload.comision_porcentaje,
-                payload.suma_asegurada,
-                payload.notas,
-                polizaId
-            ]
+            [polizaId]
         );
 
-        return result.changes > 0;
+        return ultimoPagado ? ultimoPagado.fecha_fin_periodo : null;
+    }
+
+    /**
+     * Regenera los recibos pendientes/vencidos de una póliza.
+     * Preserva recibos pagados y regenera solo los que no se han pagado.
+     * @private
+     * @param {number} polizaId
+     * @param {number} periodicidadId
+     * @param {string} vigenciaInicio - YYYY-MM-DD
+     * @param {string} vigenciaFin - YYYY-MM-DD
+     * @param {number} primaTotal
+     * @returns {Object} - { eliminados, regenerados, mantenidos }
+     */
+    _regenerarRecibosPendientes(polizaId, periodicidadId, vigenciaInicio, vigenciaFin, primaTotal) {
+        console.log(`🔄 Regenerando recibos para póliza ${polizaId}...`);
+
+        // 1. Obtener la última fecha pagada
+        const ultimaFechaPagada = this._getUltimaFechaPagada(polizaId);
+
+        // 2. Contar recibos pagados (para calcular número inicial)
+        const countPagados = this.dbManager.queryOne(
+            `SELECT COUNT(*) as total FROM Recibo WHERE poliza_id = ? AND estado = 'pagado'`,
+            [polizaId]
+        );
+        const numeroInicial = countPagados ? countPagados.total + 1 : 1;
+
+        // 3. Contar recibos a eliminar (pendientes/vencidos)
+        const countEliminar = this.dbManager.queryOne(
+            `SELECT COUNT(*) as total FROM Recibo WHERE poliza_id = ? AND estado IN ('pendiente', 'vencido')`,
+            [polizaId]
+        );
+        const eliminados = countEliminar ? countEliminar.total : 0;
+
+        // 4. Eliminar recibos pendientes/vencidos
+        this.dbManager.execute(
+            `DELETE FROM Recibo WHERE poliza_id = ? AND estado IN ('pendiente', 'vencido')`,
+            [polizaId]
+        );
+
+        console.log(`   ✅ Eliminados ${eliminados} recibos pendientes/vencidos`);
+        console.log(`   ℹ️  Mantenidos ${numeroInicial - 1} recibos pagados`);
+
+        // 5. Determinar fecha de inicio para nuevos recibos
+        let fechaInicioNuevos = vigenciaInicio;
+        if (ultimaFechaPagada) {
+            // Iniciar después del último recibo pagado
+            const fechaPagada = this._toUTCDate(ultimaFechaPagada);
+            const siguienteDia = this._nextPeriodStart(fechaPagada);
+            fechaInicioNuevos = this._formatDate(siguienteDia);
+            console.log(`   ℹ️  Continuando desde: ${fechaInicioNuevos} (después de último pago)`);
+        }
+
+        // 6. Generar nuevos recibos desde la fecha de inicio calculada
+        const regenerados = this._generarRecibosDesde(
+            polizaId,
+            periodicidadId,
+            fechaInicioNuevos,
+            vigenciaFin,
+            primaTotal,
+            numeroInicial
+        );
+
+        console.log(`   ✅ Regenerados ${regenerados} recibos nuevos`);
+
+        return {
+            eliminados,
+            regenerados,
+            mantenidos: numeroInicial - 1
+        };
+    }
+
+    /**
+     * Genera recibos desde una fecha inicial específica con numeración personalizada.
+     * @private
+     * @param {number} polizaId
+     * @param {number} periodicidadId
+     * @param {string} vigenciaInicio - YYYY-MM-DD
+     * @param {string} vigenciaFin - YYYY-MM-DD
+     * @param {number} primaTotal - Prima total ORIGINAL (no ajustada)
+     * @param {number} numeroInicial - Número de fracción inicial (default: 1)
+     * @returns {number} - Cantidad de recibos generados
+     */
+    _generarRecibosDesde(polizaId, periodicidadId, vigenciaInicio, vigenciaFin, primaTotal, numeroInicial = 1) {
+        const periodicidad = this.dbManager.queryOne(
+            `SELECT meses, dias_anticipacion_alerta FROM Periodicidad WHERE periodicidad_id = ?`,
+            [periodicidadId]
+        );
+
+        if (!periodicidad) {
+            throw new Error('Periodicidad no encontrada');
+        }
+
+        const mesesPorRecibo = periodicidad.meses;
+        const inicio = this._toUTCDate(vigenciaInicio);
+        const fin = this._toUTCDate(vigenciaFin);
+
+        const periodos = this._buildPeriodos(inicio, fin, mesesPorRecibo);
+
+        // IMPORTANTE: Dividir la prima total entre TODOS los recibos (pagados + nuevos)
+        // Para eso, necesitamos saber cuántos recibos hay en total
+        const totalRecibosCompletos = numeroInicial - 1 + periodos.length;
+
+        // Calcular monto por recibo basado en el total completo
+        const montos = this._splitAmount(primaTotal, totalRecibosCompletos);
+
+        // Usar solo los montos correspondientes a los nuevos recibos
+        const montosNuevos = montos.slice(numeroInicial - 1);
+
+        // Validar que los montos sean > 0 antes de insertar
+        if (!montosNuevos.length || montosNuevos.some(m => m <= 0)) {
+            throw new Error('Los recibos generados deben tener monto mayor a cero. Revisa prima total y periodicidad.');
+        }
+
+        periodos.forEach((periodo, index) => {
+            const numeroFraccion = numeroInicial + index;
+            const numeroRecibo = `${polizaId}-${String(numeroFraccion).padStart(2, '0')}`;
+
+            // ✅ CORREGIDO: Calcular fecha de corte ANTES del inicio del periodo
+            const diasAnticipacion = periodicidad.dias_anticipacion_alerta || 7;
+            const fechaCorte = this._calcularFechaCorte(periodo.inicio, diasAnticipacion);
+            const fechaVencimiento = new Date(periodo.inicio.getTime()); // Vence el día que inicia la cobertura
+
+            this.dbManager.execute(
+                `
+                INSERT INTO Recibo (
+                    poliza_id,
+                    numero_recibo,
+                    fecha_inicio_periodo,
+                    fecha_fin_periodo,
+                    numero_fraccion,
+                    monto,
+                    fecha_corte,
+                    fecha_vencimiento_original,
+                    dias_gracia,
+                    estado
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `,
+                [
+                    polizaId,
+                    numeroRecibo,
+                    this._formatDate(periodo.inicio),
+                    this._formatDate(periodo.fin),
+                    numeroFraccion,
+                    montosNuevos[index],
+                    this._formatDate(fechaCorte),           // ← Vence ANTES del inicio
+                    this._formatDate(fechaVencimiento),     // ← Vencimiento = inicio del periodo
+                    periodicidad.dias_anticipacion_alerta || 0,
+                    'pendiente'
+                ]
+            );
+        });
+
+        return periodos.length;
     }
 
     /**

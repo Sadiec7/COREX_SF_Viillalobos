@@ -119,11 +119,11 @@ class PeriodicidadesController {
 
         this.tablePeriodicidades.innerHTML = paginatedPeriodicidades
             .map((item) => `
-                <tr class="table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.periodicidadesController.handleRowClick(event, ${item.periodicidad_id})">
+                <tr class="group table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.periodicidadesController.handleRowClick(event, ${item.periodicidad_id})">
                     <td class="px-6 py-4 text-sm text-gray-500">${item.periodicidad_id}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${item.meses} ${item.meses === 1 ? 'mes' : 'meses'}</td>
-                    <td class="sticky right-0 bg-white px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
+                    <td class="sticky right-0 bg-white group-hover:bg-gray-50 px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
                         <div class="flex gap-2 whitespace-nowrap">
                             <button
                                 class="text-blue-600 hover:text-blue-900 transition-colors p-1 hover:bg-blue-50 rounded"
@@ -392,11 +392,11 @@ class PeriodicidadesController {
 
         this.tablePeriodicidades.innerHTML = data
             .map((item) => `
-                <tr class="table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.periodicidadesController.handleRowClick(event, ${item.periodicidad_id})">
+                <tr class="group table-row hover:bg-gray-50 transition-colors cursor-pointer" onclick="window.periodicidadesController.handleRowClick(event, ${item.periodicidad_id})">
                     <td class="px-6 py-4 text-sm text-gray-500">${item.periodicidad_id}</td>
                     <td class="px-6 py-4 text-sm text-gray-900 font-medium">${this.escapeHtml(item.nombre)}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${item.meses} ${item.meses === 1 ? 'mes' : 'meses'}</td>
-                    <td class="sticky right-0 bg-white px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
+                    <td class="sticky right-0 bg-white group-hover:bg-gray-50 px-6 py-4 text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
                         <div class="flex gap-2 whitespace-nowrap">
                             <button
                                 class="text-blue-600 hover:text-blue-900 transition-colors p-1 hover:bg-blue-50 rounded"

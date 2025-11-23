@@ -338,7 +338,7 @@ class RecibosController {
         this.tableBody.innerHTML = paginatedRecibos.map(recibo => {
             const estadoClass = this.getEstadoBadge(recibo.estado, recibo.fecha_corte);
             return `
-                <tr class="group transition-colors cursor-pointer hover:bg-blue-50/50" data-recibo-id="${recibo.recibo_id}">
+                <tr class="group transition-colors cursor-pointer hover:bg-gray-50" data-recibo-id="${recibo.recibo_id}">
                     <td class="px-6 py-4 text-sm text-gray-900 font-semibold">
                         ${this.escapeHtml(recibo.numero_recibo || `#${recibo.recibo_id}`)}
                     </td>
@@ -364,7 +364,7 @@ class RecibosController {
                     <td class="px-6 py-4 text-sm text-gray-500">
                         ${this.escapeHtml(recibo.aseguradora_nombre || '-')}
                     </td>
-                    <td class="sticky right-0 bg-white group-hover:bg-blue-50/50 px-6 py-4 whitespace-nowrap text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
+                    <td class="sticky right-0 bg-white group-hover:bg-gray-50 px-6 py-4 whitespace-nowrap text-sm font-medium shadow-[-4px_0_6px_-2px_rgba(0,0,0,0.05)]">
                         <div class="flex gap-2">
                             ${recibo.estado !== 'pagado' ? `
                                 <button
