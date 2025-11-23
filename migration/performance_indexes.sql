@@ -18,9 +18,9 @@ CREATE INDEX IF NOT EXISTS idx_poliza_aseguradora ON Poliza(aseguradora_id);
 CREATE INDEX IF NOT EXISTS idx_poliza_ramo ON Poliza(ramo_id);
 
 -- Índice compuesto para búsqueda de pólizas próximas a vencer
+-- Note: Removed WHERE clause with date('now') as it's non-deterministic and causes SQLite errors
 CREATE INDEX IF NOT EXISTS idx_poliza_vigencia_activa
-ON Poliza(vigencia_fin, vigencia_inicio)
-WHERE vigencia_fin >= date('now');
+ON Poliza(vigencia_fin, vigencia_inicio);
 
 -- Índices para tabla Recibo (búsquedas por póliza, fechas de pago)
 CREATE INDEX IF NOT EXISTS idx_recibo_poliza ON Recibo(poliza_id);
@@ -29,9 +29,9 @@ CREATE INDEX IF NOT EXISTS idx_recibo_fecha_pago ON Recibo(fecha_pago);
 CREATE INDEX IF NOT EXISTS idx_recibo_estado ON Recibo(estado);
 
 -- Índice compuesto para recibos pendientes
+-- Note: Removed WHERE clause to avoid partial index issues
 CREATE INDEX IF NOT EXISTS idx_recibo_pendientes
-ON Recibo(estado, fecha_vencimiento_original)
-WHERE estado = 'pendiente';
+ON Recibo(estado, fecha_vencimiento_original);
 
 -- Índices para tabla Documento (búsquedas por póliza, tipo)
 CREATE INDEX IF NOT EXISTS idx_documento_poliza ON Documento(poliza_id);

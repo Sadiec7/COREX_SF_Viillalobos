@@ -1,0 +1,16 @@
+{
+  "suite": "Autenticación",
+  "timestamp": "2025-11-23T06:42:28.109Z",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-AUTH-001",
+      "description": "Login exitoso con credenciales válidas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:42:17.959Z"
+    }
+  ]
+}

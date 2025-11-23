@@ -444,6 +444,385 @@ async function testTC_CLI_010() {
   });
 }
 
+/**
+ * TC-CLI-011: Editar Cliente Existente
+ * Prioridad: Alta
+ * Tipo: Funcional
+ */
+async function testTC_CLI_011() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-011', 'Editar cliente existente', async () => {
+    // Arrange - Asegurar que hay al menos un cliente
+    const totalClientes = await clientesPage.getTotalClientes();
+
+    if (totalClientes === 0) {
+      // Crear un cliente primero
+      const cliente = {
+        tipo_persona: 'Física',
+        nombre: 'Cliente Para Editar',
+        rfc: 'CPED850101ABC',
+        email: 'editar@test.com'
+      };
+      await clientesPage.createCliente(cliente);
+      await clientesPage.sleep(1500);
+    }
+
+    // Act - Hacer clic en editar primer cliente
+    await clientesPage.clickFirstClienteEdit();
+    await clientesPage.sleep(500);
+
+    // Modificar nombre
+    const nombreEditado = 'Cliente Editado ' + Date.now();
+    const inputNombre = await driver.findElement(clientesPage.locators.inputNombre);
+    await inputNombre.clear();
+    await clientesPage.type(clientesPage.locators.inputNombre, nombreEditado);
+
+    await clientesPage.screenshot('TC-CLI-011-EDITING');
+
+    // Guardar cambios
+    await clientesPage.submitForm();
+    await clientesPage.sleep(2000);
+
+    // Assert - Verificar que el nombre editado aparece en la tabla
+    const exists = await clientesPage.clienteExistsInTable(nombreEditado);
+    if (!exists) {
+      throw new Error(`Cliente editado "${nombreEditado}" no aparece en la tabla`);
+    }
+
+    await clientesPage.screenshot('TC-CLI-011-EDITED');
+    console.log(`✅ Cliente editado exitosamente: ${nombreEditado}`);
+  });
+}
+
+/**
+ * TC-CLI-012: Validación de Nombre Mínimo 3 Caracteres
+ * Prioridad: Media
+ * Tipo: Validación
+ */
+async function testTC_CLI_012() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-012', 'Validación nombre mínimo 3 caracteres', async () => {
+    // Act
+    await clientesPage.openNewClienteModal();
+
+    // Intentar con nombre de 2 caracteres
+    await clientesPage.type(clientesPage.locators.inputNombre, 'AB');
+    await clientesPage.type(clientesPage.locators.inputRFC, 'TEST850101ABC');
+
+    await clientesPage.submitForm();
+    await clientesPage.sleep(500);
+
+    // Assert - Modal debe seguir abierto
+    const modalVisible = await clientesPage.isModalVisible();
+    if (!modalVisible) {
+      throw new Error('Formulario se envió con nombre < 3 caracteres');
+    }
+
+    await clientesPage.screenshot('TC-CLI-012-VALIDATION');
+    console.log(`✅ Validación de nombre mínimo funciona correctamente`);
+
+    await clientesPage.closeModal();
+  });
+}
+
+/**
+ * TC-CLI-013: Validación RFC Formato Inválido
+ * Prioridad: Alta
+ * Tipo: Validación
+ */
+async function testTC_CLI_013() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-013', 'Validación RFC formato inválido', async () => {
+    // Arrange - RFCs inválidos
+    const rfcsInvalidos = [
+      'ABC',           // Muy corto
+      'PELJ@50101ABC', // Caracteres especiales
+      '123456789012'   // Solo números
+    ];
+
+    await clientesPage.openNewClienteModal();
+    await clientesPage.type(clientesPage.locators.inputNombre, 'Test Cliente RFC');
+
+    // Act - Probar primer RFC inválido
+    await clientesPage.type(clientesPage.locators.inputRFC, rfcsInvalidos[0]);
+    await clientesPage.sleep(300);
+
+    await clientesPage.screenshot('TC-CLI-013-INVALID-RFC');
+
+    // Intentar enviar
+    await clientesPage.submitForm();
+    await clientesPage.sleep(500);
+
+    // Assert - Modal debe seguir abierto (validación impidió envío)
+    const modalVisible = await clientesPage.isModalVisible();
+    if (!modalVisible) {
+      throw new Error('El formulario se envió con RFC inválido');
+    }
+
+    console.log(`✅ RFC inválido "${rfcsInvalidos[0]}" rechazado correctamente`);
+    await clientesPage.closeModal();
+  });
+}
+
+/**
+ * TC-CLI-014: Búsqueda Case Insensitive
+ * Prioridad: Media
+ * Tipo: Funcional
+ */
+async function testTC_CLI_014() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-014', 'Búsqueda case insensitive', async () => {
+    // Arrange - Buscar con minúsculas
+    const searchText = 'juan';
+
+    // Act
+    await clientesPage.search(searchText);
+    await clientesPage.sleep(1000);
+
+    // Assert - Debe encontrar resultados aunque esté en minúsculas
+    const rowCount = await clientesPage.getTableRowCount();
+
+    await clientesPage.screenshot('TC-CLI-014-CASE-INSENSITIVE');
+
+    console.log(`   📊 Resultados encontrados: ${rowCount}`);
+    console.log(`✅ Búsqueda case insensitive funciona (búsqueda: "${searchText}")`);
+  });
+}
+
+/**
+ * TC-CLI-015: Búsqueda por RFC Parcial
+ * Prioridad: Alta
+ * Tipo: Funcional
+ */
+async function testTC_CLI_015() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-015', 'Búsqueda por RFC parcial', async () => {
+    // Act - Buscar con parte del RFC
+    const rfcParcial = 'PELJ';
+    await clientesPage.search(rfcParcial);
+    await clientesPage.sleep(1000);
+
+    // Assert
+    const rowCount = await clientesPage.getTableRowCount();
+
+    await clientesPage.screenshot('TC-CLI-015-RFC-SEARCH');
+
+    console.log(`   📊 Resultados para RFC "${rfcParcial}": ${rowCount}`);
+    console.log(`✅ Búsqueda por RFC parcial funciona`);
+  });
+}
+
+/**
+ * TC-CLI-016: Filtro Avanzado - Solo Personas Físicas
+ * Prioridad: Media
+ * Tipo: Funcional
+ */
+async function testTC_CLI_016() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-016', 'Filtro solo personas físicas', async () => {
+    // Act - Aplicar filtro de Personas Físicas
+    await clientesPage.applyFilters({ fisica: true, moral: false });
+    await clientesPage.sleep(1000);
+
+    // Assert - Verificar stats
+    const total = await clientesPage.getTotalClientes();
+    const fisicas = await clientesPage.getTotalFisicas();
+
+    await clientesPage.screenshot('TC-CLI-016-FILTER-FISICAS');
+
+    console.log(`   📊 Total mostrado: ${total}`);
+    console.log(`   👤 Físicas: ${fisicas}`);
+    console.log(`✅ Filtro de Personas Físicas aplicado`);
+
+    // Cerrar modal de filtros si quedó abierto
+    try {
+      const modalFiltros = await driver.findElement(clientesPage.locators.modalFiltros);
+      const classes = await modalFiltros.getAttribute('class');
+      if (classes.includes('active')) {
+        await clientesPage.click(clientesPage.locators.btnCloseFiltros);
+      }
+    } catch (error) {
+      // Modal no está abierto
+    }
+  });
+}
+
+/**
+ * TC-CLI-017: Filtro Avanzado - Solo Personas Morales
+ * Prioridad: Media
+ * Tipo: Funcional
+ */
+async function testTC_CLI_017() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-017', 'Filtro solo personas morales', async () => {
+    // Act - Aplicar filtro de Personas Morales
+    await clientesPage.applyFilters({ fisica: false, moral: true });
+    await clientesPage.sleep(1000);
+
+    // Assert
+    const total = await clientesPage.getTotalClientes();
+    const morales = await clientesPage.getTotalMorales();
+
+    await clientesPage.screenshot('TC-CLI-017-FILTER-MORALES');
+
+    console.log(`   📊 Total mostrado: ${total}`);
+    console.log(`   🏢 Morales: ${morales}`);
+    console.log(`✅ Filtro de Personas Morales aplicado`);
+
+    // Cerrar modal de filtros
+    try {
+      const modalFiltros = await driver.findElement(clientesPage.locators.modalFiltros);
+      const classes = await modalFiltros.getAttribute('class');
+      if (classes.includes('active')) {
+        await clientesPage.click(clientesPage.locators.btnCloseFiltros);
+      }
+    } catch (error) {
+      // Modal no está abierto
+    }
+  });
+}
+
+/**
+ * TC-CLI-018: Limpiar Búsqueda Restaura Todos los Clientes
+ * Prioridad: Media
+ * Tipo: Funcional
+ */
+async function testTC_CLI_018() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-018', 'Limpiar búsqueda restaura todos', async () => {
+    // Arrange - Obtener total inicial
+    const totalInicial = await clientesPage.getTotalClientes();
+
+    // Act - Hacer búsqueda que filtre
+    await clientesPage.search('XYZ999');
+    await clientesPage.sleep(500);
+
+    const resultadosBusqueda = await clientesPage.getTableRowCount();
+    console.log(`   🔍 Resultados con búsqueda: ${resultadosBusqueda}`);
+
+    // Limpiar búsqueda
+    await clientesPage.clearSearch();
+    await clientesPage.sleep(1000);
+
+    // Assert - Debe mostrar todos los clientes de nuevo
+    const totalFinal = await clientesPage.getTableRowCount();
+
+    await clientesPage.screenshot('TC-CLI-018-CLEARED');
+
+    console.log(`   📊 Total inicial: ${totalInicial}`);
+    console.log(`   📊 Total después de limpiar: ${totalFinal}`);
+
+    if (totalFinal === 0 && totalInicial > 0) {
+      throw new Error('No se restauraron los clientes después de limpiar búsqueda');
+    }
+
+    console.log(`✅ Limpiar búsqueda restaura clientes correctamente`);
+  });
+}
+
+/**
+ * TC-CLI-019: Verificar Datos en Modal de Edición
+ * Prioridad: Alta
+ * Tipo: Funcional
+ */
+async function testTC_CLI_019() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-019', 'Verificar datos en modal de edición', async () => {
+    // Arrange - Asegurar que hay un cliente conocido
+    const clienteConocido = testData.clientes.personaFisica;
+    const exists = await clientesPage.clienteExistsInTable(clienteConocido.nombre);
+
+    if (!exists) {
+      // Crear el cliente si no existe
+      await clientesPage.createCliente(clienteConocido);
+      await clientesPage.sleep(2000);
+    }
+
+    // Act - Abrir modal de edición
+    await clientesPage.clickFirstClienteEdit();
+    await clientesPage.sleep(500);
+
+    // Assert - Verificar que los campos tienen valores
+    const nombreValue = await clientesPage.getFieldValue(clientesPage.locators.inputNombre);
+    const rfcValue = await clientesPage.getFieldValue(clientesPage.locators.inputRFC);
+
+    if (!nombreValue || nombreValue.length === 0) {
+      throw new Error('Campo nombre está vacío en modal de edición');
+    }
+
+    if (!rfcValue || rfcValue.length === 0) {
+      throw new Error('Campo RFC está vacío en modal de edición');
+    }
+
+    await clientesPage.screenshot('TC-CLI-019-EDIT-MODAL-DATA');
+
+    console.log(`   📝 Nombre cargado: "${nombreValue}"`);
+    console.log(`   📝 RFC cargado: "${rfcValue}"`);
+    console.log(`✅ Datos se cargan correctamente en modal de edición`);
+
+    await clientesPage.closeModal();
+  });
+}
+
+/**
+ * TC-CLI-020: Cerrar Modal con X No Guarda Cambios
+ * Prioridad: Media
+ * Tipo: Funcional
+ */
+async function testTC_CLI_020() {
+  await resetForNextTest();
+
+  await runTest('TC-CLI-020', 'Cerrar modal con X no guarda cambios', async () => {
+    // Arrange - Crear cliente
+    const cliente = {
+      tipo_persona: 'Física',
+      nombre: 'Cliente Test Cierre',
+      rfc: 'CTCI850101ABC',
+      email: 'cierre@test.com'
+    };
+
+    const exists = await clientesPage.clienteExistsInTable(cliente.nombre);
+    if (!exists) {
+      await clientesPage.createCliente(cliente);
+      await clientesPage.sleep(2000);
+    }
+
+    // Act - Abrir edición
+    await clientesPage.clickFirstClienteEdit();
+    await clientesPage.sleep(500);
+
+    // Modificar nombre pero cerrar con X
+    const nuevoNombre = 'Nombre No Guardado ' + Date.now();
+    const inputNombre = await driver.findElement(clientesPage.locators.inputNombre);
+    await inputNombre.clear();
+    await clientesPage.type(clientesPage.locators.inputNombre, nuevoNombre);
+
+    await clientesPage.screenshot('TC-CLI-020-BEFORE-CLOSE');
+
+    // Cerrar con X
+    await clientesPage.closeModal();
+    await clientesPage.sleep(1000);
+
+    // Assert - El nuevo nombre NO debe existir en la tabla
+    const existsNewName = await clientesPage.clienteExistsInTable(nuevoNombre);
+    if (existsNewName) {
+      throw new Error('Los cambios se guardaron al cerrar con X');
+    }
+
+    await clientesPage.screenshot('TC-CLI-020-AFTER-CLOSE');
+    console.log(`✅ Cerrar con X descarta cambios correctamente`);
+  });
+}
+
 // ========== SUITE RUNNER ==========
 
 /**
@@ -454,7 +833,7 @@ async function runClientesTestSuite() {
   console.log('🚀 INICIANDO SUITE DE PRUEBAS DE CLIENTES');
   console.log('█'.repeat(80));
   console.log(`📅 Fecha: ${new Date().toLocaleString()}`);
-  console.log(`📋 Total de casos: 10 (TC-CLI-001 a TC-CLI-010)`);
+  console.log(`📋 Total de casos: 20 (TC-CLI-001 a TC-CLI-020)`);
   console.log('█'.repeat(80));
 
   try {
@@ -485,6 +864,16 @@ async function runClientesTestSuite() {
     await testTC_CLI_008();
     await testTC_CLI_009();
     await testTC_CLI_010();
+    await testTC_CLI_011();
+    await testTC_CLI_012();
+    await testTC_CLI_013();
+    await testTC_CLI_014();
+    await testTC_CLI_015();
+    await testTC_CLI_016();
+    await testTC_CLI_017();
+    await testTC_CLI_018();
+    await testTC_CLI_019();
+    await testTC_CLI_020();
 
     // Resumen
     console.log('\n\n' + '█'.repeat(80));

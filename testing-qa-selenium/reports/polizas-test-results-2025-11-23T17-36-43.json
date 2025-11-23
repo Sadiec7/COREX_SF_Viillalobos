@@ -1,0 +1,149 @@
+{
+  "suite": "Pólizas",
+  "timestamp": "2025-11-23T17:34:19.179Z",
+  "total": 20,
+  "passed": 15,
+  "failed": 5,
+  "results": [
+    {
+      "testId": "TC-POL-001",
+      "description": "Crear póliza nueva",
+      "passed": false,
+      "message": "Póliza \"POL-TEST-1763919267712\" no aparece en la tabla",
+      "timestamp": "2025-11-23T17:34:34.040Z"
+    },
+    {
+      "testId": "TC-POL-002",
+      "description": "Validación campos obligatorios",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:34:45.406Z"
+    },
+    {
+      "testId": "TC-POL-003",
+      "description": "Validación fecha fin > fecha inicio",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnCloseModal\" class=\"text-white hover:text-gray-300 transition-colors\">...</button> is not clickable at point (1136, 32). Other element would receive the click: <div id=\"toast-1763919289314-vzo7kxixr\" class=\"transform transition-all duration-300 ease-out pointer-events-auto bg-white rounded-lg shadow-lg border-l-4 p-4 flex items-start gap-3 hover:shadow-xl border-red-500 translate-x-0 opacity-100\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-23T17:34:52.846Z"
+    },
+    {
+      "testId": "TC-POL-004",
+      "description": "Búsqueda por número de póliza",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:02.164Z"
+    },
+    {
+      "testId": "TC-POL-005",
+      "description": "Verificar estadísticas de pólizas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:05.348Z"
+    },
+    {
+      "testId": "TC-POL-006",
+      "description": "Validación prima total > prima neta",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:11.653Z"
+    },
+    {
+      "testId": "TC-POL-007",
+      "description": "Búsqueda sin resultados",
+      "passed": false,
+      "message": "Se esperaban 0 resultados pero se encontraron 4",
+      "timestamp": "2025-11-23T17:35:16.330Z"
+    },
+    {
+      "testId": "TC-POL-008",
+      "description": "Cancelar creación de póliza",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:20.968Z"
+    },
+    {
+      "testId": "TC-POL-009",
+      "description": "Validación número de póliza único",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddPoliza\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1062, 181). Other element would receive the click: <div>...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-23T17:35:30.140Z"
+    },
+    {
+      "testId": "TC-POL-010",
+      "description": "Validación suma asegurada positiva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:41.309Z"
+    },
+    {
+      "testId": "TC-POL-011",
+      "description": "Limpiar búsqueda restaura todas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:47.036Z"
+    },
+    {
+      "testId": "TC-POL-012",
+      "description": "Crear póliza de renovación",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:53.286Z"
+    },
+    {
+      "testId": "TC-POL-013",
+      "description": "Validación comisión 0-100%",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:35:59.815Z"
+    },
+    {
+      "testId": "TC-POL-014",
+      "description": "Búsqueda por cliente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:36:04.504Z"
+    },
+    {
+      "testId": "TC-POL-015",
+      "description": "Búsqueda por aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:36:09.187Z"
+    },
+    {
+      "testId": "TC-POL-016",
+      "description": "Validación prima neta positiva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:36:15.724Z"
+    },
+    {
+      "testId": "TC-POL-017",
+      "description": "Verificar total de pólizas en stats",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:36:18.870Z"
+    },
+    {
+      "testId": "TC-POL-018",
+      "description": "Cerrar modal con X no guarda",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:36:26.272Z"
+    },
+    {
+      "testId": "TC-POL-019",
+      "description": "Validación fecha inicio requerida",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnCloseModal\" class=\"text-white hover:text-gray-300 transition-colors\">...</button> is not clickable at point (1136, 32). Other element would receive the click: <div id=\"toast-1763919390508-9k13xna83\" class=\"transform transition-all duration-300 ease-out pointer-events-auto bg-white rounded-lg shadow-lg border-l-4 p-4 flex items-start gap-3 hover:shadow-xl border-red-500 translate-x-0 opacity-100\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-23T17:36:34.055Z"
+    },
+    {
+      "testId": "TC-POL-020",
+      "description": "Búsqueda case insensitive",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T17:36:43.371Z"
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "suite": "Clientes",
+  "timestamp": "2025-11-23T16:51:40.701Z",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-CLI-001",
+      "description": "Crear Cliente Persona Física",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:51:49.082Z"
+    },
+    {
+      "testId": "TC-CLI-002",
+      "description": "Crear Cliente Persona Moral",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:51:53.329Z"
+    },
+    {
+      "testId": "TC-CLI-003",
+      "description": "Validación de RFC formato correcto",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:51:55.671Z"
+    },
+    {
+      "testId": "TC-CLI-004",
+      "description": "Validación de email formato válido",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:51:58.617Z"
+    },
+    {
+      "testId": "TC-CLI-005",
+      "description": "Validación de email formato inválido",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:52:01.418Z"
+    },
+    {
+      "testId": "TC-CLI-006",
+      "description": "Búsqueda de cliente por nombre",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:52:04.080Z"
+    },
+    {
+      "testId": "TC-CLI-007",
+      "description": "Búsqueda sin resultados",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:52:16.837Z"
+    },
+    {
+      "testId": "TC-CLI-008",
+      "description": "Validar campos requeridos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:52:19.179Z"
+    },
+    {
+      "testId": "TC-CLI-009",
+      "description": "Cancelar creación de cliente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:52:21.587Z"
+    },
+    {
+      "testId": "TC-CLI-010",
+      "description": "Verificar estadísticas de clientes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T16:52:22.719Z"
+    }
+  ]
+}

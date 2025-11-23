@@ -117,6 +117,8 @@ class ClientesPage extends BasePage {
    */
   async closeModal() {
     console.log('❌ Cerrando modal...');
+    // Esperar a que desaparezcan toasts que puedan bloquear el botón
+    await this.sleep(1000);
     await this.click(this.locators.btnCloseModal);
     await this.sleep(300);
     console.log('✅ Modal cerrado');

@@ -12,6 +12,7 @@ class DatabaseManager {
         this.dbPath = path.join(__dirname, '..', dbName);
         this.db = null;
         this.SQL = null;
+        this.inTransaction = false; // Flag para detectar si estamos en transacción
     }
 
     async initialize() {
@@ -200,6 +201,26 @@ class DatabaseManager {
      */
     execute(query, params = []) {
         try {
+            // Detectar comandos de transacción
+            const queryUpper = query.trim().toUpperCase();
+            if (queryUpper === 'BEGIN TRANSACTION' || queryUpper === 'BEGIN') {
+                this.inTransaction = true;
+                this.db.run(query);
+                return { changes: 0, lastInsertRowid: 0 };
+            }
+            if (queryUpper === 'COMMIT') {
+                this.db.run(query);
+                this.inTransaction = false;
+                // Solo guardar a disco después de COMMIT
+                this._saveToDisk();
+                return { changes: 0, lastInsertRowid: 0 };
+            }
+            if (queryUpper === 'ROLLBACK') {
+                this.db.run(query);
+                this.inTransaction = false;
+                return { changes: 0, lastInsertRowid: 0 };
+            }
+
             const stmt = this.db.prepare(query);
             stmt.bind(params);
             stmt.step();
@@ -213,8 +234,10 @@ class DatabaseManager {
 
             stmt.free();
 
-            // Guardar cambios en disco
-            this._saveToDisk();
+            // Solo guardar cambios en disco si NO estamos en transacción
+            if (!this.inTransaction) {
+                this._saveToDisk();
+            }
 
             return {
                 changes,

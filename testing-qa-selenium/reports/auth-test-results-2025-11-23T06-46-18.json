@@ -1,0 +1,79 @@
+{
+  "suite": "Autenticación",
+  "timestamp": "2025-11-23T06:46:18.276Z",
+  "total": 10,
+  "passed": 9,
+  "failed": 1,
+  "results": [
+    {
+      "testId": "TC-AUTH-001",
+      "description": "Login exitoso con credenciales válidas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:00.521Z"
+    },
+    {
+      "testId": "TC-AUTH-002",
+      "description": "Login fallido - Usuario incorrecto",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:02.488Z"
+    },
+    {
+      "testId": "TC-AUTH-003",
+      "description": "Login fallido - Contraseña incorrecta",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:04.522Z"
+    },
+    {
+      "testId": "TC-AUTH-004",
+      "description": "Validación de campos vacíos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:05.890Z"
+    },
+    {
+      "testId": "TC-AUTH-005",
+      "description": "Logout exitoso",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:08.816Z"
+    },
+    {
+      "testId": "TC-AUTH-006",
+      "description": "Persistencia de sesión al recargar",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:11.753Z"
+    },
+    {
+      "testId": "TC-AUTH-007",
+      "description": "Redirección post-login correcta",
+      "passed": false,
+      "message": "Redirección muy lenta: 2229ms (máximo 2000ms)",
+      "timestamp": "2025-11-23T06:46:14.499Z"
+    },
+    {
+      "testId": "TC-AUTH-008",
+      "description": "Validación de longitud de contraseña",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:16.647Z"
+    },
+    {
+      "testId": "TC-AUTH-009",
+      "description": "Contraseña enmascarada (seguridad)",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:17.498Z"
+    },
+    {
+      "testId": "TC-AUTH-010",
+      "description": "Comportamiento con sesión expirada",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:46:18.275Z"
+    }
+  ]
+}

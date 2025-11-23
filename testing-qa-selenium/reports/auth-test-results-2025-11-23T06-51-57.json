@@ -1,0 +1,79 @@
+{
+  "suite": "Autenticación",
+  "timestamp": "2025-11-23T06:51:57.919Z",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-AUTH-001",
+      "description": "Login exitoso con credenciales válidas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:40.097Z"
+    },
+    {
+      "testId": "TC-AUTH-002",
+      "description": "Login fallido - Usuario incorrecto",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:42.078Z"
+    },
+    {
+      "testId": "TC-AUTH-003",
+      "description": "Login fallido - Contraseña incorrecta",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:44.101Z"
+    },
+    {
+      "testId": "TC-AUTH-004",
+      "description": "Validación de campos vacíos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:45.498Z"
+    },
+    {
+      "testId": "TC-AUTH-005",
+      "description": "Logout exitoso",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:48.404Z"
+    },
+    {
+      "testId": "TC-AUTH-006",
+      "description": "Persistencia de sesión al recargar",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:51.357Z"
+    },
+    {
+      "testId": "TC-AUTH-007",
+      "description": "Redirección post-login correcta",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:54.300Z"
+    },
+    {
+      "testId": "TC-AUTH-008",
+      "description": "Validación de longitud de contraseña",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:56.296Z"
+    },
+    {
+      "testId": "TC-AUTH-009",
+      "description": "Contraseña enmascarada (seguridad)",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:57.144Z"
+    },
+    {
+      "testId": "TC-AUTH-010",
+      "description": "Comportamiento con sesión expirada",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T06:51:57.919Z"
+    }
+  ]
+}

@@ -15,6 +15,9 @@ class PolizaModel {
         const payload = this._normalizePolizaData(polizaData);
 
         try {
+            // Usar transacción para evitar bloqueo del UI
+            this.dbManager.execute('BEGIN TRANSACTION');
+
             const result = this.dbManager.execute(
                 `
                 INSERT INTO Poliza (
@@ -67,11 +70,21 @@ class PolizaModel {
                 payload.prima_total
             );
 
+            // Commit transacción (esto también guarda a disco)
+            this.dbManager.execute('COMMIT');
+
             return {
                 poliza_id: polizaId,
                 recibos_generados: recibosGenerados
             };
         } catch (error) {
+            // Rollback en caso de error
+            try {
+                this.dbManager.execute('ROLLBACK');
+            } catch (rollbackError) {
+                console.error('Error en rollback:', rollbackError);
+            }
+
             if (error.message.includes('UNIQUE')) {
                 throw new Error(`El número de póliza ${polizaData.numero_poliza} ya existe`);
             }
