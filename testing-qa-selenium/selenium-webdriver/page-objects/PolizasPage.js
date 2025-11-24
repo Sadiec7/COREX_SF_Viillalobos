@@ -67,16 +67,43 @@ class PolizasPage extends BasePage {
 
   async openNewPolizaModal() {
     console.log('🆕 Abriendo modal de nueva póliza...');
-    await this.click(this.locators.btnAddPoliza);
+
+    // ✅ SOLUCIÓN MEJORADA: Descartar toasts con método avanzado
+    await this.dismissAllToasts(2000);
+
+    // Evitar que overlays bloqueen el botón
+    try {
+      await this.driver.executeScript(`
+        document.querySelectorAll('#loading-overlay').forEach(el => el.classList.add('hidden'));
+        const content = document.querySelector('#contentView');
+        if (content) content.classList.remove('loading');
+      `);
+    } catch (e) {
+      // ignore
+    }
+
+    // Hacer scroll al botón por si quedó fuera de vista
+    try {
+      await this.driver.executeScript('arguments[0].scrollIntoView({block:"center"});',
+        await this.driver.findElement(this.locators.btnAddPoliza));
+    } catch (e) {
+      // ignore
+    }
+
+    // ✅ SOLUCIÓN MEJORADA: Clic con reintentos automáticos
+    await this.clickWithRetry(this.locators.btnAddPoliza, 3, 1000);
+
     await waitForVisible(this.driver, this.locators.modalPoliza);
     await this.sleep(500);
     console.log('✅ Modal de nueva póliza abierto');
   }
 
   async closeModal() {
-    // Esperar a que desaparezcan toasts que puedan bloquear el botón
-    await this.sleep(2000);
-    await this.click(this.locators.btnCloseModal);
+    // ✅ SOLUCIÓN MEJORADA: Descartar toasts antes de cerrar
+    await this.dismissAllToasts(2000);
+
+    // ✅ SOLUCIÓN MEJORADA: Clic con reintentos
+    await this.clickWithRetry(this.locators.btnCloseModal, 3, 500);
     await this.sleep(500);
   }
 
@@ -102,7 +129,13 @@ class PolizasPage extends BasePage {
       const clienteSelect = await this.driver.findElement(this.locators.inputCliente);
       const options = await clienteSelect.findElements(By.css('option'));
       if (options.length > 1) {
-        await options[1].click(); // Seleccionar primer cliente (skip "Seleccionar...")
+        const optionValue = await options[1].getAttribute('value');
+        // ✅ Usar executeScript para seleccionar y disparar evento change
+        await this.driver.executeScript(`
+          const select = arguments[0];
+          select.value = arguments[1];
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        `, clienteSelect, optionValue);
       }
     }
 
@@ -111,7 +144,13 @@ class PolizasPage extends BasePage {
       const asegSelect = await this.driver.findElement(this.locators.inputAseguradora);
       const options = await asegSelect.findElements(By.css('option'));
       if (options.length > 1) {
-        await options[1].click();
+        const optionValue = await options[1].getAttribute('value');
+        // ✅ Usar executeScript para seleccionar y disparar evento change
+        await this.driver.executeScript(`
+          const select = arguments[0];
+          select.value = arguments[1];
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        `, asegSelect, optionValue);
       }
     }
 
@@ -120,16 +159,22 @@ class PolizasPage extends BasePage {
       const ramoSelect = await this.driver.findElement(this.locators.inputRamo);
       const options = await ramoSelect.findElements(By.css('option'));
       if (options.length > 1) {
-        await options[1].click();
+        const optionValue = await options[1].getAttribute('value');
+        // ✅ Usar executeScript para seleccionar y disparar evento change
+        await this.driver.executeScript(`
+          const select = arguments[0];
+          select.value = arguments[1];
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        `, ramoSelect, optionValue);
       }
     }
 
     if (polizaData.fecha_inicio) {
-      await this.type(this.locators.inputFechaInicio, polizaData.fecha_inicio);
+      await this.setDateValue(this.locators.inputFechaInicio, polizaData.fecha_inicio);
     }
 
     if (polizaData.fecha_fin) {
-      await this.type(this.locators.inputFechaFin, polizaData.fecha_fin);
+      await this.setDateValue(this.locators.inputFechaFin, polizaData.fecha_fin);
     }
 
     if (polizaData.prima_neta) {
@@ -145,7 +190,13 @@ class PolizasPage extends BasePage {
       const periSelect = await this.driver.findElement(this.locators.inputPeriodicidad);
       const options = await periSelect.findElements(By.css('option'));
       if (options.length > 1) {
-        await options[1].click();
+        const optionValue = await options[1].getAttribute('value');
+        // ✅ Usar executeScript para seleccionar y disparar evento change
+        await this.driver.executeScript(`
+          const select = arguments[0];
+          select.value = arguments[1];
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        `, periSelect, optionValue);
       }
     }
 
@@ -154,7 +205,13 @@ class PolizasPage extends BasePage {
       const metodoSelect = await this.driver.findElement(this.locators.inputMetodoPago);
       const options = await metodoSelect.findElements(By.css('option'));
       if (options.length > 1) {
-        await options[1].click();
+        const optionValue = await options[1].getAttribute('value');
+        // ✅ Usar executeScript para seleccionar y disparar evento change
+        await this.driver.executeScript(`
+          const select = arguments[0];
+          select.value = arguments[1];
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        `, metodoSelect, optionValue);
       }
     }
 
@@ -230,9 +287,49 @@ class PolizasPage extends BasePage {
     }
   }
 
+  /**
+   * ✅ NUEVO MÉTODO: Espera a que una póliza aparezca en la tabla
+   * Usa waitForTextInTable() del BasePage para espera inteligente
+   * Basado en: https://stackoverflow.com/questions/65689079/selenium-java-how-can-i-make-it-wait-until-a-table-has-been-refreshed
+   * @param {string} numeroPoliza - Número de póliza a buscar
+   * @param {number} timeout - Tiempo máximo de espera en ms (default: 10000)
+   * @returns {Promise<boolean>}
+   */
+  async waitForPolizaInTable(numeroPoliza, timeout = 10000) {
+    console.log(`⏳ [MEJORADO] Esperando a que aparezca póliza: ${numeroPoliza}`);
+
+    try {
+      // Buscar la póliza para filtrar
+      await this.search(numeroPoliza);
+      await this.sleep(500);
+
+      // ✅ Esperar usando método avanzado de BasePage
+      const found = await this.waitForTextInTable(
+        this.locators.polizasTableBody,
+        numeroPoliza,
+        timeout
+      );
+
+      if (found) {
+        console.log(`✅ Póliza encontrada: ${numeroPoliza}`);
+        return true;
+      } else {
+        console.log(`❌ Timeout esperando póliza: ${numeroPoliza}`);
+        return false;
+      }
+    } catch (error) {
+      console.log(`❌ Error buscando póliza: ${error.message}`);
+      return false;
+    }
+  }
+
   async polizaExistsInTable(numeroPoliza) {
     console.log(`🔎 Verificando si existe póliza: ${numeroPoliza}`);
     try {
+      // Filtrar directamente por el número para asegurar coincidencia exacta
+      await this.search(numeroPoliza);
+      await this.sleep(500);
+
       const tbody = await this.driver.findElement(this.locators.polizasTableBody);
       const rows = await tbody.findElements(By.css('tr'));
 

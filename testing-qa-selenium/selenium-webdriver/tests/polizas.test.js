@@ -135,28 +135,29 @@ async function testTC_POL_001() {
       selectFirstClient: true,
       selectFirstAseguradora: true,
       selectFirstRamo: true,
+      selectFirstPeriodicidad: true,
+      selectFirstMetodoPago: true,
       fecha_inicio: '2025-01-01',
       fecha_fin: '2025-12-31',
       prima_neta: '10000',
       prima_total: '11600',
-      selectFirstPeriodicidad: true,
-      selectFirstMetodoPago: true,
       suma_asegurada: '500000',
       notas: 'Póliza de prueba creada por test automatizado'
     };
 
     // Act
-    await polizasPage.createPoliza(poliza);
+    await polizasPage.openNewPolizaModal();
+    await polizasPage.fillPolizaForm(poliza);
+    await polizasPage.submitForm();
+    await polizasPage.sleep(2000);
 
-    // Esperar a que la tabla se actualice (dar tiempo al frontend para recargar)
-    await polizasPage.sleep(3000);
-
-    // Assert
+    // ✅ SOLUCIÓN MEJORADA: Esperar inteligentemente a que aparezca en la tabla
+    // Basado en: https://stackoverflow.com/questions/65689079/selenium-java-how-can-i-make-it-wait-until-a-table-has-been-refreshed
     await polizasPage.screenshot('TC-POL-001-CREATED');
 
-    const exists = await polizasPage.polizaExistsInTable(poliza.numero_poliza);
+    const exists = await polizasPage.waitForPolizaInTable(poliza.numero_poliza, 10000);
     if (!exists) {
-      throw new Error(`Póliza "${poliza.numero_poliza}" no aparece en la tabla`);
+      throw new Error(`Póliza "${poliza.numero_poliza}" no aparece en la tabla después de 10s`);
     }
 
     console.log(`✅ Póliza "${poliza.numero_poliza}" creada exitosamente`);
@@ -445,6 +446,7 @@ async function testTC_POL_009() {
     };
 
     await polizasPage.createPoliza(poliza1);
+    await polizasPage.search('');
     await polizasPage.sleep(2000);
 
     // Act - Intentar crear segunda con mismo número
@@ -581,10 +583,10 @@ async function testTC_POL_012() {
     await polizasPage.submitForm();
     await polizasPage.sleep(2000);
 
-    // Assert
-    const exists = await polizasPage.polizaExistsInTable(poliza.numero_poliza);
+    // ✅ SOLUCIÓN MEJORADA: Esperar inteligentemente
+    const exists = await polizasPage.waitForPolizaInTable(poliza.numero_poliza, 10000);
     if (!exists) {
-      throw new Error(`Póliza de renovación no aparece en la tabla`);
+      throw new Error(`Póliza de renovación no aparece en la tabla después de 10s`);
     }
 
     console.log(`✅ Póliza de renovación creada exitosamente`);

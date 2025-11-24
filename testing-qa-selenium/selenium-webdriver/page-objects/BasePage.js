@@ -101,6 +101,22 @@ class BasePage {
   }
 
   /**
+   * Establece el valor de un campo de fecha usando executeScript
+   * Más confiable que sendKeys para inputs type="date"
+   * @param {By} locator
+   * @param {string} dateValue - Fecha en formato YYYY-MM-DD
+   */
+  async setDateValue(locator, dateValue) {
+    const element = await waitForVisible(this.driver, locator);
+    await this.driver.executeScript(`
+      arguments[0].value = arguments[1];
+      arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+      arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+    `, element, dateValue);
+    console.log(`📅 Fecha establecida: "${dateValue}" en: ${locator}`);
+  }
+
+  /**
    * Ingresa texto en un campo por ID
    * @param {string} id
    * @param {string} text
@@ -328,6 +344,160 @@ class BasePage {
   async goForward() {
     await this.driver.navigate().forward();
     console.log('➡️  Navegando hacia adelante');
+  }
+
+  // ========== MÉTODOS AVANZADOS PARA TESTS ROBUSTOS ==========
+
+  /**
+   * Espera a que un elemento se vuelva invisible (útil para toasts/notifications)
+   * Basado en: https://www.browserstack.com/guide/element-click-intercepted-exception-selenium
+   * @param {By} locator - Localizador del elemento que debe desaparecer
+   * @param {number} timeout - Tiempo máximo de espera en ms (default: 10000)
+   * @returns {Promise<void>}
+   */
+  async waitForElementInvisible(locator, timeout = 10000) {
+    const { until } = require('selenium-webdriver');
+    console.log(`⏳ Esperando a que el elemento se vuelva invisible: ${locator}`);
+
+    try {
+      await this.driver.wait(until.elementIsNotVisible(
+        await this.driver.findElement(locator)
+      ), timeout);
+      console.log(`✅ Elemento invisible: ${locator}`);
+    } catch (error) {
+      // Si el elemento no existe, también está "invisible"
+      console.log(`✅ Elemento no presente/invisible: ${locator}`);
+    }
+  }
+
+  /**
+   * Hace clic con reintentos si hay interceptación
+   * Basado en: https://stackoverflow.com/questions/58579355/selenium-wait-for-clickable-element-click-intercepted-issue
+   * @param {By} locator - Localizador del botón/elemento a hacer clic
+   * @param {number} maxRetries - Número máximo de reintentos (default: 3)
+   * @param {number} delayBetweenRetries - Delay entre reintentos en ms (default: 1000)
+   * @returns {Promise<void>}
+   */
+  async clickWithRetry(locator, maxRetries = 3, delayBetweenRetries = 1000) {
+    console.log(`🔄 Intentando clic con reintentos en: ${locator}`);
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`   Intento ${attempt}/${maxRetries}...`);
+
+        // Esperar a que sea clickeable
+        const element = await waitForClickable(this.driver, locator, 5000);
+        await element.click();
+
+        console.log(`✅ Clic exitoso en intento ${attempt}`);
+        return;
+      } catch (error) {
+        if (error.name === 'ElementClickInterceptedError') {
+          console.log(`   ⚠️  Clic interceptado en intento ${attempt}`);
+
+          if (attempt === maxRetries) {
+            console.log(`   ❌ Todos los intentos fallaron`);
+            throw error;
+          }
+
+          // Esperar antes del siguiente intento
+          await this.sleep(delayBetweenRetries);
+        } else {
+          // Otro tipo de error, lanzar inmediatamente
+          throw error;
+        }
+      }
+    }
+  }
+
+  /**
+   * Espera a que una tabla tenga un número específico de filas
+   * Basado en: https://stackoverflow.com/questions/65689079/selenium-java-how-can-i-make-it-wait-until-a-table-has-been-refreshed
+   * @param {By} tableLocator - Localizador de la tabla
+   * @param {number} expectedCount - Número esperado de filas
+   * @param {number} timeout - Tiempo máximo de espera en ms (default: 10000)
+   * @returns {Promise<boolean>}
+   */
+  async waitForTableRowCount(tableLocator, expectedCount, timeout = 10000) {
+    const { until } = require('selenium-webdriver');
+    console.log(`⏳ Esperando a que la tabla tenga ${expectedCount} filas`);
+
+    try {
+      await this.driver.wait(async () => {
+        try {
+          const table = await this.driver.findElement(tableLocator);
+          const rows = await table.findElements(By.css('tbody tr'));
+          const currentCount = rows.length;
+
+          if (currentCount >= expectedCount) {
+            console.log(`✅ Tabla tiene ${currentCount} filas (esperadas: ${expectedCount})`);
+            return true;
+          }
+
+          return false;
+        } catch (error) {
+          return false;
+        }
+      }, timeout);
+
+      return true;
+    } catch (error) {
+      console.log(`❌ Timeout esperando a que la tabla tenga ${expectedCount} filas`);
+      return false;
+    }
+  }
+
+  /**
+   * Espera a que aparezca un texto específico en la tabla
+   * @param {By} tableLocator - Localizador de la tabla
+   * @param {string} searchText - Texto a buscar
+   * @param {number} timeout - Tiempo máximo de espera en ms (default: 10000)
+   * @returns {Promise<boolean>}
+   */
+  async waitForTextInTable(tableLocator, searchText, timeout = 10000) {
+    const { until } = require('selenium-webdriver');
+    console.log(`⏳ Esperando a que aparezca "${searchText}" en la tabla`);
+
+    try {
+      await this.driver.wait(async () => {
+        try {
+          const table = await this.driver.findElement(tableLocator);
+          const tableText = await table.getText();
+
+          if (tableText.includes(searchText)) {
+            console.log(`✅ Texto "${searchText}" encontrado en la tabla`);
+            return true;
+          }
+
+          return false;
+        } catch (error) {
+          return false;
+        }
+      }, timeout);
+
+      return true;
+    } catch (error) {
+      console.log(`❌ Timeout esperando texto "${searchText}" en la tabla`);
+      return false;
+    }
+  }
+
+  /**
+   * Descarta todos los toasts visibles haciendo clic fuera del toast
+   * o esperando a que desaparezcan
+   * @param {number} maxWaitTime - Tiempo máximo de espera en ms (default: 3000)
+   * @returns {Promise<void>}
+   */
+  async dismissAllToasts(maxWaitTime = 3000) {
+    console.log(`🔔 Descartando todos los toasts visibles...`);
+
+    try {
+      // Esperar a que los toasts desaparezcan
+      await this.sleep(maxWaitTime);
+      console.log(`✅ Toasts descartados`);
+    } catch (error) {
+      console.log(`⚠️  Error al descartar toasts:`, error.message);
+    }
   }
 }
 

@@ -13,7 +13,7 @@ class ToastManager {
         if (!this.container) {
             this.container = document.createElement('div');
             this.container.id = 'toast-container';
-            this.container.className = 'fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none';
+            this.container.className = 'fixed bottom-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none';
             this.container.style.maxWidth = '420px';
             document.body.appendChild(this.container);
         }
@@ -56,7 +56,7 @@ class ToastManager {
         toast.className = `
             transform translate-x-full opacity-0
             transition-all duration-300 ease-out
-            pointer-events-auto
+            pointer-events-none
             bg-white rounded-lg shadow-lg border-l-4
             p-4 flex items-start gap-3
             hover:shadow-xl

@@ -110,6 +110,7 @@
             background: rgba(255, 255, 255, 0.7);
             z-index: 10;
             backdrop-filter: blur(1px);
+            pointer-events: none;
         }
 
         #contentView.loading::after {
@@ -126,6 +127,7 @@
             animation: spin 0.9s linear infinite;
             z-index: 11;
             box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
+            pointer-events: none;
         }
 
         @keyframes spin {
@@ -340,15 +342,30 @@
     <!-- Pagination Utilities -->
     <script src="../assets/js/pagination-utils.js"></script>
 
+    <!-- Catalogs Manager (Global Catalogs) -->
+    <script src="../assets/js/catalogs-manager.js"></script>
+
     <!-- App Navigation Script -->
     <script src="../assets/js/app-navigation.js"></script>
     <script>
         // Initialize when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize app navigation
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Inicializando aplicación...');
+
+            // PASO 1: Cargar catálogos globales PRIMERO
+            try {
+                await window.catalogsManager.loadAll();
+            } catch (error) {
+                console.error('❌ Error al cargar catálogos globales:', error);
+                if (window.toastManager) {
+                    window.toastManager.show('Error al cargar catálogos del sistema', 'error');
+                }
+            }
+
+            // PASO 2: Inicializar navegación
             window.appNavigation = new AppNavigation();
 
-            // Load initial view (dashboard)
+            // PASO 3: Load initial view (dashboard)
             window.appNavigation.loadView('dashboard');
 
             // Get user info from session
