@@ -316,48 +316,115 @@ class DatabaseManager {
      * Obtener métricas del dashboard
      * @returns {Object} Métricas agregadas
      */
-    getDashboardMetrics() {
+    getDashboardMetrics(dateRange = {}) {
         try {
-            // Total de pólizas activas
-            const totalPolizas = this.queryOne(`
-                SELECT COUNT(*) as total FROM Poliza WHERE activo = 1
+            // ===== ATENCIÓN URGENTE (sin filtro, siempre actual) =====
+            const vencenHoy = this.queryOne(`
+                SELECT COUNT(*) as count, COALESCE(SUM(monto), 0) as monto
+                FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado = 'pendiente' AND p.activo = 1
+                AND DATE(r.fecha_corte) = DATE('now')
             `);
 
-            // Pólizas que vencen en los próximos 7 días
-            const polizasVencen7dias = this.queryOne(`
-                SELECT COUNT(*) as total FROM Poliza
-                WHERE activo = 1
-                AND DATE(vigencia_fin) BETWEEN DATE('now') AND DATE('now', '+7 days')
+            const atrasados30 = this.queryOne(`
+                SELECT COUNT(*) as count, COALESCE(SUM(monto), 0) as monto
+                FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado IN ('pendiente', 'vencido') AND p.activo = 1
+                AND DATE(r.fecha_corte) < DATE('now', '-30 days')
             `);
 
-            // Cobros pendientes (suma de recibos no pagados)
-            const cobrosPendientes = this.queryOne(`
-                SELECT COALESCE(SUM(r.monto), 0) as total
-                FROM Recibo r
+            const renovar30 = this.queryOne(`
+                SELECT COUNT(*) as count, COALESCE(SUM(prima_total), 0) as riesgo
+                FROM Poliza WHERE activo = 1
+                AND DATE(vigencia_fin) BETWEEN DATE('now') AND DATE('now', '+30 days')
+            `);
+
+            // ===== SALUD DEL NEGOCIO (con filtro de fecha si aplica) =====
+            let cobradoQuery = `
+                SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado = 'pagado' AND p.activo = 1`;
+
+            if (dateRange.startDate && dateRange.endDate) {
+                cobradoQuery += ` AND DATE(r.fecha_pago) BETWEEN DATE('${dateRange.startDate}') AND DATE('${dateRange.endDate}')`;
+            } else if (dateRange.days) {
+                cobradoQuery += ` AND DATE(r.fecha_pago) >= DATE('now', '-${dateRange.days} days')`;
+            } else {
+                cobradoQuery += ` AND DATE(r.fecha_pago) >= DATE('now', 'start of month')`;
+            }
+
+            const cobradoMes = this.queryOne(cobradoQuery);
+
+            const cobradoMesAnterior = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado = 'pagado' AND p.activo = 1
+                AND DATE(r.fecha_pago) >= DATE('now', 'start of month', '-1 month')
+                AND DATE(r.fecha_pago) < DATE('now', 'start of month')
+            `);
+
+            const porCobrar = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado IN ('pendiente', 'vencido') AND p.activo = 1
+            `);
+
+            const vencen7Dias = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
                 JOIN Poliza p ON r.poliza_id = p.poliza_id
                 WHERE r.estado = 'pendiente' AND p.activo = 1
+                AND DATE(r.fecha_corte) BETWEEN DATE('now') AND DATE('now', '+7 days')
             `);
 
-            // Clientes nuevos del mes actual
-            const clientesMesActual = this.queryOne(`
-                SELECT COUNT(*) as total FROM Cliente
-                WHERE activo = 1
-                AND DATE(fecha_creacion) >= DATE('now', 'start of month')
+            const saldoVencido = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado IN ('pendiente', 'vencido') AND p.activo = 1
+                AND DATE(r.fecha_corte) < DATE('now')
             `);
+
+            const saldoTotal = porCobrar?.total || 1;
+            const tasaMorosidad = saldoTotal > 0 ? (saldoVencido.total / saldoTotal) * 100 : 0;
+
+            const esperadoMes = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE p.activo = 1
+                AND DATE(r.fecha_corte) <= DATE('now')
+                AND DATE(r.fecha_corte) >= DATE('now', 'start of month')
+            `);
+
+            const efectividad = esperadoMes.total > 0 ? (cobradoMes.total / esperadoMes.total) * 100 : 0;
 
             return {
-                total_polizas: totalPolizas?.total || 0,
-                polizas_vencen_7dias: polizasVencen7dias?.total || 0,
-                cobros_pendientes: cobrosPendientes?.total || 0,
-                clientes_mes_actual: clientesMesActual?.total || 0
+                urgente_vencen_hoy_count: vencenHoy?.count || 0,
+                urgente_vencen_hoy_monto: vencenHoy?.monto || 0,
+                urgente_atrasados_30_count: atrasados30?.count || 0,
+                urgente_atrasados_30_monto: atrasados30?.monto || 0,
+                urgente_renovar_30_count: renovar30?.count || 0,
+                urgente_renovar_30_riesgo: renovar30?.riesgo || 0,
+                cobrado_mes: cobradoMes?.total || 0,
+                cobrado_mes_anterior: cobradoMesAnterior?.total || 0,
+                por_cobrar: porCobrar?.total || 0,
+                vencen_7_dias: vencen7Dias?.total || 0,
+                tasa_morosidad: tasaMorosidad,
+                efectividad_cobro: efectividad
             };
         } catch (error) {
             console.error('Error al obtener métricas del dashboard:', error.message);
             return {
-                total_polizas: 0,
-                polizas_vencen_7dias: 0,
-                cobros_pendientes: 0,
-                clientes_mes_actual: 0
+                urgente_vencen_hoy_count: 0,
+                urgente_vencen_hoy_monto: 0,
+                urgente_atrasados_30_count: 0,
+                urgente_atrasados_30_monto: 0,
+                urgente_renovar_30_count: 0,
+                urgente_renovar_30_riesgo: 0,
+                cobrado_mes: 0,
+                cobrado_mes_anterior: 0,
+                por_cobrar: 0,
+                vencen_7_dias: 0,
+                tasa_morosidad: 0,
+                efectividad_cobro: 0
             };
         }
     }
@@ -480,6 +547,164 @@ class DatabaseManager {
         } catch (error) {
             console.error('Error al obtener cobros mensuales:', error.message);
             return [];
+        }
+    }
+
+    /**
+     * Obtener antigüedad de saldos (para dashboard)
+     * @returns {Object} Distribución de saldos por antigüedad
+     */
+    getAntiguedadSaldos() {
+        try {
+            const alDia = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total
+                FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado = 'pendiente' AND p.activo = 1
+                AND DATE(r.fecha_corte) >= DATE('now')
+            `);
+
+            const dias1_30 = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total
+                FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado IN ('pendiente', 'vencido') AND p.activo = 1
+                AND DATE(r.fecha_corte) < DATE('now')
+                AND DATE(r.fecha_corte) >= DATE('now', '-30 days')
+            `);
+
+            const dias31_60 = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total
+                FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado IN ('pendiente', 'vencido') AND p.activo = 1
+                AND DATE(r.fecha_corte) < DATE('now', '-30 days')
+                AND DATE(r.fecha_corte) >= DATE('now', '-60 days')
+            `);
+
+            const dias60Plus = this.queryOne(`
+                SELECT COALESCE(SUM(monto), 0) as total
+                FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE r.estado IN ('pendiente', 'vencido') AND p.activo = 1
+                AND DATE(r.fecha_corte) < DATE('now', '-60 days')
+            `);
+
+            return {
+                al_dia: alDia?.total || 0,
+                dias_1_30: dias1_30?.total || 0,
+                dias_31_60: dias31_60?.total || 0,
+                dias_60_plus: dias60Plus?.total || 0
+            };
+        } catch (error) {
+            console.error('Error al obtener antigüedad de saldos:', error.message);
+            return { al_dia: 0, dias_1_30: 0, dias_31_60: 0, dias_60_plus: 0 };
+        }
+    }
+
+    /**
+     * Obtener top 5 clientes por prima total
+     * @returns {Array} Top 5 clientes con su participación
+     */
+    getTop5Clientes() {
+        try {
+            // Obtener total de todas las primas
+            const totalPrimas = this.queryOne(`
+                SELECT COALESCE(SUM(prima_total), 1) as total
+                FROM Poliza WHERE activo = 1
+            `);
+
+            const total = totalPrimas?.total || 1;
+
+            // Obtener top 5 clientes
+            const topClientes = this.query(`
+                SELECT
+                    c.cliente_id,
+                    c.nombre,
+                    c.rfc,
+                    COALESCE(SUM(p.prima_total), 0) as prima_total,
+                    COUNT(p.poliza_id) as num_polizas,
+                    ROUND((COALESCE(SUM(p.prima_total), 0) * 100.0 / ?), 2) as porcentaje
+                FROM Cliente c
+                JOIN Poliza p ON c.cliente_id = p.cliente_id
+                WHERE c.activo = 1 AND p.activo = 1
+                GROUP BY c.cliente_id, c.nombre, c.rfc
+                ORDER BY prima_total DESC
+                LIMIT 5
+            `, [total]);
+
+            // Calcular porcentaje total del top 5
+            const totalTop5 = topClientes.reduce((sum, cliente) => sum + (cliente.porcentaje || 0), 0);
+
+            return {
+                clientes: topClientes,
+                porcentaje_total: totalTop5,
+                total_cartera: total
+            };
+        } catch (error) {
+            console.error('Error al obtener top 5 clientes:', error.message);
+            return { clientes: [], porcentaje_total: 0, total_cartera: 0 };
+        }
+    }
+
+    /**
+     * Obtener flujo de caja proyectado (próximos 3 meses)
+     * @returns {Object} Flujo de caja con proyecciones
+     */
+    getFlujoCajaProyectado() {
+        try {
+            // Obtener tasa de efectividad de cobro histórica
+            const efectividadHistorica = this.queryOne(`
+                SELECT
+                    CAST(COUNT(CASE WHEN estado = 'pagado' THEN 1 END) AS FLOAT) /
+                    CAST(COUNT(*) AS FLOAT) * 100 AS tasa_efectividad
+                FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE p.activo = 1
+                AND DATE(r.fecha_corte) < DATE('now')
+            `);
+
+            const tasaEfectividad = (efectividadHistorica?.tasa_efectividad || 85) / 100;
+
+            // Obtener cobros esperados por mes (próximos 3 meses)
+            const flujoMensual = this.query(`
+                SELECT
+                    strftime('%Y-%m', r.fecha_corte) as mes,
+                    COALESCE(SUM(CASE WHEN r.estado = 'pendiente' THEN r.monto ELSE 0 END), 0) as esperado,
+                    COALESCE(SUM(CASE WHEN r.estado = 'pagado' THEN r.monto ELSE 0 END), 0) as cobrado
+                FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                WHERE p.activo = 1
+                AND DATE(r.fecha_corte) BETWEEN DATE('now') AND DATE('now', '+3 months')
+                GROUP BY strftime('%Y-%m', r.fecha_corte)
+                ORDER BY mes ASC
+            `);
+
+            // Calcular proyección ajustada por efectividad
+            const flujoConProyeccion = flujoMensual.map(mes => ({
+                mes: mes.mes,
+                esperado: mes.esperado,
+                cobrado: mes.cobrado,
+                proyectado: mes.esperado * tasaEfectividad
+            }));
+
+            // Calcular totales
+            const totalEsperado = flujoMensual.reduce((sum, m) => sum + m.esperado, 0);
+            const totalProyectado = totalEsperado * tasaEfectividad;
+            const brecha = totalEsperado - totalProyectado;
+
+            return {
+                meses: flujoConProyeccion,
+                total_esperado: totalEsperado,
+                total_proyectado: totalProyectado,
+                brecha: brecha,
+                tasa_efectividad: tasaEfectividad * 100
+            };
+        } catch (error) {
+            console.error('Error al obtener flujo de caja proyectado:', error.message);
+            return {
+                meses: [],
+                total_esperado: 0,
+                total_proyectado: 0,
+                brecha: 0,
+                tasa_efectividad: 0
+            };
         }
     }
 

@@ -228,11 +228,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // DASHBOARD / MÉTRICAS
     // ============================================
     dashboard: {
-        getMetrics: () =>
-            ipcRenderer.invoke('dashboard:getMetrics'),
+        getMetrics: (dateRange) =>
+            ipcRenderer.invoke('dashboard:getMetrics', dateRange),
 
-        getPolizasConAlertas: () =>
-            ipcRenderer.invoke('dashboard:getPolizasConAlertas'),
+        getPolizasConAlertas: (dateRange) =>
+            ipcRenderer.invoke('dashboard:getPolizasConAlertas', dateRange),
 
         getPolizasTrend: () =>
             ipcRenderer.invoke('dashboard:getPolizasTrend'),
@@ -244,7 +244,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('dashboard:getRecibosByEstado'),
 
         getCobrosMensuales: () =>
-            ipcRenderer.invoke('dashboard:getCobrosMensuales')
+            ipcRenderer.invoke('dashboard:getCobrosMensuales'),
+
+        getAntiguedadSaldos: () =>
+            ipcRenderer.invoke('dashboard:getAntiguedadSaldos'),
+
+        getTop5Clientes: () =>
+            ipcRenderer.invoke('dashboard:getTop5Clientes'),
+
+        getFlujoCajaProyectado: () =>
+            ipcRenderer.invoke('dashboard:getFlujoCajaProyectado')
     },
 
     // Información del sistema

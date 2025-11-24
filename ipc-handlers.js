@@ -373,11 +373,21 @@ function registerIPCHandlers(dbManager, models) {
     // Actualizar póliza
     ipcMain.handle('polizas:update', async (event, polizaId, polizaData) => {
         try {
-            const updated = polizaModel.update(polizaId, polizaData);
-            if (updated) {
+            const resultado = polizaModel.update(polizaId, polizaData);
+
+            if (resultado.success) {
                 console.log('✅ Póliza actualizada:', polizaId);
-                return { success: true };
+
+                // Retornar información completa de la actualización
+                return {
+                    success: true,
+                    cambios_requirieron_regeneracion: resultado.cambios_requirieron_regeneracion || false,
+                    mantenidos: resultado.mantenidos || 0,
+                    eliminados: resultado.eliminados || 0,
+                    regenerados: resultado.regenerados || 0
+                };
             }
+
             return { success: false, message: 'Póliza no encontrada' };
         } catch (error) {
             console.error('Error al actualizar póliza:', error);
@@ -1018,9 +1028,9 @@ function registerIPCHandlers(dbManager, models) {
     // ============================================
 
     // Obtener métricas del dashboard
-    ipcMain.handle('dashboard:getMetrics', async () => {
+    ipcMain.handle('dashboard:getMetrics', async (event, dateRange = {}) => {
         try {
-            const metrics = dbManager.getDashboardMetrics();
+            const metrics = dbManager.getDashboardMetrics(dateRange);
             return { success: true, data: metrics };
         } catch (error) {
             console.error('Error al obtener métricas:', error);
@@ -1029,9 +1039,9 @@ function registerIPCHandlers(dbManager, models) {
     });
 
     // Obtener pólizas con alertas
-    ipcMain.handle('dashboard:getPolizasConAlertas', async () => {
+    ipcMain.handle('dashboard:getPolizasConAlertas', async (event, dateRange = {}) => {
         try {
-            const polizas = dbManager.getPolizasConAlertas();
+            const polizas = dbManager.getPolizasConAlertas(dateRange);
             return { success: true, data: polizas };
         } catch (error) {
             console.error('Error al obtener pólizas con alertas:', error);
@@ -1079,6 +1089,39 @@ function registerIPCHandlers(dbManager, models) {
             return { success: true, data };
         } catch (error) {
             console.error('Error al obtener cobros mensuales:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Obtener antigüedad de saldos
+    ipcMain.handle('dashboard:getAntiguedadSaldos', async () => {
+        try {
+            const data = dbManager.getAntiguedadSaldos();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener antigüedad de saldos:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Obtener top 5 clientes
+    ipcMain.handle('dashboard:getTop5Clientes', async () => {
+        try {
+            const data = dbManager.getTop5Clientes();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener top 5 clientes:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Obtener flujo de caja proyectado
+    ipcMain.handle('dashboard:getFlujoCajaProyectado', async () => {
+        try {
+            const data = dbManager.getFlujoCajaProyectado();
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error al obtener flujo de caja proyectado:', error);
             return { success: false, message: error.message };
         }
     });
