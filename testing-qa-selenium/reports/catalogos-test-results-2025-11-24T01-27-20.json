@@ -1,0 +1,191 @@
+{
+  "suite": "Catálogos",
+  "timestamp": "2025-11-24T01:17:33.076Z",
+  "total": 26,
+  "passed": 20,
+  "failed": 6,
+  "results": [
+    {
+      "testId": "TC-ASEG-001",
+      "description": "Crear Aseguradora Válida",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:18:03.111Z"
+    },
+    {
+      "testId": "TC-ASEG-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:18:08.788Z"
+    },
+    {
+      "testId": "TC-ASEG-003",
+      "description": "Validación Nombre Duplicado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:18:40.364Z"
+    },
+    {
+      "testId": "TC-ASEG-004",
+      "description": "Editar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:19:13.586Z"
+    },
+    {
+      "testId": "TC-ASEG-005",
+      "description": "Desactivar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:19:56.759Z"
+    },
+    {
+      "testId": "TC-ASEG-006",
+      "description": "Activar Aseguradora",
+      "passed": false,
+      "message": "no such element: Unable to locate element: {\"method\":\"css selector\",\"selector\":\"*[id=\"inputActivo\"]\"}\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T01:20:21.971Z"
+    },
+    {
+      "testId": "TC-ASEG-007",
+      "description": "Eliminar Aseguradora Sin Uso",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:20:54.675Z"
+    },
+    {
+      "testId": "TC-ASEG-008",
+      "description": "Búsqueda por Nombre",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:21:09.893Z"
+    },
+    {
+      "testId": "TC-ASEG-009",
+      "description": "Paginación",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:21:23.059Z"
+    },
+    {
+      "testId": "TC-ASEG-010",
+      "description": "Columna Acciones - Hover",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:21:36.243Z"
+    },
+    {
+      "testId": "TC-MPAGO-001",
+      "description": "Crear Método de Pago",
+      "passed": false,
+      "message": "Método de pago no se creó correctamente",
+      "timestamp": "2025-11-24T01:22:05.235Z"
+    },
+    {
+      "testId": "TC-MPAGO-002",
+      "description": "Validación Nombre Vacío",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddMetodoPago\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1021, 181). Other element would receive the click: <div id=\"modalMetodoPago\" class=\"modal active\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T01:22:12.465Z"
+    },
+    {
+      "testId": "TC-MPAGO-003",
+      "description": "Editar Método de Pago",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:22:48.080Z"
+    },
+    {
+      "testId": "TC-MPAGO-004",
+      "description": "Eliminar Método de Pago",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:23:21.076Z"
+    },
+    {
+      "testId": "TC-MPAGO-005",
+      "description": "Búsqueda de Método",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:23:36.367Z"
+    },
+    {
+      "testId": "TC-PER-001",
+      "description": "Crear Periodicidad",
+      "passed": false,
+      "message": "Waiting for element to be located By(css selector, *[id=\"inputDiasAnticipacionAlerta\"])\nWait timed out after 10034ms",
+      "timestamp": "2025-11-24T01:24:02.215Z"
+    },
+    {
+      "testId": "TC-PER-002",
+      "description": "Validación Nombre Vacío",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddPeriodicidad\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1036, 181). Other element would receive the click: <div id=\"modalPeriodicidad\" class=\"modal active\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T01:24:09.484Z"
+    },
+    {
+      "testId": "TC-PER-003",
+      "description": "Validación Meses Inválidos",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddPeriodicidad\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1036, 181). Other element would receive the click: <div id=\"modalPeriodicidad\" class=\"modal active\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T01:24:16.712Z"
+    },
+    {
+      "testId": "TC-PER-004",
+      "description": "Editar Periodicidad",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:24:52.399Z"
+    },
+    {
+      "testId": "TC-PER-005",
+      "description": "Eliminar Periodicidad Sin Uso",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:25:25.350Z"
+    },
+    {
+      "testId": "TC-RAMO-001",
+      "description": "Crear Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:25:44.876Z"
+    },
+    {
+      "testId": "TC-RAMO-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:25:48.554Z"
+    },
+    {
+      "testId": "TC-RAMO-003",
+      "description": "Validación Nombre Duplicado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:26:14.570Z"
+    },
+    {
+      "testId": "TC-RAMO-004",
+      "description": "Editar Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:26:41.172Z"
+    },
+    {
+      "testId": "TC-RAMO-005",
+      "description": "Eliminar Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:27:05.683Z"
+    },
+    {
+      "testId": "TC-RAMO-006",
+      "description": "Búsqueda de Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:27:20.473Z"
+    }
+  ]
+}

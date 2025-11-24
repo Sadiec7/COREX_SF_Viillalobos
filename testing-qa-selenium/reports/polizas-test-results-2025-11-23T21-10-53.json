@@ -1,0 +1,149 @@
+{
+  "suite": "Pólizas",
+  "timestamp": "2025-11-23T21:07:38.847Z",
+  "total": 20,
+  "passed": 20,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-POL-001",
+      "description": "Crear póliza nueva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:07:54.534Z"
+    },
+    {
+      "testId": "TC-POL-002",
+      "description": "Validación campos obligatorios",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:03.829Z"
+    },
+    {
+      "testId": "TC-POL-003",
+      "description": "Validación fecha fin > fecha inicio",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:13.284Z"
+    },
+    {
+      "testId": "TC-POL-004",
+      "description": "Búsqueda por número de póliza",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:18.514Z"
+    },
+    {
+      "testId": "TC-POL-005",
+      "description": "Verificar estadísticas de pólizas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:22.189Z"
+    },
+    {
+      "testId": "TC-POL-006",
+      "description": "Validación prima total > prima neta",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:31.031Z"
+    },
+    {
+      "testId": "TC-POL-007",
+      "description": "Búsqueda sin resultados",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:46.261Z"
+    },
+    {
+      "testId": "TC-POL-008",
+      "description": "Cancelar creación de póliza",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:08:53.355Z"
+    },
+    {
+      "testId": "TC-POL-009",
+      "description": "Validación número de póliza único",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:09:11.076Z"
+    },
+    {
+      "testId": "TC-POL-010",
+      "description": "Validación suma asegurada positiva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:09:20.151Z"
+    },
+    {
+      "testId": "TC-POL-011",
+      "description": "Limpiar búsqueda restaura todas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:09:36.910Z"
+    },
+    {
+      "testId": "TC-POL-012",
+      "description": "Crear póliza de renovación",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:09:46.443Z"
+    },
+    {
+      "testId": "TC-POL-013",
+      "description": "Validación comisión 0-100%",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:09:55.504Z"
+    },
+    {
+      "testId": "TC-POL-014",
+      "description": "Búsqueda por cliente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:00.721Z"
+    },
+    {
+      "testId": "TC-POL-015",
+      "description": "Búsqueda por aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:15.924Z"
+    },
+    {
+      "testId": "TC-POL-016",
+      "description": "Validación prima neta positiva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:24.990Z"
+    },
+    {
+      "testId": "TC-POL-017",
+      "description": "Verificar total de pólizas en stats",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:28.643Z"
+    },
+    {
+      "testId": "TC-POL-018",
+      "description": "Cerrar modal con X no guarda",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:38.596Z"
+    },
+    {
+      "testId": "TC-POL-019",
+      "description": "Validación fecha inicio requerida",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:48.384Z"
+    },
+    {
+      "testId": "TC-POL-020",
+      "description": "Búsqueda case insensitive",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T21:10:53.596Z"
+    }
+  ]
+}

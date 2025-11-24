@@ -1,0 +1,149 @@
+{
+  "suite": "Pólizas",
+  "timestamp": "2025-11-23T18:10:14.549Z",
+  "total": 20,
+  "passed": 18,
+  "failed": 2,
+  "results": [
+    {
+      "testId": "TC-POL-001",
+      "description": "Crear póliza nueva",
+      "passed": false,
+      "message": "Póliza \"POL-TEST-1763921423620\" no aparece en la tabla",
+      "timestamp": "2025-11-23T18:10:30.049Z"
+    },
+    {
+      "testId": "TC-POL-002",
+      "description": "Validación campos obligatorios",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:10:41.969Z"
+    },
+    {
+      "testId": "TC-POL-003",
+      "description": "Validación fecha fin > fecha inicio",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:10:49.454Z"
+    },
+    {
+      "testId": "TC-POL-004",
+      "description": "Búsqueda por número de póliza",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:10:54.699Z"
+    },
+    {
+      "testId": "TC-POL-005",
+      "description": "Verificar estadísticas de pólizas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:10:58.402Z"
+    },
+    {
+      "testId": "TC-POL-006",
+      "description": "Validación prima total > prima neta",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:11:05.253Z"
+    },
+    {
+      "testId": "TC-POL-007",
+      "description": "Búsqueda sin resultados",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:11:20.507Z"
+    },
+    {
+      "testId": "TC-POL-008",
+      "description": "Cancelar creación de póliza",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:11:25.628Z"
+    },
+    {
+      "testId": "TC-POL-009",
+      "description": "Validación número de póliza único",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddPoliza\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1062, 181). Other element would receive the click: <div>...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-23T18:11:35.316Z"
+    },
+    {
+      "testId": "TC-POL-010",
+      "description": "Validación suma asegurada positiva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:11:47.105Z"
+    },
+    {
+      "testId": "TC-POL-011",
+      "description": "Limpiar búsqueda restaura todas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:03.932Z"
+    },
+    {
+      "testId": "TC-POL-012",
+      "description": "Crear póliza de renovación",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:10.712Z"
+    },
+    {
+      "testId": "TC-POL-013",
+      "description": "Validación comisión 0-100%",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:17.829Z"
+    },
+    {
+      "testId": "TC-POL-014",
+      "description": "Búsqueda por cliente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:23.058Z"
+    },
+    {
+      "testId": "TC-POL-015",
+      "description": "Búsqueda por aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:38.302Z"
+    },
+    {
+      "testId": "TC-POL-016",
+      "description": "Validación prima neta positiva",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:45.423Z"
+    },
+    {
+      "testId": "TC-POL-017",
+      "description": "Verificar total de pólizas en stats",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:49.105Z"
+    },
+    {
+      "testId": "TC-POL-018",
+      "description": "Cerrar modal con X no guarda",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:12:57.082Z"
+    },
+    {
+      "testId": "TC-POL-019",
+      "description": "Validación fecha inicio requerida",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:13:04.886Z"
+    },
+    {
+      "testId": "TC-POL-020",
+      "description": "Búsqueda case insensitive",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-23T18:13:10.114Z"
+    }
+  ]
+}

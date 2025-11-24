@@ -1,0 +1,191 @@
+{
+  "suite": "Catálogos",
+  "timestamp": "2025-11-24T00:55:29.881Z",
+  "total": 26,
+  "passed": 5,
+  "failed": 21,
+  "results": [
+    {
+      "testId": "TC-ASEG-001",
+      "description": "Crear Aseguradora Válida",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:55:41.723Z"
+    },
+    {
+      "testId": "TC-ASEG-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:55:47.402Z"
+    },
+    {
+      "testId": "TC-ASEG-003",
+      "description": "Validación Nombre Duplicado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:56:00.781Z"
+    },
+    {
+      "testId": "TC-ASEG-004",
+      "description": "Editar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:56:15.257Z"
+    },
+    {
+      "testId": "TC-ASEG-005",
+      "description": "Desactivar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:56:39.148Z"
+    },
+    {
+      "testId": "TC-ASEG-006",
+      "description": "Activar Aseguradora",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"aseguradoras\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors active\">...</a> is not clickable at point (128, 458). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:40.175Z"
+    },
+    {
+      "testId": "TC-ASEG-007",
+      "description": "Eliminar Aseguradora Sin Uso",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"aseguradoras\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors active\">...</a> is not clickable at point (128, 458). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:41.294Z"
+    },
+    {
+      "testId": "TC-ASEG-008",
+      "description": "Búsqueda por Nombre",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"aseguradoras\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors active\">...</a> is not clickable at point (128, 458). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:42.409Z"
+    },
+    {
+      "testId": "TC-ASEG-009",
+      "description": "Paginación",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"aseguradoras\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors active\">...</a> is not clickable at point (128, 458). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:43.518Z"
+    },
+    {
+      "testId": "TC-ASEG-010",
+      "description": "Columna Acciones - Hover",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"aseguradoras\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors active\">...</a> is not clickable at point (128, 458). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:44.633Z"
+    },
+    {
+      "testId": "TC-MPAGO-001",
+      "description": "Crear Método de Pago",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"metodos-pago\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 571). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:45.767Z"
+    },
+    {
+      "testId": "TC-MPAGO-002",
+      "description": "Validación Nombre Vacío",
+      "passed": false,
+      "message": "Waiting for element to be located By(css selector, *[id=\"btnAddMetodoPago\"])\nWait timed out after 10054ms",
+      "timestamp": "2025-11-24T00:56:57.899Z"
+    },
+    {
+      "testId": "TC-MPAGO-003",
+      "description": "Editar Método de Pago",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"metodos-pago\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 571). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:56:59.011Z"
+    },
+    {
+      "testId": "TC-MPAGO-004",
+      "description": "Eliminar Método de Pago",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"metodos-pago\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 571). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:00.143Z"
+    },
+    {
+      "testId": "TC-MPAGO-005",
+      "description": "Búsqueda de Método",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"metodos-pago\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 571). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:01.234Z"
+    },
+    {
+      "testId": "TC-PER-001",
+      "description": "Crear Periodicidad",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"periodicidades\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 533). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:02.324Z"
+    },
+    {
+      "testId": "TC-PER-002",
+      "description": "Validación Nombre Vacío",
+      "passed": false,
+      "message": "Waiting for element to be located By(css selector, *[id=\"btnAddPeriodicidad\"])\nWait timed out after 10039ms",
+      "timestamp": "2025-11-24T00:57:14.439Z"
+    },
+    {
+      "testId": "TC-PER-003",
+      "description": "Validación Meses Inválidos",
+      "passed": false,
+      "message": "Waiting for element to be located By(css selector, *[id=\"btnAddPeriodicidad\"])\nWait timed out after 10008ms",
+      "timestamp": "2025-11-24T00:57:26.519Z"
+    },
+    {
+      "testId": "TC-PER-004",
+      "description": "Editar Periodicidad",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"periodicidades\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 533). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:27.645Z"
+    },
+    {
+      "testId": "TC-PER-005",
+      "description": "Eliminar Periodicidad Sin Uso",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"periodicidades\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 533). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:28.732Z"
+    },
+    {
+      "testId": "TC-RAMO-001",
+      "description": "Crear Ramo",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"ramos\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 496). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:29.824Z"
+    },
+    {
+      "testId": "TC-RAMO-002",
+      "description": "Validación Nombre Vacío",
+      "passed": false,
+      "message": "Waiting for element to be located By(css selector, *[id=\"btnAddRamo\"])\nWait timed out after 10007ms",
+      "timestamp": "2025-11-24T00:57:41.906Z"
+    },
+    {
+      "testId": "TC-RAMO-003",
+      "description": "Validación Nombre Duplicado",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"ramos\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 496). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:43.017Z"
+    },
+    {
+      "testId": "TC-RAMO-004",
+      "description": "Editar Ramo",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"ramos\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 496). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:44.130Z"
+    },
+    {
+      "testId": "TC-RAMO-005",
+      "description": "Eliminar Ramo",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"ramos\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 496). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:45.244Z"
+    },
+    {
+      "testId": "TC-RAMO-006",
+      "description": "Búsqueda de Ramo",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"ramos\" class=\"nav-item submenu-item flex items-center p-2 rounded-lg transition-colors\">...</a> is not clickable at point (128, 496). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T00:57:46.345Z"
+    }
+  ]
+}

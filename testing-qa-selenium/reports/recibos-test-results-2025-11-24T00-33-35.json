@@ -1,0 +1,44 @@
+{
+  "suite": "Recibos",
+  "timestamp": "2025-11-24T00:32:57.070Z",
+  "total": 5,
+  "passed": 5,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-REC-001",
+      "description": "Visualización de Lista de Recibos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:33:05.813Z"
+    },
+    {
+      "testId": "TC-REC-002",
+      "description": "Búsqueda por Número de Recibo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:33:21.706Z"
+    },
+    {
+      "testId": "TC-REC-006",
+      "description": "Filtro por Estado Pendiente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:33:29.223Z"
+    },
+    {
+      "testId": "TC-REC-019",
+      "description": "Estadística Total de Recibos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:33:32.376Z"
+    },
+    {
+      "testId": "TC-REC-020",
+      "description": "Estadísticas Desglosadas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T00:33:35.549Z"
+    }
+  ]
+}

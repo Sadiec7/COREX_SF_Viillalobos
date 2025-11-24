@@ -1,0 +1,191 @@
+{
+  "suite": "Catálogos",
+  "timestamp": "2025-11-24T01:33:40.077Z",
+  "total": 26,
+  "passed": 22,
+  "failed": 4,
+  "results": [
+    {
+      "testId": "TC-ASEG-001",
+      "description": "Crear Aseguradora Válida",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:34:03.205Z"
+    },
+    {
+      "testId": "TC-ASEG-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:34:08.870Z"
+    },
+    {
+      "testId": "TC-ASEG-003",
+      "description": "Validación Nombre Duplicado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:34:33.276Z"
+    },
+    {
+      "testId": "TC-ASEG-004",
+      "description": "Editar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:34:59.428Z"
+    },
+    {
+      "testId": "TC-ASEG-005",
+      "description": "Desactivar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:35:35.472Z"
+    },
+    {
+      "testId": "TC-ASEG-006",
+      "description": "Activar Aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:36:13.485Z"
+    },
+    {
+      "testId": "TC-ASEG-007",
+      "description": "Eliminar Aseguradora Sin Uso",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:36:38.422Z"
+    },
+    {
+      "testId": "TC-ASEG-008",
+      "description": "Búsqueda por Nombre",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:36:53.635Z"
+    },
+    {
+      "testId": "TC-ASEG-009",
+      "description": "Paginación",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:37:06.821Z"
+    },
+    {
+      "testId": "TC-ASEG-010",
+      "description": "Columna Acciones - Hover",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:37:19.990Z"
+    },
+    {
+      "testId": "TC-MPAGO-001",
+      "description": "Crear Método de Pago",
+      "passed": false,
+      "message": "Método de pago no se creó correctamente",
+      "timestamp": "2025-11-24T01:37:49.373Z"
+    },
+    {
+      "testId": "TC-MPAGO-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:37:53.105Z"
+    },
+    {
+      "testId": "TC-MPAGO-003",
+      "description": "Editar Método de Pago",
+      "passed": false,
+      "message": "Waiting until element is visible\nWait timed out after 10012ms",
+      "timestamp": "2025-11-24T01:38:34.327Z"
+    },
+    {
+      "testId": "TC-MPAGO-004",
+      "description": "Eliminar Método de Pago",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:39:07.186Z"
+    },
+    {
+      "testId": "TC-MPAGO-005",
+      "description": "Búsqueda de Método",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:39:21.881Z"
+    },
+    {
+      "testId": "TC-PER-001",
+      "description": "Crear Periodicidad",
+      "passed": false,
+      "message": "Periodicidad no se creó correctamente",
+      "timestamp": "2025-11-24T01:39:51.422Z"
+    },
+    {
+      "testId": "TC-PER-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:39:55.135Z"
+    },
+    {
+      "testId": "TC-PER-003",
+      "description": "Validación Meses Inválidos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:40:01.909Z"
+    },
+    {
+      "testId": "TC-PER-004",
+      "description": "Editar Periodicidad",
+      "passed": false,
+      "message": "Waiting until element is visible\nWait timed out after 10162ms",
+      "timestamp": "2025-11-24T01:40:43.363Z"
+    },
+    {
+      "testId": "TC-PER-005",
+      "description": "Eliminar Periodicidad Sin Uso",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:41:16.379Z"
+    },
+    {
+      "testId": "TC-RAMO-001",
+      "description": "Crear Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:41:35.901Z"
+    },
+    {
+      "testId": "TC-RAMO-002",
+      "description": "Validación Nombre Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:41:39.565Z"
+    },
+    {
+      "testId": "TC-RAMO-003",
+      "description": "Validación Nombre Duplicado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:42:06.004Z"
+    },
+    {
+      "testId": "TC-RAMO-004",
+      "description": "Editar Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:42:32.936Z"
+    },
+    {
+      "testId": "TC-RAMO-005",
+      "description": "Eliminar Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:42:57.780Z"
+    },
+    {
+      "testId": "TC-RAMO-006",
+      "description": "Búsqueda de Ramo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T01:43:12.448Z"
+    }
+  ]
+}
