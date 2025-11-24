@@ -12,15 +12,8 @@ class DashboardController {
 
         this.charts = {}; // Store chart instances
 
-        // Filtro de fecha por defecto: últimos 30 días
-        this.dateFilter = {
-            days: 30,
-            label: '30 días'
-        };
-
         this.initElements();
         this.initEventListeners();
-        this.setupDateFilters();
         // this.setupDrillDownListeners(); // Deshabilitado temporalmente
         this.loadUserSettings();
         this.applyUserSettings();
@@ -122,116 +115,10 @@ class DashboardController {
         }
     }
 
-    setupDateFilters() {
-        // Botones de filtros rápidos
-        const filterBtns = document.querySelectorAll('.filter-btn[data-filter]');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                const filterValue = btn.getAttribute('data-filter');
-
-                // Remover clase active de todos los botones
-                filterBtns.forEach(b => {
-                    b.classList.remove('active', 'border-navy-500', 'bg-navy-50', 'text-navy-700', 'font-medium');
-                    b.classList.add('border-gray-300', 'bg-white', 'text-gray-700');
-                });
-
-                // Agregar clase active al botón clickeado
-                btn.classList.add('active', 'border-navy-500', 'bg-navy-50', 'text-navy-700', 'font-medium');
-                btn.classList.remove('border-gray-300', 'bg-white');
-
-                // Actualizar filtro
-                if (filterValue === 'all') {
-                    this.dateFilter = { label: 'Todo el historial' };
-                    document.getElementById('activeRangeIndicator').textContent = 'Mostrando todo el historial';
-                } else {
-                    const days = parseInt(filterValue);
-                    this.dateFilter = { days, label: `${days} días` };
-                    const label = days === 7 ? '7 días' : days === 30 ? '30 días' : days === 90 ? '90 días' : '1 año';
-                    document.getElementById('activeRangeIndicator').textContent = `Mostrando últimos ${label}`;
-                }
-
-                // Recargar datos
-                this.loadMetrics();
-            });
-        });
-
-        // Botón personalizado
-        const btnCustomRange = document.getElementById('btnCustomRange');
-        const customRangePanel = document.getElementById('customRangePanel');
-        const btnApplyCustomRange = document.getElementById('btnApplyCustomRange');
-        const btnCancelCustomRange = document.getElementById('btnCancelCustomRange');
-
-        if (btnCustomRange) {
-            btnCustomRange.addEventListener('click', (e) => {
-                e.preventDefault();
-                customRangePanel.classList.toggle('hidden');
-            });
-        }
-
-        if (btnApplyCustomRange) {
-            btnApplyCustomRange.addEventListener('click', (e) => {
-                e.preventDefault();
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-
-                if (!startDate || !endDate) {
-                    alert('Por favor selecciona ambas fechas');
-                    return;
-                }
-
-                if (new Date(startDate) > new Date(endDate)) {
-                    alert('La fecha de inicio debe ser anterior a la fecha fin');
-                    return;
-                }
-
-                // Remover clase active de todos los botones
-                filterBtns.forEach(b => {
-                    b.classList.remove('active', 'border-navy-500', 'bg-navy-50', 'text-navy-700', 'font-medium');
-                    b.classList.add('border-gray-300', 'bg-white', 'text-gray-700');
-                });
-
-                // Marcar botón personalizado como activo
-                btnCustomRange.classList.add('active', 'border-navy-500', 'bg-navy-50', 'text-navy-700', 'font-medium');
-                btnCustomRange.classList.remove('border-gray-300', 'bg-white');
-
-                this.dateFilter = {
-                    startDate,
-                    endDate,
-                    label: 'Personalizado'
-                };
-                document.getElementById('activeRangeIndicator').textContent = `Mostrando del ${startDate} al ${endDate}`;
-
-                customRangePanel.classList.add('hidden');
-
-                // Recargar datos
-                this.loadMetrics();
-            });
-        }
-
-        if (btnCancelCustomRange) {
-            btnCancelCustomRange.addEventListener('click', (e) => {
-                e.preventDefault();
-                customRangePanel.classList.add('hidden');
-            });
-        }
-
-        // Cerrar panel al hacer clic fuera
-        document.addEventListener('click', (e) => {
-            if (customRangePanel && !customRangePanel.classList.contains('hidden')) {
-                const clickedInsidePanel = customRangePanel.contains(e.target);
-                const clickedButton = btnCustomRange && btnCustomRange.contains(e.target);
-
-                if (!clickedInsidePanel && !clickedButton) {
-                    customRangePanel.classList.add('hidden');
-                }
-            }
-        });
-    }
 
     async loadMetrics() {
         try {
-            const metricsResult = await window.electronAPI.dashboard.getMetrics(this.dateFilter);
+            const metricsResult = await window.electronAPI.dashboard.getMetrics();
 
             if (metricsResult.success && metricsResult.data) {
                 const m = metricsResult.data;

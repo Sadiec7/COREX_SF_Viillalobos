@@ -1,0 +1,149 @@
+{
+  "suite": "Recibos",
+  "timestamp": "2025-11-24T03:28:16.311Z",
+  "total": 20,
+  "passed": 6,
+  "failed": 14,
+  "results": [
+    {
+      "testId": "TC-REC-001",
+      "description": "Visualizar lista de recibos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:28:27.767Z"
+    },
+    {
+      "testId": "TC-REC-002",
+      "description": "Click en recibo pendiente abre modal pago",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:28:42.761Z"
+    },
+    {
+      "testId": "TC-REC-003",
+      "description": "Verificar indicadores de urgencia",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterAll\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all\">...</button> is not clickable at point (421, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:28:48.429Z"
+    },
+    {
+      "testId": "TC-REC-006",
+      "description": "Búsqueda por número de recibo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:29:05.289Z"
+    },
+    {
+      "testId": "TC-REC-008",
+      "description": "Búsqueda por cliente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:29:11.995Z"
+    },
+    {
+      "testId": "TC-REC-009",
+      "description": "Búsqueda por aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:29:28.705Z"
+    },
+    {
+      "testId": "TC-REC-010",
+      "description": "Filtro rápido - Todos",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterAll\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all\">...</button> is not clickable at point (421, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:29:34.337Z"
+    },
+    {
+      "testId": "TC-REC-011",
+      "description": "Filtro rápido - Vencen Hoy",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterVencenHoy\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all\">...</button> is not clickable at point (523, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:29:40.101Z"
+    },
+    {
+      "testId": "TC-REC-012",
+      "description": "Filtro rápido - Próximos 7 días",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterVencen7\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all\">...</button> is not clickable at point (656, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:29:45.915Z"
+    },
+    {
+      "testId": "TC-REC-013",
+      "description": "Filtro rápido - Pendientes",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterPendientes\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all active\">...</button> is not clickable at point (792, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:29:51.683Z"
+    },
+    {
+      "testId": "TC-REC-014",
+      "description": "Filtro rápido - Vencidos",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterVencidos\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all\">...</button> is not clickable at point (906, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:29:57.405Z"
+    },
+    {
+      "testId": "TC-REC-021",
+      "description": "Registrar pago completo",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterPendientes\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all active\">...</button> is not clickable at point (792, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:30:03.124Z"
+    },
+    {
+      "testId": "TC-REC-022",
+      "description": "Validación campos obligatorios pago",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterPendientes\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all active\">...</button> is not clickable at point (792, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:30:08.875Z"
+    },
+    {
+      "testId": "TC-REC-025",
+      "description": "Cancelar modal registro de pago",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterPendientes\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all active\">...</button> is not clickable at point (792, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:30:14.613Z"
+    },
+    {
+      "testId": "TC-REC-029",
+      "description": "Verificar métrica - Por Cobrar",
+      "passed": false,
+      "message": "No se pudieron obtener las métricas de \"Por Cobrar\"",
+      "timestamp": "2025-11-24T03:30:39.442Z"
+    },
+    {
+      "testId": "TC-REC-034",
+      "description": "Verificar todas las métricas",
+      "passed": false,
+      "message": "No se pudieron obtener todas las métricas",
+      "timestamp": "2025-11-24T03:31:24.320Z"
+    },
+    {
+      "testId": "TC-REC-050",
+      "description": "Click en recibo pagado abre PDF",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"quickFilterAll\" class=\"quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all\">...</button> is not clickable at point (421, 471). Other element would receive the click: <input type=\"text\" id=\"inputReferenciaPago\" name=\"referencia\" placeholder=\"Ej: Transferencia #12345, Cheque 001\" class=\"w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500\">\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:31:30.071Z"
+    },
+    {
+      "testId": "TC-REC-053",
+      "description": "Generar PDF con datos completos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:31:34.923Z"
+    },
+    {
+      "testId": "TC-REC-055",
+      "description": "Validación monto mayor a cero",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddRecibo\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1058, 185). Other element would receive the click: <div class=\"text-sm text-gray-600 mt-2\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:31:46.689Z"
+    },
+    {
+      "testId": "TC-REC-056",
+      "description": "Validación fecha corte requerida",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnAddRecibo\" class=\"bg-gold-500 hover:bg-gold-600 text-navy-700 font-semibold px-6 py-3 rounded-lg transition-all btn-hover flex items-center gap-2\">...</button> is not clickable at point (1058, 185). Other element would receive the click: <div class=\"text-sm text-gray-600 mt-2\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-11-24T03:31:58.512Z"
+    }
+  ]
+}

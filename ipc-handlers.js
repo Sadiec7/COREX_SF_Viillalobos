@@ -223,6 +223,16 @@ function registerIPCHandlers(dbManager, models) {
     ipcMain.handle('user:updateProfile', async (event, payload = {}) => {
         try {
             const { usuario_id, username, email } = payload;
+
+            // Validación adicional en capa IPC (defense in depth)
+            const sanitizedUsername = username?.trim();
+            if (!sanitizedUsername) {
+                return {
+                    success: false,
+                    message: 'El usuario es obligatorio.'
+                };
+            }
+
             const updated = await userModel.updateProfile(usuario_id, username, email);
             return { success: true, data: updated };
         } catch (error) {
@@ -234,6 +244,22 @@ function registerIPCHandlers(dbManager, models) {
     ipcMain.handle('user:changePassword', async (event, payload = {}) => {
         try {
             const { usuario_id, currentPassword, newPassword } = payload;
+
+            // Validación adicional en capa IPC (defense in depth)
+            if (!currentPassword || !newPassword) {
+                return {
+                    success: false,
+                    message: 'Completa todos los campos de seguridad.'
+                };
+            }
+
+            if (newPassword.length < 8) {
+                return {
+                    success: false,
+                    message: 'La nueva contraseña debe tener al menos 8 caracteres.'
+                };
+            }
+
             const changed = await userModel.changePassword(usuario_id, currentPassword, newPassword);
             return { success: changed };
         } catch (error) {
@@ -1028,9 +1054,9 @@ function registerIPCHandlers(dbManager, models) {
     // ============================================
 
     // Obtener métricas del dashboard
-    ipcMain.handle('dashboard:getMetrics', async (event, dateRange = {}) => {
+    ipcMain.handle('dashboard:getMetrics', async () => {
         try {
-            const metrics = dbManager.getDashboardMetrics(dateRange);
+            const metrics = dbManager.getDashboardMetrics();
             return { success: true, data: metrics };
         } catch (error) {
             console.error('Error al obtener métricas:', error);

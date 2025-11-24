@@ -562,24 +562,22 @@ class PolizaModel {
      * @returns {boolean}
      */
     _requiereRegenerarRecibos(polizaActual, nuevoDatos) {
-        // Cambios que requieren regeneración de recibos
+        // Mapear campos del payload a campos de BD
         const cambiosRelevantes = [
-            'periodicidad_id',
-            'prima_total',
-            'fecha_inicio_vigencia',
-            'fecha_fin_vigencia'
+            { payload: 'periodicidad_id', bd: 'periodicidad_id' },
+            { payload: 'prima_total', bd: 'prima_total' },
+            { payload: 'vigencia_inicio', bd: 'vigencia_inicio' },
+            { payload: 'vigencia_fin', bd: 'vigencia_fin' }
         ];
 
         for (const campo of cambiosRelevantes) {
-            if (nuevoDatos.hasOwnProperty(campo)) {
-                // Comparar valores normalizados
-                const valorActual = polizaActual[campo];
-                const valorNuevo = nuevoDatos[campo];
+            const valorActual = polizaActual[campo.bd];
+            const valorNuevo = nuevoDatos[campo.payload];
 
-                if (valorActual !== valorNuevo) {
-                    console.log(`🔄 Campo "${campo}" cambió: ${valorActual} → ${valorNuevo}`);
-                    return true;
-                }
+            // Comparar valores normalizados (convertir a string para comparación segura)
+            if (String(valorActual) !== String(valorNuevo)) {
+                console.log(`🔄 Campo "${campo.bd}" cambió: ${valorActual} → ${valorNuevo}`);
+                return true;
             }
         }
 

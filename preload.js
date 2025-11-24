@@ -228,8 +228,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // DASHBOARD / MÉTRICAS
     // ============================================
     dashboard: {
-        getMetrics: (dateRange) =>
-            ipcRenderer.invoke('dashboard:getMetrics', dateRange),
+        getMetrics: () =>
+            ipcRenderer.invoke('dashboard:getMetrics'),
 
         getPolizasConAlertas: (dateRange) =>
             ipcRenderer.invoke('dashboard:getPolizasConAlertas', dateRange),

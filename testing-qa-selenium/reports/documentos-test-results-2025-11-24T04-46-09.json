@@ -1,0 +1,79 @@
+{
+  "suite": "Documentos",
+  "timestamp": "2025-11-24T04:44:08.845Z",
+  "total": 10,
+  "passed": 10,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-DOC-001",
+      "description": "Visualización de Lista de Documentos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:44:17.580Z"
+    },
+    {
+      "testId": "TC-DOC-002",
+      "description": "Verificar columnas de la tabla",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:44:20.702Z"
+    },
+    {
+      "testId": "TC-DOC-003",
+      "description": "Validación Sin Archivo Seleccionado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:44:29.400Z"
+    },
+    {
+      "testId": "TC-DOC-004",
+      "description": "Abrir modal de nuevo documento",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:44:38.075Z"
+    },
+    {
+      "testId": "TC-DOC-007",
+      "description": "Validación de campos obligatorios",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:44:47.827Z"
+    },
+    {
+      "testId": "TC-DOC-009",
+      "description": "Cancelar creación de documento",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:44:55.302Z"
+    },
+    {
+      "testId": "TC-DOC-011",
+      "description": "Búsqueda por tipo de documento",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:45:11.040Z"
+    },
+    {
+      "testId": "TC-DOC-012",
+      "description": "Búsqueda por nombre de archivo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:45:26.769Z"
+    },
+    {
+      "testId": "TC-DOC-015",
+      "description": "Limpiar búsqueda",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:45:53.486Z"
+    },
+    {
+      "testId": "TC-DOC-022",
+      "description": "Mensaje de Estado Vacío",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T04:46:09.184Z"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "suite": "Recibos",
+  "timestamp": "2025-11-24T03:17:15.463Z",
+  "total": 20,
+  "passed": 12,
+  "failed": 8,
+  "results": [
+    {
+      "testId": "TC-REC-001",
+      "description": "Visualizar lista de recibos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:17:26.828Z"
+    },
+    {
+      "testId": "TC-REC-002",
+      "description": "Click en recibo pendiente abre modal pago",
+      "passed": false,
+      "message": "recibosPage.clickFirstReciboRow is not a function",
+      "timestamp": "2025-11-24T03:17:34.609Z"
+    },
+    {
+      "testId": "TC-REC-003",
+      "description": "Verificar indicadores de urgencia",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:17:42.551Z"
+    },
+    {
+      "testId": "TC-REC-006",
+      "description": "Búsqueda por número de recibo",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:18:00.379Z"
+    },
+    {
+      "testId": "TC-REC-008",
+      "description": "Búsqueda por cliente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:18:08.105Z"
+    },
+    {
+      "testId": "TC-REC-009",
+      "description": "Búsqueda por aseguradora",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:18:25.842Z"
+    },
+    {
+      "testId": "TC-REC-010",
+      "description": "Filtro rápido - Todos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:18:33.692Z"
+    },
+    {
+      "testId": "TC-REC-011",
+      "description": "Filtro rápido - Vencen Hoy",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:18:51.578Z"
+    },
+    {
+      "testId": "TC-REC-012",
+      "description": "Filtro rápido - Próximos 7 días",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:18:59.447Z"
+    },
+    {
+      "testId": "TC-REC-013",
+      "description": "Filtro rápido - Pendientes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:19:07.354Z"
+    },
+    {
+      "testId": "TC-REC-014",
+      "description": "Filtro rápido - Vencidos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:19:15.195Z"
+    },
+    {
+      "testId": "TC-REC-021",
+      "description": "Registrar pago completo",
+      "passed": false,
+      "message": "recibosPage.clickFirstReciboRow is not a function",
+      "timestamp": "2025-11-24T03:19:22.990Z"
+    },
+    {
+      "testId": "TC-REC-022",
+      "description": "Validación campos obligatorios pago",
+      "passed": false,
+      "message": "recibosPage.clickFirstReciboRow is not a function",
+      "timestamp": "2025-11-24T03:19:30.887Z"
+    },
+    {
+      "testId": "TC-REC-025",
+      "description": "Cancelar modal registro de pago",
+      "passed": false,
+      "message": "recibosPage.clickFirstReciboRow is not a function",
+      "timestamp": "2025-11-24T03:19:38.789Z"
+    },
+    {
+      "testId": "TC-REC-029",
+      "description": "Verificar métrica - Por Cobrar",
+      "passed": false,
+      "message": "recibosPage.getStatMontoPendiente is not a function",
+      "timestamp": "2025-11-24T03:19:44.555Z"
+    },
+    {
+      "testId": "TC-REC-034",
+      "description": "Verificar todas las métricas",
+      "passed": false,
+      "message": "recibosPage.getStatMontoPendiente is not a function",
+      "timestamp": "2025-11-24T03:19:50.326Z"
+    },
+    {
+      "testId": "TC-REC-050",
+      "description": "Click en recibo pagado abre PDF",
+      "passed": false,
+      "message": "recibosPage.hasPagadoBadge is not a function",
+      "timestamp": "2025-11-24T03:19:58.181Z"
+    },
+    {
+      "testId": "TC-REC-053",
+      "description": "Generar PDF con datos completos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:20:04.064Z"
+    },
+    {
+      "testId": "TC-REC-055",
+      "description": "Validación monto mayor a cero",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T03:20:13.716Z"
+    },
+    {
+      "testId": "TC-REC-056",
+      "description": "Validación fecha corte requerida",
+      "passed": false,
+      "message": "Invalid locator",
+      "timestamp": "2025-11-24T03:20:21.931Z"
+    }
+  ]
+}

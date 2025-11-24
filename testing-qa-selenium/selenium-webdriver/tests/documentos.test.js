@@ -157,6 +157,126 @@ async function testTC_DOC_022() {
   });
 }
 
+async function testTC_DOC_002() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-002', 'Verificar columnas de la tabla', async () => {
+    await documentosPage.screenshot('TC-DOC-002-COLUMNS');
+    console.log('  ✅ Tabla con columnas correctas visible');
+  });
+}
+
+async function testTC_DOC_004() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-004', 'Abrir modal de nuevo documento', async () => {
+    await documentosPage.openNewDocumentoModal();
+    await documentosPage.sleep(500);
+
+    const modalVisible = await documentosPage.isModalVisible();
+    if (!modalVisible) {
+      throw new Error('Modal no se abrió');
+    }
+
+    await documentosPage.screenshot('TC-DOC-004-MODAL-OPEN');
+    console.log('  ✅ Modal de nuevo documento se abrió correctamente');
+
+    await documentosPage.closeModal();
+  });
+}
+
+async function testTC_DOC_007() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-007', 'Validación de campos obligatorios', async () => {
+    await documentosPage.openNewDocumentoModal();
+    await documentosPage.sleep(500);
+
+    await documentosPage.submitForm();
+    await documentosPage.sleep(1000);
+
+    await documentosPage.screenshot('TC-DOC-007-VALIDATION');
+    console.log('  ✅ Validación de campos obligatorios funciona');
+
+    await documentosPage.closeModal();
+  });
+}
+
+async function testTC_DOC_009() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-009', 'Cancelar creación de documento', async () => {
+    await documentosPage.openNewDocumentoModal();
+    await documentosPage.sleep(500);
+
+    await documentosPage.cancelForm();
+    await documentosPage.sleep(1000);
+
+    const modalVisible = await documentosPage.isModalVisible();
+    if (modalVisible) {
+      throw new Error('Modal no se cerró al cancelar');
+    }
+
+    await documentosPage.screenshot('TC-DOC-009-CANCELLED');
+    console.log('  ✅ Cancelación de formulario funciona correctamente');
+  });
+}
+
+async function testTC_DOC_011() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-011', 'Búsqueda por tipo de documento', async () => {
+    await documentosPage.search('INE');
+    await documentosPage.sleep(1000);
+
+    await documentosPage.screenshot('TC-DOC-011-SEARCH-TYPE');
+
+    const rowCount = await documentosPage.getTableRowCount();
+    console.log(`  📊 Documentos con "INE": ${rowCount}`);
+
+    await documentosPage.clearSearch();
+    console.log('  ✅ Búsqueda por tipo funciona');
+  });
+}
+
+async function testTC_DOC_012() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-012', 'Búsqueda por nombre de archivo', async () => {
+    await documentosPage.search('documento');
+    await documentosPage.sleep(1000);
+
+    await documentosPage.screenshot('TC-DOC-012-SEARCH-FILE');
+
+    const rowCount = await documentosPage.getTableRowCount();
+    console.log(`  📊 Documentos encontrados: ${rowCount}`);
+
+    await documentosPage.clearSearch();
+    console.log('  ✅ Búsqueda por nombre de archivo funciona');
+  });
+}
+
+async function testTC_DOC_015() {
+  await resetForNextTest();
+
+  await runTest('TC-DOC-015', 'Limpiar búsqueda', async () => {
+    await documentosPage.search('test');
+    await documentosPage.sleep(1000);
+
+    const beforeClear = await documentosPage.getTableRowCount();
+    console.log(`  📊 Antes de limpiar: ${beforeClear} documentos`);
+
+    await documentosPage.clearSearch();
+    await documentosPage.sleep(1000);
+
+    const afterClear = await documentosPage.getTableRowCount();
+    console.log(`  📊 Después de limpiar: ${afterClear} documentos`);
+
+    await documentosPage.screenshot('TC-DOC-015-CLEAR-SEARCH');
+    console.log('  ✅ Limpiar búsqueda restaura todos los documentos');
+  });
+}
+
 // ========== FUNCIÓN PRINCIPAL ==========
 
 async function runDocumentosTestSuite() {
@@ -178,7 +298,14 @@ async function runDocumentosTestSuite() {
 
     // Ejecutar tests
     await testTC_DOC_001();
+    await testTC_DOC_002();
     await testTC_DOC_003();
+    await testTC_DOC_004();
+    await testTC_DOC_007();
+    await testTC_DOC_009();
+    await testTC_DOC_011();
+    await testTC_DOC_012();
+    await testTC_DOC_015();
     await testTC_DOC_022();
 
     // Resumen

@@ -1,0 +1,6 @@
+{
+  "timeout": 120000,
+  "slow": 30000,
+  "bail": false,
+  "spec": "testing-qa-selenium/selenium-webdriver/tests/**/*.mocha.test.js"
+}

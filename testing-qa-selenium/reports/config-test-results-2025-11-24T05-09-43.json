@@ -1,0 +1,93 @@
+{
+  "suite": "Configuración",
+  "timestamp": "2025-11-24T05:08:40.854Z",
+  "total": 12,
+  "passed": 8,
+  "failed": 4,
+  "results": [
+    {
+      "testId": "TC-CFG-001",
+      "description": "Visualizar página de configuración",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:08:47.598Z"
+    },
+    {
+      "testId": "TC-CFG-002",
+      "description": "Cargar datos de cuenta existentes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:08:48.702Z"
+    },
+    {
+      "testId": "TC-CFG-005",
+      "description": "Actualizar nombre para mostrar",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:08:53.722Z"
+    },
+    {
+      "testId": "TC-CFG-006",
+      "description": "Actualizar usuario",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:09:02.588Z"
+    },
+    {
+      "testId": "TC-CFG-007",
+      "description": "Actualizar email",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:09:07.081Z"
+    },
+    {
+      "testId": "TC-CFG-008",
+      "description": "Actualizar múltiples campos simultáneamente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:09:11.928Z"
+    },
+    {
+      "testId": "TC-CFG-010",
+      "description": "Validación de usuario obligatorio",
+      "passed": false,
+      "message": "No se mostró mensaje de validación",
+      "timestamp": "2025-11-24T05:09:15.400Z"
+    },
+    {
+      "testId": "TC-CFG-015",
+      "description": "Cambiar contraseña correctamente",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:09:26.011Z"
+    },
+    {
+      "testId": "TC-CFG-016",
+      "description": "Validación de campos obligatorios en seguridad",
+      "passed": false,
+      "message": "No se mostró mensaje de validación",
+      "timestamp": "2025-11-24T05:09:29.517Z"
+    },
+    {
+      "testId": "TC-CFG-017",
+      "description": "Validación de longitud mínima de contraseña",
+      "passed": false,
+      "message": "No se mostró mensaje sobre longitud mínima",
+      "timestamp": "2025-11-24T05:09:33.816Z"
+    },
+    {
+      "testId": "TC-CFG-018",
+      "description": "Validación de coincidencia de contraseñas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:09:38.150Z"
+    },
+    {
+      "testId": "TC-CFG-025",
+      "description": "Actualización del nombre en sidebar",
+      "passed": false,
+      "message": "Sidebar no se actualizó. Esperado: \"Test 1763960979151\", Actual: \"Test User 1763960948082\"",
+      "timestamp": "2025-11-24T05:09:43.148Z"
+    }
+  ]
+}

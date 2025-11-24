@@ -6,6 +6,7 @@ class PolizasController {
         console.log('🏗️ [POLIZAS] Inicializando PolizasController...');
 
         this.polizas = [];
+        this.polizasOriginal = [];
         this.clientes = [];
 
         // Catálogos GLOBALES - Ya cargados por CatalogsManager
@@ -110,6 +111,15 @@ class PolizasController {
         this.filterVencida = document.getElementById('filterVencida');
         this.filterAseguradora = document.getElementById('filterAseguradora');
         this.filterRamo = document.getElementById('filterRamo');
+
+        // Quick Filters
+        this.quickFilterAll = document.getElementById('quickFilterAll');
+        this.quickFilterVencen30 = document.getElementById('quickFilterVencen30');
+        this.quickFilterConRecibosVencidos = document.getElementById('quickFilterConRecibosVencidos');
+        this.quickFilterRenovar = document.getElementById('quickFilterRenovar');
+        this.quickFilterDomiciliadas = document.getElementById('quickFilterDomiciliadas');
+        this.quickFilterCounter = document.getElementById('quickFilterCounter');
+        this.quickFilterClear = document.getElementById('quickFilterClear');
 
         // Stats
         this.statTotal = document.getElementById('statTotal');
@@ -228,6 +238,26 @@ class PolizasController {
                 this.closeFiltersModal();
             }
         });
+
+        // Quick Filters
+        if (this.quickFilterAll) {
+            this.quickFilterAll.addEventListener('click', () => this.applyQuickFilter('all'));
+        }
+        if (this.quickFilterVencen30) {
+            this.quickFilterVencen30.addEventListener('click', () => this.applyQuickFilter('vencen-30'));
+        }
+        if (this.quickFilterConRecibosVencidos) {
+            this.quickFilterConRecibosVencidos.addEventListener('click', () => this.applyQuickFilter('recibos-vencidos'));
+        }
+        if (this.quickFilterRenovar) {
+            this.quickFilterRenovar.addEventListener('click', () => this.applyQuickFilter('renovar'));
+        }
+        if (this.quickFilterDomiciliadas) {
+            this.quickFilterDomiciliadas.addEventListener('click', () => this.applyQuickFilter('domiciliadas'));
+        }
+        if (this.quickFilterClear) {
+            this.quickFilterClear.addEventListener('click', () => this.applyQuickFilter('all'));
+        }
     }
 
     async init() {
@@ -346,6 +376,7 @@ class PolizasController {
 
             if (result.success) {
                 this.polizas = result.data;
+                this.polizasOriginal = [...result.data]; // Guardar copia original
                 // Reaplicar búsqueda y filtros actuales
                 this.currentPage = 1;
                 const filtered = this.getFilteredPolizas((this.searchInput?.value || '').toLowerCase());
@@ -404,8 +435,27 @@ class PolizasController {
             const vigenciaInicio = poliza.vigencia_inicio || poliza.fecha_inicio;
             const vigenciaFin = poliza.vigencia_fin || poliza.fecha_fin;
 
+            // Icono según el estado
+            let iconoEstado = '';
+            if (estado === 'Vigente') {
+                iconoEstado = `<svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>`;
+            } else if (estado === 'Por Vencer') {
+                iconoEstado = `<svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                </svg>`;
+            } else {
+                iconoEstado = `<svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                </svg>`;
+            }
+
             return `
             <tr class="group transition-colors cursor-pointer hover:bg-gray-50" data-poliza-id="${poliza.poliza_id}">
+                <td class="px-2 py-4 text-center">
+                    ${iconoEstado}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     ${this.escapeHtml(poliza.numero_poliza)}
                 </td>
@@ -544,22 +594,88 @@ class PolizasController {
     }
 
     updateStats() {
-        const total = this.polizas.length;
-        let vigentes = 0;
-        let porVencer = 0;
-        let vencidas = 0;
-
-        this.polizas.forEach(poliza => {
+        const stats = this.polizas.reduce((acc, poliza) => {
             const estado = this.getEstadoPoliza(poliza);
-            if (estado === 'Vigente') vigentes++;
-            else if (estado === 'Por Vencer') porVencer++;
-            else if (estado === 'Vencida') vencidas++;
+            const primaTotal = parseFloat(poliza.prima_total) || 0;
+            const sumaAsegurada = parseFloat(poliza.suma_asegurada) || 0;
+
+            acc.total++;
+            acc.totalPrima += primaTotal;
+
+            if (estado === 'Vigente') {
+                acc.vigentes++;
+                acc.vigentesAsegurado += sumaAsegurada;
+            } else if (estado === 'Por Vencer') {
+                acc.porVencer++;
+                acc.porVencerRiesgo += sumaAsegurada;
+            } else if (estado === 'Vencida') {
+                acc.vencidas++;
+                acc.vencidasPerdido += primaTotal;
+            }
+
+            return acc;
+        }, {
+            total: 0,
+            totalPrima: 0,
+            vigentes: 0,
+            vigentesAsegurado: 0,
+            porVencer: 0,
+            porVencerRiesgo: 0,
+            vencidas: 0,
+            vencidasPerdido: 0
         });
 
-        this.statTotal.textContent = total;
-        this.statVigentes.textContent = vigentes;
-        this.statPorVencer.textContent = porVencer;
-        this.statVencidas.textContent = vencidas;
+        // Actualizar contadores
+        this.statTotal.textContent = stats.total;
+        this.statVigentes.textContent = stats.vigentes;
+        this.statPorVencer.textContent = stats.porVencer;
+        this.statVencidas.textContent = stats.vencidas;
+
+        // Actualizar montos con formato inteligente y tooltips
+        const statTotalPrima = document.getElementById('statTotalPrima');
+        const statVigentesAsegurado = document.getElementById('statVigentesAsegurado');
+        const statPorVencerRiesgo = document.getElementById('statPorVencerRiesgo');
+        const statVencidasPerdido = document.getElementById('statVencidasPerdido');
+
+        if (statTotalPrima) {
+            statTotalPrima.textContent = this.formatCurrencySmart(stats.totalPrima);
+            statTotalPrima.title = this.formatCurrency(stats.totalPrima);
+        }
+        if (statVigentesAsegurado) {
+            statVigentesAsegurado.textContent = this.formatCurrencySmart(stats.vigentesAsegurado);
+            statVigentesAsegurado.title = this.formatCurrency(stats.vigentesAsegurado);
+        }
+        if (statPorVencerRiesgo) {
+            statPorVencerRiesgo.textContent = this.formatCurrencySmart(stats.porVencerRiesgo);
+            statPorVencerRiesgo.title = this.formatCurrency(stats.porVencerRiesgo);
+        }
+        if (statVencidasPerdido) {
+            statVencidasPerdido.textContent = this.formatCurrencySmart(stats.vencidasPerdido);
+            statVencidasPerdido.title = this.formatCurrency(stats.vencidasPerdido);
+        }
+    }
+
+    formatCurrency(amount) {
+        return '$' + Number(amount || 0).toLocaleString('es-MX', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    formatCurrencySmart(amount) {
+        const num = Number(amount || 0);
+        if (num >= 1000000) {
+            return '$' + (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 100000) {
+            return '$' + (num / 1000).toFixed(0) + 'K';
+        } else if (num >= 10000) {
+            return '$' + (num / 1000).toFixed(1) + 'K';
+        } else {
+            return '$' + num.toLocaleString('es-MX', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
     }
 
     openFiltersModal() {
@@ -616,6 +732,81 @@ class PolizasController {
         this.currentPage = 1;
         const filtered = this.getFilteredPolizas(searchTerm);
         this.renderTable(filtered);
+    }
+
+    applyQuickFilter(filter) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const en30Dias = new Date(hoy);
+        en30Dias.setDate(en30Dias.getDate() + 30);
+
+        let filtered = [...this.polizasOriginal];
+
+        switch(filter) {
+            case 'vencen-30':
+                filtered = filtered.filter(p => {
+                    const fechaFin = new Date(p.fecha_fin);
+                    fechaFin.setHours(0, 0, 0, 0);
+                    return fechaFin >= hoy && fechaFin <= en30Dias;
+                });
+                break;
+
+            case 'recibos-vencidos':
+                // Esta funcionalidad requiere datos de recibos, por ahora mostrar todas
+                // TODO: Implementar cuando tengamos la relación con recibos cargada
+                break;
+
+            case 'renovar':
+                // Pólizas que vencen en los próximos 30 días y tienen renovación automática
+                filtered = filtered.filter(p => {
+                    const fechaFin = new Date(p.fecha_fin);
+                    fechaFin.setHours(0, 0, 0, 0);
+                    return (fechaFin >= hoy && fechaFin <= en30Dias) ||
+                           (p.renovacion_automatica === 1 || p.renovacion_automatica === true);
+                });
+                break;
+
+            case 'domiciliadas':
+                filtered = filtered.filter(p => p.domiciliada === 1 || p.domiciliada === true);
+                break;
+
+            case 'all':
+            default:
+                // No filtrar
+                break;
+        }
+
+        this.polizas = filtered;
+
+        // Actualizar botones activos
+        document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+        const btnId = filter === 'all' ? 'quickFilterAll' :
+                      filter === 'vencen-30' ? 'quickFilterVencen30' :
+                      filter === 'recibos-vencidos' ? 'quickFilterConRecibosVencidos' :
+                      filter === 'renovar' ? 'quickFilterRenovar' :
+                      filter === 'domiciliadas' ? 'quickFilterDomiciliadas' : 'quickFilterAll';
+        const btnElement = document.getElementById(btnId);
+        if (btnElement) btnElement.classList.add('active');
+
+        // Mostrar contador y botón clear
+        if (filter !== 'all') {
+            if (this.quickFilterCounter) {
+                this.quickFilterCounter.textContent = `${filtered.length} póliza(s)`;
+            }
+            if (this.quickFilterClear) {
+                this.quickFilterClear.classList.remove('hidden');
+            }
+        } else {
+            if (this.quickFilterCounter) {
+                this.quickFilterCounter.textContent = '';
+            }
+            if (this.quickFilterClear) {
+                this.quickFilterClear.classList.add('hidden');
+            }
+        }
+
+        this.renderTable();
+        this.updateStats();
     }
 
     updateFilterBadge() {
@@ -867,19 +1058,7 @@ class PolizasController {
             let result;
 
             if (this.isEditMode && this.currentPoliza) {
-                // ✅ EDICIÓN: Detectar si los cambios requieren regeneración de recibos
-                const cambiosCriticos = this._detectarCambiosCriticos(this.currentPoliza, polizaData);
-
-                if (cambiosCriticos.requiereRegeneracion) {
-                    // Mostrar advertencia y pedir confirmación
-                    const confirmado = await this._confirmarRegeneracion(cambiosCriticos);
-
-                    if (!confirmado) {
-                        return; // Usuario canceló
-                    }
-                }
-
-                // Actualizar póliza
+                // Actualizar póliza (el backend detecta automáticamente si requiere regeneración)
                 result = await window.electronAPI.polizas.update(this.currentPoliza.poliza_id, polizaData);
 
                 if (result.success) {
@@ -887,9 +1066,9 @@ class PolizasController {
                     if (result.cambios_requirieron_regeneracion) {
                         this.showSuccess(
                             `Póliza actualizada. ` +
-                            `Recibos: ${result.mantenidos} pagados mantenidos, ` +
-                            `${result.eliminados} pendientes eliminados, ` +
-                            `${result.regenerados} nuevos generados.`
+                            `Recibos: ${result.mantenidos || 0} pagados mantenidos, ` +
+                            `${result.eliminados || 0} pendientes eliminados, ` +
+                            `${result.regenerados || 0} nuevos generados.`
                         );
                     } else {
                         this.showSuccess('Póliza actualizada correctamente');
@@ -898,24 +1077,16 @@ class PolizasController {
                     this.closeModal();
                     if (this.searchInput) this.searchInput.value = '';
                     await this.loadPolizas();
-                    await new Promise(resolve => setTimeout(resolve, 500));
                 } else {
                     this.showError(this.formatError(result.message) || 'No se pudo actualizar la póliza. Revisa los datos e intenta de nuevo.');
                 }
             } else {
-                // ✅ CREACIÓN: Mostrar confirmación con preview de recibos
-                const numeroRecibos = this._calcularNumeroRecibos(polizaData);
-                const confirmado = await this._confirmarCreacion(polizaData, numeroRecibos);
-
-                if (!confirmado) {
-                    return; // Usuario canceló
-                }
-
-                // Crear póliza
+                // ✅ CREACIÓN: Crear póliza (el backend genera recibos automáticamente)
                 result = await window.electronAPI.polizas.create(polizaData);
 
                 if (result.success) {
-                    this.showSuccess(`Póliza creada y ${numeroRecibos} recibos generados correctamente.`);
+                    const recibosGenerados = result.data?.recibos_generados || 0;
+                    this.showSuccess(`Póliza creada con ${recibosGenerados} recibo(s) generado(s).`);
                     this.closeModal();
 
                     if (this.searchInput) this.searchInput.value = '';
@@ -1415,142 +1586,6 @@ Esta acción registrará el recibo como pagado con la fecha actual.
         return date.toLocaleDateString('es-MX');
     }
 
-    // ========== MÉTODOS PARA REGENERACIÓN INTELIGENTE DE RECIBOS ==========
-
-    /**
-     * Detecta si los cambios a una póliza requieren regenerar recibos.
-     * @private
-     * @param {Object} polizaActual - Póliza antes de la modificación
-     * @param {Object} nuevoDatos - Datos nuevos a aplicar
-     * @returns {Object} - { requiereRegeneracion: boolean, cambios: string[] }
-     */
-    _detectarCambiosCriticos(polizaActual, nuevoDatos) {
-        const cambios = [];
-
-        // Mapeo de campos del formulario a campos de BD
-        const camposRelevantes = [
-            { form: 'periodicidad_pago_id', db: 'periodicidad_id', nombre: 'Periodicidad de pago' },
-            { form: 'prima_total', db: 'prima_total', nombre: 'Prima total' },
-            { form: 'fecha_inicio', db: 'vigencia_inicio', nombre: 'Fecha de inicio' },
-            { form: 'fecha_fin', db: 'vigencia_fin', nombre: 'Fecha de fin' }
-        ];
-
-        for (const campo of camposRelevantes) {
-            const valorActual = polizaActual[campo.db];
-            const valorNuevo = nuevoDatos[campo.form];
-
-            // Normalizar para comparación
-            const actualNorm = String(valorActual);
-            const nuevoNorm = String(valorNuevo);
-
-            if (actualNorm !== nuevoNorm) {
-                cambios.push({
-                    nombre: campo.nombre,
-                    anterior: valorActual,
-                    nuevo: valorNuevo
-                });
-            }
-        }
-
-        return {
-            requiereRegeneracion: cambios.length > 0,
-            cambios
-        };
-    }
-
-    /**
-     * Muestra diálogo de confirmación antes de regenerar recibos.
-     * @private
-     * @param {Object} cambiosCriticos - Resultado de _detectarCambiosCriticos
-     * @returns {Promise<boolean>}
-     */
-    async _confirmarRegeneracion(cambiosCriticos) {
-        const cambiosHTML = cambiosCriticos.cambios.map(c =>
-            `<li><strong>${c.nombre}:</strong> ${c.anterior} → ${c.nuevo}</li>`
-        ).join('');
-
-        const mensaje = `
-            <div class="text-left">
-                <p class="mb-2"><strong>⚠️ Los siguientes cambios requieren regenerar recibos:</strong></p>
-                <ul class="list-disc list-inside mb-3 text-sm">
-                    ${cambiosHTML}
-                </ul>
-                <p class="text-sm text-gray-700 mb-2">
-                    <strong>Se mantendrán:</strong> Recibos ya pagados
-                </p>
-                <p class="text-sm text-gray-700 mb-2">
-                    <strong>Se eliminarán:</strong> Recibos pendientes/vencidos
-                </p>
-                <p class="text-sm text-gray-700">
-                    <strong>Se generarán:</strong> Nuevos recibos con los valores actualizados
-                </p>
-                <p class="mt-3 font-semibold">¿Deseas continuar?</p>
-            </div>
-        `;
-
-        return new Promise((resolve) => {
-            if (window.confirm(mensaje.replace(/<[^>]*>/g, '\n'))) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        });
-    }
-
-    /**
-     * Muestra diálogo de confirmación antes de crear póliza.
-     * @private
-     * @param {Object} polizaData - Datos de la póliza a crear
-     * @param {number} numeroRecibos - Cantidad de recibos que se generarán
-     * @returns {Promise<boolean>}
-     */
-    async _confirmarCreacion(polizaData, numeroRecibos) {
-        const periodicidad = this.periodicidades.find(p => p.periodicidad_id === polizaData.periodicidad_pago_id);
-        const periodicidadNombre = periodicidad ? periodicidad.nombre : 'N/A';
-
-        const mensaje = `
-Se creará la póliza "${polizaData.numero_poliza}" con:
-- Periodicidad: ${periodicidadNombre}
-- Prima total: $${polizaData.prima_total.toFixed(2)}
-- Vigencia: ${polizaData.fecha_inicio} a ${polizaData.fecha_fin}
-
-Se generarán automáticamente ${numeroRecibos} recibos de pago.
-
-¿Deseas continuar?
-        `.trim();
-
-        return new Promise((resolve) => {
-            if (window.confirm(mensaje)) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        });
-    }
-
-    /**
-     * Calcula cuántos recibos se generarán para una póliza.
-     * @private
-     * @param {Object} polizaData - Datos de la póliza
-     * @returns {number}
-     */
-    _calcularNumeroRecibos(polizaData) {
-        const periodicidad = this.periodicidades.find(p => p.periodicidad_id === polizaData.periodicidad_pago_id);
-
-        if (!periodicidad) {
-            return 0;
-        }
-
-        const mesesPorRecibo = periodicidad.meses || 1;
-        const fechaInicio = new Date(polizaData.fecha_inicio);
-        const fechaFin = new Date(polizaData.fecha_fin);
-
-        // Calcular diferencia en meses
-        const diffMeses = (fechaFin.getFullYear() - fechaInicio.getFullYear()) * 12 +
-                         (fechaFin.getMonth() - fechaInicio.getMonth()) + 1;
-
-        return Math.ceil(diffMeses / mesesPorRecibo);
-    }
 }
 console.log('✅ PolizasController class loaded successfully');
 

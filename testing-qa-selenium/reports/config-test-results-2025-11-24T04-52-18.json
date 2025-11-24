@@ -1,0 +1,93 @@
+{
+  "suite": "Configuración",
+  "timestamp": "2025-11-24T04:51:59.305Z",
+  "total": 12,
+  "passed": 0,
+  "failed": 12,
+  "results": [
+    {
+      "testId": "TC-CFG-001",
+      "description": "Visualizar página de configuración",
+      "passed": false,
+      "message": "this.getFieldValue is not a function",
+      "timestamp": "2025-11-24T04:52:06.035Z"
+    },
+    {
+      "testId": "TC-CFG-002",
+      "description": "Cargar datos de cuenta existentes",
+      "passed": false,
+      "message": "this.getFieldValue is not a function",
+      "timestamp": "2025-11-24T04:52:07.120Z"
+    },
+    {
+      "testId": "TC-CFG-005",
+      "description": "Actualizar nombre para mostrar",
+      "passed": false,
+      "message": "this.getFieldValue is not a function",
+      "timestamp": "2025-11-24T04:52:08.208Z"
+    },
+    {
+      "testId": "TC-CFG-006",
+      "description": "Actualizar usuario",
+      "passed": false,
+      "message": "this.getFieldValue is not a function",
+      "timestamp": "2025-11-24T04:52:09.307Z"
+    },
+    {
+      "testId": "TC-CFG-007",
+      "description": "Actualizar email",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:10.405Z"
+    },
+    {
+      "testId": "TC-CFG-008",
+      "description": "Actualizar múltiples campos simultáneamente",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:11.490Z"
+    },
+    {
+      "testId": "TC-CFG-010",
+      "description": "Validación de usuario obligatorio",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:12.587Z"
+    },
+    {
+      "testId": "TC-CFG-015",
+      "description": "Cambiar contraseña correctamente",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:13.673Z"
+    },
+    {
+      "testId": "TC-CFG-016",
+      "description": "Validación de campos obligatorios en seguridad",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:14.772Z"
+    },
+    {
+      "testId": "TC-CFG-017",
+      "description": "Validación de longitud mínima de contraseña",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:15.853Z"
+    },
+    {
+      "testId": "TC-CFG-018",
+      "description": "Validación de coincidencia de contraseñas",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:16.937Z"
+    },
+    {
+      "testId": "TC-CFG-025",
+      "description": "Actualización del nombre en sidebar",
+      "passed": false,
+      "message": "this.clearAndType is not a function",
+      "timestamp": "2025-11-24T04:52:18.023Z"
+    }
+  ]
+}

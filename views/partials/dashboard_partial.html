@@ -40,73 +40,11 @@
             </div>
         </div>
 
-        <!-- Filtros de Tiempo -->
+        <!-- Indicador de tiempo real -->
         <div class="mt-4 pt-4 border-t border-gray-200">
-            <div class="flex items-center justify-between flex-wrap gap-3">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <span class="text-sm font-medium text-gray-700">Período:</span>
-                </div>
-
-                <div class="flex items-center gap-2 flex-wrap relative">
-                    <!-- Filtros rápidos -->
-                    <button data-filter="7" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-navy-50 hover:border-navy-300 hover:text-navy-700 transition-colors">
-                        7 días
-                    </button>
-                    <button data-filter="30" class="filter-btn active text-xs px-3 py-1.5 rounded-lg border border-navy-500 bg-navy-50 text-navy-700 font-medium transition-colors">
-                        30 días
-                    </button>
-                    <button data-filter="90" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-navy-50 hover:border-navy-300 hover:text-navy-700 transition-colors">
-                        90 días
-                    </button>
-                    <button data-filter="365" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-navy-50 hover:border-navy-300 hover:text-navy-700 transition-colors">
-                        1 año
-                    </button>
-                    <button data-filter="all" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-navy-50 hover:border-navy-300 hover:text-navy-700 transition-colors">
-                        Todo
-                    </button>
-
-                    <!-- Separador -->
-                    <div class="h-6 w-px bg-gray-300"></div>
-
-                    <!-- Contenedor con posición relativa para el panel -->
-                    <div class="relative">
-                        <!-- Rango personalizado -->
-                        <button id="btnCustomRange" class="filter-btn text-xs px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-navy-50 hover:border-navy-300 hover:text-navy-700 transition-colors flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            Personalizado
-                        </button>
-
-                        <!-- Panel de rango personalizado (oculto por defecto) -->
-                        <div id="customRangePanel" class="hidden absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 min-w-[250px]" style="z-index: 99999 !important; position: absolute !important;">
-                            <div class="mb-3">
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Fecha Inicio</label>
-                                <input type="date" id="startDate" class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-navy-500">
-                            </div>
-                            <div class="mb-3">
-                                <label class="block text-xs font-medium text-gray-700 mb-1">Fecha Fin</label>
-                                <input type="date" id="endDate" class="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-navy-500">
-                            </div>
-                            <div class="flex gap-2">
-                                <button id="btnApplyCustomRange" class="flex-1 text-xs px-3 py-1.5 bg-navy-600 text-white rounded hover:bg-navy-700 transition-colors">
-                                    Aplicar
-                                </button>
-                                <button id="btnCancelCustomRange" class="flex-1 text-xs px-3 py-1.5 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors">
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Indicador de rango activo -->
-                <div id="activeRangeIndicator" class="text-xs text-gray-500 italic">
-                    Mostrando últimos 30 días
-                </div>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-xs text-gray-600">Datos en tiempo real</span>
             </div>
         </div>
     </header>

@@ -316,9 +316,9 @@ class DatabaseManager {
      * Obtener métricas del dashboard
      * @returns {Object} Métricas agregadas
      */
-    getDashboardMetrics(dateRange = {}) {
+    getDashboardMetrics() {
         try {
-            // ===== ATENCIÓN URGENTE (sin filtro, siempre actual) =====
+            // ===== ATENCIÓN URGENTE =====
             const vencenHoy = this.queryOne(`
                 SELECT COUNT(*) as count, COALESCE(SUM(monto), 0) as monto
                 FROM Recibo r JOIN Poliza p ON r.poliza_id = p.poliza_id
@@ -339,21 +339,13 @@ class DatabaseManager {
                 AND DATE(vigencia_fin) BETWEEN DATE('now') AND DATE('now', '+30 days')
             `);
 
-            // ===== SALUD DEL NEGOCIO (con filtro de fecha si aplica) =====
-            let cobradoQuery = `
+            // ===== SALUD DEL NEGOCIO =====
+            const cobradoMes = this.queryOne(`
                 SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r
                 JOIN Poliza p ON r.poliza_id = p.poliza_id
-                WHERE r.estado = 'pagado' AND p.activo = 1`;
-
-            if (dateRange.startDate && dateRange.endDate) {
-                cobradoQuery += ` AND DATE(r.fecha_pago) BETWEEN DATE('${dateRange.startDate}') AND DATE('${dateRange.endDate}')`;
-            } else if (dateRange.days) {
-                cobradoQuery += ` AND DATE(r.fecha_pago) >= DATE('now', '-${dateRange.days} days')`;
-            } else {
-                cobradoQuery += ` AND DATE(r.fecha_pago) >= DATE('now', 'start of month')`;
-            }
-
-            const cobradoMes = this.queryOne(cobradoQuery);
+                WHERE r.estado = 'pagado' AND p.activo = 1
+                AND DATE(r.fecha_pago) >= DATE('now', 'start of month')
+            `);
 
             const cobradoMesAnterior = this.queryOne(`
                 SELECT COALESCE(SUM(monto), 0) as total FROM Recibo r

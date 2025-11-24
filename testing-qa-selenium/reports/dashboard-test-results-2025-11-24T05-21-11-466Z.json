@@ -1,0 +1,86 @@
+{
+  "suite": "Dashboard",
+  "timestamp": "2025-11-24T05:21:00.449Z",
+  "total": 11,
+  "passed": 3,
+  "failed": 8,
+  "results": [
+    {
+      "testId": "TC-DASH-001",
+      "description": "Verificar elementos principales del Dashboard",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:21:05.533Z"
+    },
+    {
+      "testId": "TC-DASH-002",
+      "description": "Verificar valores en cards urgentes",
+      "passed": false,
+      "message": "this.getElementText is not a function",
+      "timestamp": "2025-11-24T05:21:06.034Z"
+    },
+    {
+      "testId": "TC-DASH-003",
+      "description": "Verificar presencia de gráficas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:21:06.731Z"
+    },
+    {
+      "testId": "TC-DASH-004",
+      "description": "Verificar antigüedad de saldos",
+      "passed": false,
+      "message": "this.getElementText is not a function",
+      "timestamp": "2025-11-24T05:21:07.232Z"
+    },
+    {
+      "testId": "TC-DASH-005",
+      "description": "Verificar flujo de caja",
+      "passed": false,
+      "message": "this.getElementText is not a function",
+      "timestamp": "2025-11-24T05:21:07.830Z"
+    },
+    {
+      "testId": "TC-DASH-006",
+      "description": "Verificar Top 5 Clientes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:21:08.515Z"
+    },
+    {
+      "testId": "TC-DASH-007",
+      "description": "Aplicar filtro de 7 días",
+      "passed": false,
+      "message": "this.clickElement is not a function",
+      "timestamp": "2025-11-24T05:21:09.016Z"
+    },
+    {
+      "testId": "TC-DASH-008",
+      "description": "Aplicar filtro de 30 días",
+      "passed": false,
+      "message": "this.clickElement is not a function",
+      "timestamp": "2025-11-24T05:21:09.600Z"
+    },
+    {
+      "testId": "TC-DASH-009",
+      "description": "Aplicar filtro de 90 días",
+      "passed": false,
+      "message": "this.clickElement is not a function",
+      "timestamp": "2025-11-24T05:21:10.199Z"
+    },
+    {
+      "testId": "TC-DASH-010",
+      "description": "Abrir panel de rango personalizado",
+      "passed": false,
+      "message": "this.clickElement is not a function",
+      "timestamp": "2025-11-24T05:21:10.786Z"
+    },
+    {
+      "testId": "TC-DASH-011",
+      "description": "Cerrar panel de rango personalizado",
+      "passed": false,
+      "message": "this.clickElement is not a function",
+      "timestamp": "2025-11-24T05:21:11.382Z"
+    }
+  ]
+}

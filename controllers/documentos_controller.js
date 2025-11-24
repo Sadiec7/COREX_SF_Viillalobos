@@ -95,7 +95,6 @@ class DocumentosController {
         this.polizaOptions = document.getElementById('polizaOptions');
         this.inputTipo = document.getElementById('inputTipo');
         this.inputNombre = document.getElementById('inputNombre');
-        this.inputRuta = document.getElementById('inputRuta');
         this.dropzone = document.getElementById('documentDropzoneDoc');
         this.fileInput = document.getElementById('inputDocumentoFile');
         this.selectedFileName = document.getElementById('selectedFileNameDoc');
@@ -613,7 +612,6 @@ class DocumentosController {
 
         const tipo = this.inputTipo.value.trim();
         const nombre = this.inputNombre.value.trim();
-        const ruta = this.inputRuta.value.trim();
 
         if (!tipo || !nombre) {
             alert('Completa todos los datos del documento.');
@@ -625,7 +623,8 @@ class DocumentosController {
             return;
         }
 
-        const rutaRelativa = ruta || this.selectedFile.name;
+        // Sistema genera automáticamente la ruta basada en el nombre del archivo
+        const rutaRelativa = this.selectedFile.name;
 
         const payload = {
             cliente_id: scope === 'cliente' ? clienteId : null,

@@ -1,0 +1,86 @@
+{
+  "suite": "Dashboard",
+  "timestamp": "2025-11-24T05:24:31.895Z",
+  "total": 11,
+  "passed": 10,
+  "failed": 1,
+  "results": [
+    {
+      "testId": "TC-DASH-001",
+      "description": "Verificar elementos principales del Dashboard",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:37.121Z"
+    },
+    {
+      "testId": "TC-DASH-002",
+      "description": "Verificar valores en cards urgentes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:37.786Z"
+    },
+    {
+      "testId": "TC-DASH-003",
+      "description": "Verificar presencia de gráficas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:38.424Z"
+    },
+    {
+      "testId": "TC-DASH-004",
+      "description": "Verificar antigüedad de saldos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:39.087Z"
+    },
+    {
+      "testId": "TC-DASH-005",
+      "description": "Verificar flujo de caja",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:39.705Z"
+    },
+    {
+      "testId": "TC-DASH-006",
+      "description": "Verificar Top 5 Clientes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:40.325Z"
+    },
+    {
+      "testId": "TC-DASH-007",
+      "description": "Aplicar filtro de 7 días",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:42.326Z"
+    },
+    {
+      "testId": "TC-DASH-008",
+      "description": "Aplicar filtro de 30 días",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:44.329Z"
+    },
+    {
+      "testId": "TC-DASH-009",
+      "description": "Aplicar filtro de 90 días",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:46.325Z"
+    },
+    {
+      "testId": "TC-DASH-010",
+      "description": "Abrir panel de rango personalizado",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-11-24T05:24:46.989Z"
+    },
+    {
+      "testId": "TC-DASH-011",
+      "description": "Cerrar panel de rango personalizado",
+      "passed": false,
+      "message": "Waiting until element is visible\nWait timed out after 5155ms",
+      "timestamp": "2025-11-24T05:24:52.675Z"
+    }
+  ]
+}
