@@ -51,11 +51,42 @@ class RecibosController {
         this.filterPagado = document.getElementById('filterPagado');
         this.filterVencido = document.getElementById('filterVencido');
 
-        // Estadísticas
-        this.statTotal = document.getElementById('statTotal');
-        this.statPendientes = document.getElementById('statPendientes');
-        this.statPagados = document.getElementById('statPagados');
-        this.statVencidos = document.getElementById('statVencidos');
+        // Quick Filters
+        this.quickFilterAll = document.getElementById('quickFilterAll');
+        this.quickFilterVencenHoy = document.getElementById('quickFilterVencenHoy');
+        this.quickFilterVencen7 = document.getElementById('quickFilterVencen7');
+        this.quickFilterPendientes = document.getElementById('quickFilterPendientes');
+        this.quickFilterVencidos = document.getElementById('quickFilterVencidos');
+        this.quickFilterPagadosHoy = document.getElementById('quickFilterPagadosHoy');
+        this.quickFilterCounter = document.getElementById('quickFilterCounter');
+        this.quickFilterClear = document.getElementById('quickFilterClear');
+
+        // Modal Registrar Pago
+        this.modalPago = document.getElementById('modalRegistrarPago');
+        this.btnCloseModalPago = document.getElementById('btnCloseModalPago');
+        this.btnCancelarPago = document.getElementById('btnCancelarPago');
+        this.formPago = document.getElementById('formRegistrarPago');
+        this.pagoReciboInfo = document.getElementById('pagoReciboInfo');
+        this.pagoMontoInfo = document.getElementById('pagoMontoInfo');
+        this.inputFechaPagoModal = document.getElementById('inputFechaPagoModal');
+        this.inputMetodoPagoModal = document.getElementById('inputMetodoPagoModal');
+        this.inputReferenciaPago = document.getElementById('inputReferenciaPago');
+        this.inputNotasPago = document.getElementById('inputNotasPago');
+        this.checkGenerarComprobante = document.getElementById('checkGenerarComprobante');
+
+        // Estadísticas mejoradas
+        this.statMontoTotal = document.getElementById('statMontoTotal');
+        this.statRecibosTotal = document.getElementById('statRecibosTotal');
+        this.statMontoPendiente = document.getElementById('statMontoPendiente');
+        this.statRecibosPendientes = document.getElementById('statRecibosPendientes');
+        this.statMontoVence7 = document.getElementById('statMontoVence7');
+        this.statMontoPagado = document.getElementById('statMontoPagado');
+        this.statRecibosPagados = document.getElementById('statRecibosPagados');
+        this.statPagadoMes = document.getElementById('statPagadoMes');
+        this.statMontoVencido = document.getElementById('statMontoVencido');
+        this.statRecibosVencidos = document.getElementById('statRecibosVencidos');
+        this.statDiasVencido = document.getElementById('statDiasVencido');
+        this.barraUrgencia = document.getElementById('barraUrgencia');
 
         // Tabla
         this.tableBody = document.getElementById('recibosTableBody');
@@ -130,6 +161,26 @@ class RecibosController {
             if (e.target === this.modalFiltros) {
                 this.closeFiltersModal();
             }
+        });
+
+        // Quick Filters
+        this.quickFilterAll.addEventListener('click', () => this.applyQuickFilter('all'));
+        this.quickFilterVencenHoy.addEventListener('click', () => this.applyQuickFilter('vencen-hoy'));
+        this.quickFilterVencen7.addEventListener('click', () => this.applyQuickFilter('vencen-7'));
+        this.quickFilterPendientes.addEventListener('click', () => this.applyQuickFilter('pendientes'));
+        this.quickFilterVencidos.addEventListener('click', () => this.applyQuickFilter('vencidos'));
+        this.quickFilterPagadosHoy.addEventListener('click', () => this.applyQuickFilter('pagados-hoy'));
+        this.quickFilterClear.addEventListener('click', () => this.applyQuickFilter('all'));
+
+        // Modal Pago
+        this.btnCloseModalPago.addEventListener('click', () => this.closeModalPago());
+        this.btnCancelarPago.addEventListener('click', () => this.closeModalPago());
+        this.modalPago.addEventListener('click', (e) => {
+            if (e.target === this.modalPago) this.closeModalPago();
+        });
+        this.formPago.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleRegistrarPago();
         });
     }
 
@@ -303,14 +354,27 @@ class RecibosController {
     applyActiveFilters(recibos) {
         let filtered = [...recibos];
 
-        // Filter by estado
-        const estadoFilters = [];
-        if (this.activeFilters.pendiente) estadoFilters.push('Pendiente');
-        if (this.activeFilters.pagado) estadoFilters.push('Pagado');
-        if (this.activeFilters.vencido) estadoFilters.push('Vencido');
+        // Si hay filtros activos
+        if (this.activeFilters.pendiente || this.activeFilters.pagado || this.activeFilters.vencido) {
+            const hoy = new Date();
+            hoy.setHours(0, 0, 0, 0);
 
-        if (estadoFilters.length > 0) {
-            filtered = filtered.filter(r => estadoFilters.includes(r.estado));
+            filtered = filtered.filter(r => {
+                // Determinar estado real del recibo
+                const fechaCorte = new Date(r.fecha_corte);
+                fechaCorte.setHours(0, 0, 0, 0);
+
+                const esPagado = r.estado === 'pagado';
+                const estaVencido = !esPagado && fechaCorte < hoy;
+                const estaPendiente = !esPagado && !estaVencido;
+
+                // Verificar si cumple con algún filtro activo
+                if (this.activeFilters.pagado && esPagado) return true;
+                if (this.activeFilters.vencido && estaVencido) return true;
+                if (this.activeFilters.pendiente && estaPendiente) return true;
+
+                return false;
+            });
         }
 
         return filtered;
@@ -337,8 +401,16 @@ class RecibosController {
 
         this.tableBody.innerHTML = paginatedRecibos.map(recibo => {
             const estadoClass = this.getEstadoBadge(recibo.estado, recibo.fecha_corte);
+            const urgenciaIndicator = this.getUrgenciaIndicator(recibo);
+            const diasRestantes = this.diasHasta(recibo.fecha_corte);
+
             return `
                 <tr class="group transition-colors cursor-pointer hover:bg-gray-50" data-recibo-id="${recibo.recibo_id}">
+                    <!-- Indicador de Urgencia -->
+                    <td class="px-2 py-4 text-center">
+                        ${urgenciaIndicator}
+                    </td>
+
                     <td class="px-6 py-4 text-sm text-gray-900 font-semibold">
                         ${this.escapeHtml(recibo.numero_recibo || `#${recibo.recibo_id}`)}
                     </td>
@@ -352,8 +424,17 @@ class RecibosController {
                     <td class="px-6 py-4 text-sm text-gray-900 font-semibold">
                         ${this.formatCurrency(recibo.monto)}
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">
-                        ${this.formatDate(recibo.fecha_corte)}
+                    <td class="px-6 py-4 text-sm">
+                        <div class="text-gray-900">${this.formatDate(recibo.fecha_corte)}</div>
+                        ${recibo.estado !== 'pagado' ? `
+                            <div class="text-xs ${diasRestantes < 0 ? 'text-red-600 font-semibold' : diasRestantes <= 7 ? 'text-orange-600' : 'text-gray-500'}">
+                                ${diasRestantes < 0
+                                    ? `Vencido hace ${Math.abs(diasRestantes)} día(s)`
+                                    : diasRestantes === 0
+                                    ? 'Vence HOY'
+                                    : `En ${diasRestantes} día(s)`}
+                            </div>
+                        ` : ''}
                     </td>
                     <td class="px-6 py-4 text-sm">
                         <span class="status-badge ${estadoClass}">
@@ -390,6 +471,16 @@ class RecibosController {
                                 </button>
                             `}
                             <button
+                                data-action="generate-pdf"
+                                data-recibo-id="${recibo.recibo_id}"
+                                class="p-1 text-purple-600 hover:text-white hover:bg-purple-600 rounded transition-all duration-150"
+                                title="Generar Comprobante PDF"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                            <button
                                 data-action="edit"
                                 data-recibo-id="${recibo.recibo_id}"
                                 class="p-1 text-indigo-600 hover:text-white hover:bg-indigo-600 rounded transition-all duration-150"
@@ -420,16 +511,104 @@ class RecibosController {
     }
 
     updateStats() {
-        const totals = this.recibos.reduce((acc, recibo) => {
-            acc.total += 1;
-            acc[recibo.estado] = (acc[recibo.estado] || 0) + 1;
-            return acc;
-        }, { total: 0, pendiente: 0, pagado: 0, vencido: 0 });
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const en7Dias = new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        inicioMes.setHours(0, 0, 0, 0);
 
-        this.statTotal.textContent = totals.total;
-        this.statPendientes.textContent = totals.pendiente;
-        this.statPagados.textContent = totals.pagado;
-        this.statVencidos.textContent = totals.vencido;
+        const stats = this.recibos.reduce((acc, recibo) => {
+            const monto = parseFloat(recibo.monto) || 0;
+            const fechaCorte = new Date(recibo.fecha_corte);
+            fechaCorte.setHours(0, 0, 0, 0);
+
+            // Normalizar fecha de pago
+            const fechaPago = recibo.fecha_pago ? new Date(recibo.fecha_pago) : null;
+            if (fechaPago) {
+                fechaPago.setHours(0, 0, 0, 0);
+            }
+
+            // Determinar si está vencido (fecha de corte ya pasó y no está pagado)
+            const estaVencido = recibo.estado !== 'pagado' && fechaCorte < hoy;
+
+            // Totales
+            acc.montoTotal += monto;
+            acc.recibosTotal += 1;
+
+            // Pagados
+            if (recibo.estado === 'pagado') {
+                acc.montoPagado += monto;
+                acc.recibosPagados += 1;
+
+                // Pagados este mes (comparar año y mes)
+                if (fechaPago && fechaPago >= inicioMes && fechaPago <= hoy) {
+                    acc.montoPagadoMes += monto;
+                }
+            }
+            // Vencidos (no pagados y fecha de corte ya pasó)
+            else if (estaVencido) {
+                acc.montoVencido += monto;
+                acc.recibosVencidos += 1;
+
+                // Días vencido más antiguo
+                const diasVencido = Math.floor((hoy - fechaCorte) / (1000 * 60 * 60 * 24));
+                if (diasVencido > acc.diasVencidoMax) {
+                    acc.diasVencidoMax = diasVencido;
+                }
+            }
+            // Pendientes (no pagados y fecha de corte no ha pasado)
+            else {
+                acc.montoPendiente += monto;
+                acc.recibosPendientes += 1;
+
+                // Vencen en 7 días
+                if (fechaCorte <= en7Dias) {
+                    acc.montoVence7 += monto;
+                }
+            }
+
+            return acc;
+        }, {
+            montoTotal: 0,
+            recibosTotal: 0,
+            montoPendiente: 0,
+            recibosPendientes: 0,
+            montoPagado: 0,
+            recibosPagados: 0,
+            montoVencido: 0,
+            recibosVencidos: 0,
+            montoVence7: 0,
+            montoPagadoMes: 0,
+            diasVencidoMax: 0
+        });
+
+        // Actualizar DOM con formato inteligente y tooltips con valores completos
+        this.statMontoTotal.textContent = this.formatCurrencySmart(stats.montoTotal);
+        this.statMontoTotal.title = this.formatCurrency(stats.montoTotal);
+        this.statRecibosTotal.textContent = `${stats.recibosTotal} recibos`;
+
+        this.statMontoPendiente.textContent = this.formatCurrencySmart(stats.montoPendiente);
+        this.statMontoPendiente.title = this.formatCurrency(stats.montoPendiente);
+        this.statRecibosPendientes.textContent = `${stats.recibosPendientes} recibos`;
+        this.statMontoVence7.textContent = this.formatCurrencySmart(stats.montoVence7);
+        this.statMontoVence7.title = this.formatCurrency(stats.montoVence7);
+
+        this.statMontoPagado.textContent = this.formatCurrencySmart(stats.montoPagado);
+        this.statMontoPagado.title = this.formatCurrency(stats.montoPagado);
+        this.statRecibosPagados.textContent = `${stats.recibosPagados} recibos`;
+        this.statPagadoMes.textContent = this.formatCurrencySmart(stats.montoPagadoMes);
+        this.statPagadoMes.title = this.formatCurrency(stats.montoPagadoMes);
+
+        this.statMontoVencido.textContent = this.formatCurrencySmart(stats.montoVencido);
+        this.statMontoVencido.title = this.formatCurrency(stats.montoVencido);
+        this.statRecibosVencidos.textContent = `${stats.recibosVencidos} recibos`;
+        this.statDiasVencido.textContent = stats.diasVencidoMax > 0 ? `${stats.diasVencidoMax} días` : 'N/A';
+
+        // Barra de urgencia (% de lo pendiente que vence en 7 días)
+        const porcentajeUrgencia = stats.montoPendiente > 0
+            ? (stats.montoVence7 / stats.montoPendiente) * 100
+            : 0;
+        this.barraUrgencia.style.width = `${Math.min(porcentajeUrgencia, 100)}%`;
     }
 
     renderPagination(totalItems) {
@@ -622,6 +801,8 @@ class RecibosController {
                 this.markAsPaid(reciboId);
             } else if (action === 'mark-pending') {
                 this.markAsPending(reciboId);
+            } else if (action === 'generate-pdf') {
+                this.generateReciboPDF(reciboId);
             } else if (action === 'edit') {
                 this.openEditModal(reciboId);
             } else if (action === 'delete') {
@@ -635,7 +816,14 @@ class RecibosController {
         if (row) {
             const reciboId = Number(row.dataset.reciboId);
             if (reciboId) {
-                this.openEditModal(reciboId);
+                // Abrir modal de pago en lugar de edición
+                const recibo = this.recibos.find(r => r.recibo_id === reciboId);
+                if (recibo && recibo.estado !== 'pagado') {
+                    this.openModalPago(reciboId);
+                } else if (recibo && recibo.estado === 'pagado') {
+                    // Si ya está pagado, generar PDF directamente
+                    this.generateReciboPDF(reciboId);
+                }
             }
         }
     }
@@ -706,7 +894,24 @@ class RecibosController {
         const num = Number(amount || 0);
         if (num >= 1000000) {
             return '$' + (num / 1000000).toFixed(1) + 'M';
-        } else if (num >= 1000) {
+        } else if (num >= 10000) {
+            return '$' + (num / 1000).toFixed(1) + 'K';
+        } else {
+            return '$' + num.toLocaleString('es-MX', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    }
+
+    formatCurrencySmart(amount) {
+        const num = Number(amount || 0);
+        // Si es mayor a 999,999.99 (7+ dígitos) usar abreviado
+        if (num >= 1000000) {
+            return '$' + (num / 1000000).toFixed(1) + 'M';
+        } else if (num >= 100000) {
+            return '$' + (num / 1000).toFixed(0) + 'K';
+        } else if (num >= 10000) {
             return '$' + (num / 1000).toFixed(1) + 'K';
         } else {
             return '$' + num.toLocaleString('es-MX', {
@@ -744,6 +949,214 @@ class RecibosController {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Quick Filters
+    applyQuickFilter(filter) {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        const en7Dias = new Date(hoy);
+        en7Dias.setDate(en7Dias.getDate() + 7);
+
+        let filtered = [...this.recibosOriginal];
+
+        switch(filter) {
+            case 'vencen-hoy':
+                filtered = filtered.filter(r => {
+                    if (r.estado === 'pagado') return false;
+                    const corte = new Date(r.fecha_corte);
+                    corte.setHours(0, 0, 0, 0);
+                    return corte.getTime() === hoy.getTime();
+                });
+                break;
+
+            case 'vencen-7':
+                filtered = filtered.filter(r => {
+                    if (r.estado === 'pagado') return false;
+                    const corte = new Date(r.fecha_corte);
+                    return corte >= hoy && corte <= en7Dias;
+                });
+                break;
+
+            case 'pendientes':
+                filtered = filtered.filter(r => {
+                    if (r.estado === 'pagado') return false;
+                    const corte = new Date(r.fecha_corte);
+                    corte.setHours(0, 0, 0, 0);
+                    return corte >= hoy; // Pendientes son los que aún no vencen
+                });
+                break;
+
+            case 'vencidos':
+                filtered = filtered.filter(r => {
+                    if (r.estado === 'pagado') return false;
+                    const corte = new Date(r.fecha_corte);
+                    corte.setHours(0, 0, 0, 0);
+                    return corte < hoy; // Vencidos son los que ya pasó su fecha de corte
+                });
+                break;
+
+            case 'pagados-hoy':
+                filtered = filtered.filter(r => {
+                    if (!r.fecha_pago) return false;
+                    const pago = new Date(r.fecha_pago);
+                    pago.setHours(0, 0, 0, 0);
+                    return pago.getTime() === hoy.getTime();
+                });
+                break;
+
+            case 'all':
+            default:
+                // No filtrar
+                break;
+        }
+
+        this.recibos = filtered;
+
+        // Actualizar botones activos
+        document.querySelectorAll('.quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+        const btnId = filter === 'all' ? 'quickFilterAll' :
+                      filter === 'vencen-hoy' ? 'quickFilterVencenHoy' :
+                      filter === 'vencen-7' ? 'quickFilterVencen7' :
+                      filter === 'pendientes' ? 'quickFilterPendientes' :
+                      filter === 'vencidos' ? 'quickFilterVencidos' :
+                      filter === 'pagados-hoy' ? 'quickFilterPagadosHoy' : 'quickFilterAll';
+        document.getElementById(btnId).classList.add('active');
+
+        // Mostrar contador y botón clear
+        if (filter !== 'all') {
+            this.quickFilterCounter.textContent = `${filtered.length} recibo(s)`;
+            this.quickFilterClear.classList.remove('hidden');
+        } else {
+            this.quickFilterCounter.textContent = '';
+            this.quickFilterClear.classList.add('hidden');
+        }
+
+        this.renderTable();
+        this.updateStats();
+    }
+
+    // Indicador de urgencia visual
+    getUrgenciaIndicator(recibo) {
+        if (recibo.estado === 'pagado') {
+            return '<span class="inline-block w-2 h-2 bg-green-500 rounded-full" title="Pagado"></span>';
+        }
+
+        const dias = this.diasHasta(recibo.fecha_corte);
+
+        if (dias < 0) {
+            return '<span class="inline-flex items-center justify-center w-6 h-6 bg-red-600 text-white rounded-full text-xs font-bold animate-pulse" title="VENCIDO">!</span>';
+        } else if (dias === 0) {
+            return '<span class="inline-flex items-center justify-center w-6 h-6 bg-red-500 text-white rounded-full text-xs font-bold" title="Vence HOY">!</span>';
+        } else if (dias <= 3) {
+            return '<span class="inline-block w-3 h-3 bg-red-500 rounded-full" title="Crítico: vence en ' + dias + ' día(s)"></span>';
+        } else if (dias <= 7) {
+            return '<span class="inline-block w-3 h-3 bg-orange-500 rounded-full" title="Urgente: vence en ' + dias + ' día(s)"></span>';
+        } else if (dias <= 15) {
+            return '<span class="inline-block w-3 h-3 bg-yellow-400 rounded-full" title="Próximo: vence en ' + dias + ' día(s)"></span>';
+        }
+
+        return '<span class="inline-block w-2 h-2 bg-gray-300 rounded-full" title="Normal: vence en ' + dias + ' día(s)"></span>';
+    }
+
+    // Modal Registrar Pago
+    async openModalPago(reciboId) {
+        try {
+            const response = await window.electronAPI.recibos.getById(reciboId);
+            if (!response.success || !response.data) {
+                throw new Error('Recibo no encontrado');
+            }
+
+            const recibo = response.data;
+            this.currentRecibo = recibo;
+
+            // Llenar información
+            this.pagoReciboInfo.textContent = recibo.numero_recibo || `#${recibo.recibo_id}`;
+            this.pagoMontoInfo.textContent = this.formatCurrency(recibo.monto);
+
+            // Prefill fecha de hoy
+            this.inputFechaPagoModal.value = new Date().toISOString().split('T')[0];
+
+            // Resetear campos
+            this.inputMetodoPagoModal.value = '';
+            this.inputReferenciaPago.value = '';
+            this.inputNotasPago.value = '';
+            this.checkGenerarComprobante.checked = true;
+
+            this.modalPago.classList.add('active');
+            document.body.classList.add('modal-open');
+        } catch (error) {
+            console.error('Error al abrir modal de pago:', error);
+            alert('No se pudo abrir el modal de pago.');
+        }
+    }
+
+    closeModalPago() {
+        this.modalPago.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        this.currentRecibo = null;
+    }
+
+    async handleRegistrarPago() {
+        if (!this.currentRecibo) return;
+
+        const formData = new FormData(this.formPago);
+
+        const pagoData = {
+            recibo_id: this.currentRecibo.recibo_id,
+            fecha_pago: formData.get('fecha_pago'),
+            metodo_pago: formData.get('metodo_pago'),
+            referencia: formData.get('referencia') || null,
+            notas: formData.get('notas') || null,
+            generar_pdf: this.checkGenerarComprobante.checked
+        };
+
+        try {
+            const response = await window.electronAPI.recibos.registrarPago(pagoData);
+
+            if (response.success) {
+                this.closeModalPago();
+
+                // Si se generó PDF, preguntar si quiere abrirlo
+                if (pagoData.generar_pdf && response.pdfPath) {
+                    if (confirm('Pago registrado. ¿Deseas abrir el comprobante PDF?')) {
+                        await window.electronAPI.openFile(response.pdfPath);
+                    }
+                } else {
+                    alert('Pago registrado correctamente.');
+                }
+
+                await this.loadRecibos();
+            } else {
+                throw new Error(response.message || 'Error al registrar el pago');
+            }
+        } catch (error) {
+            console.error('Error al registrar pago:', error);
+            alert(error.message || 'Error al registrar el pago.');
+        }
+    }
+
+    // Modificar markAsPaid para usar el modal
+    async markAsPaid(reciboId) {
+        await this.openModalPago(reciboId);
+    }
+
+    // Generar PDF de recibo
+    async generateReciboPDF(reciboId) {
+        try {
+            const response = await window.electronAPI.recibos.generarPDF(reciboId);
+            if (response.success) {
+                if (confirm(`Comprobante generado: ${response.fileName}\n\n¿Deseas abrirlo?`)) {
+                    await window.electronAPI.openFile(response.filePath);
+                }
+            } else {
+                throw new Error(response.message || 'Error al generar PDF');
+            }
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
+            alert('No se pudo generar el comprobante PDF.');
+        }
     }
 }
 

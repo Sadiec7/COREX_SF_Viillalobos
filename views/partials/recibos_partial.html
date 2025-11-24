@@ -40,6 +40,25 @@
         background-color: #FEE2E2;
         color: #991B1B;
     }
+
+    .quick-filter-btn {
+        background: #F3F4F6;
+        color: #374151;
+        border: 2px solid transparent;
+        font-weight: 500;
+    }
+
+    .quick-filter-btn:hover {
+        background: #E5E7EB;
+        border-color: #D4AF37;
+    }
+
+    .quick-filter-btn.active {
+        background: #D4AF37;
+        color: #1E3A5F;
+        border-color: #1E3A5F;
+        font-weight: 600;
+    }
 </style>
 
 <!-- Title Section -->
@@ -96,60 +115,127 @@
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        <!-- Por Cobrar -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Total Recibos</p>
-                    <p id="statTotal" class="text-3xl font-bold text-navy-700">0</p>
-                </div>
-                <div class="bg-blue-100 rounded-full p-3">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Pendientes</p>
-                    <p id="statPendientes" class="text-3xl font-bold text-orange-600">0</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-gray-500 text-sm font-medium">Por Cobrar</p>
+                    <p id="statMontoPendiente" class="text-2xl font-bold text-orange-600 truncate" title="$0.00">$0.00</p>
+                    <p id="statRecibosPendientes" class="text-xs text-gray-600 mt-1">0 recibos</p>
                 </div>
                 <div class="bg-orange-100 rounded-full p-3">
                     <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-200">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-gray-600">Vencen en 7 días:</span>
+                    <span id="statMontoVence7" class="font-semibold text-red-600 truncate" title="$0.00">$0.00</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                    <div id="barraUrgencia" class="bg-red-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
                 </div>
             </div>
         </div>
 
+        <!-- Cobrado -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Pagados</p>
-                    <p id="statPagados" class="text-3xl font-bold text-green-600">0</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-gray-500 text-sm font-medium">Cobrado</p>
+                    <p id="statMontoPagado" class="text-2xl font-bold text-green-600 truncate" title="$0.00">$0.00</p>
+                    <p id="statRecibosPagados" class="text-xs text-gray-600 mt-1">0 recibos</p>
                 </div>
-                <div class="bg-green-100 rounded-full p-3">
+                <div class="bg-green-100 rounded-full p-3 flex-shrink-0">
                     <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
             </div>
+            <div class="mt-3 pt-3 border-t border-gray-200">
+                <div class="text-xs text-gray-600">
+                    <span>Este mes: </span>
+                    <span id="statPagadoMes" class="font-semibold text-green-700 truncate" title="$0.00">$0.00</span>
+                </div>
+            </div>
         </div>
 
+        <!-- Vencidos -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-gray-500 text-sm">Vencidos</p>
-                    <p id="statVencidos" class="text-3xl font-bold text-red-600">0</p>
+                <div class="flex-1 min-w-0">
+                    <p class="text-gray-500 text-sm font-medium">Vencidos</p>
+                    <p id="statMontoVencido" class="text-2xl font-bold text-red-600 truncate" title="$0.00">$0.00</p>
+                    <p id="statRecibosVencidos" class="text-xs text-gray-600 mt-1">0 recibos</p>
                 </div>
-                <div class="bg-red-100 rounded-full p-3">
+                <div class="bg-red-100 rounded-full p-3 flex-shrink-0">
                     <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-200">
+                <div class="text-xs text-gray-600">
+                    <span>Más antiguo: </span>
+                    <span id="statDiasVencido" class="font-semibold text-red-700">0 días</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                    <p class="text-gray-500 text-sm font-medium">Total General</p>
+                    <p id="statMontoTotal" class="text-2xl font-bold text-navy-700 truncate" title="$0.00">$0.00</p>
+                    <p id="statRecibosTotal" class="text-xs text-gray-600 mt-1">0 recibos</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros Rápidos -->
+    <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="flex items-center gap-3 flex-wrap">
+            <span class="text-sm font-medium text-gray-700">Vista rápida:</span>
+
+            <button id="quickFilterAll" class="quick-filter-btn active px-4 py-2 text-sm rounded-lg transition-all">
+                Todos
+            </button>
+
+            <button id="quickFilterVencenHoy" class="quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all">
+                Vencen Hoy
+            </button>
+
+            <button id="quickFilterVencen7" class="quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all">
+                Próximos 7 días
+            </button>
+
+            <button id="quickFilterPendientes" class="quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all">
+                Pendientes
+            </button>
+
+            <button id="quickFilterVencidos" class="quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all">
+                Vencidos
+            </button>
+
+            <button id="quickFilterPagadosHoy" class="quick-filter-btn px-4 py-2 text-sm rounded-lg transition-all">
+                Pagados Hoy
+            </button>
+
+            <div class="ml-auto flex items-center gap-2">
+                <span id="quickFilterCounter" class="text-sm text-gray-500"></span>
+                <button id="quickFilterClear" class="hidden text-sm text-gray-600 hover:text-gray-900 underline">
+                    Limpiar
+                </button>
             </div>
         </div>
     </div>
@@ -161,6 +247,7 @@
                 <table class="min-w-full">
                     <thead class="bg-navy-700 text-white">
                         <tr>
+                            <th class="px-2 py-3 text-center text-xs font-medium uppercase tracking-wider w-12"></th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Recibo</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Póliza / Cliente</th>
                             <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Periodo</th>
@@ -219,6 +306,123 @@
                 <div id="paginationButtons" class="flex items-center gap-2"></div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Modal: Registrar Pago -->
+<div id="modalRegistrarPago" class="modal">
+    <div class="modal-content bg-white rounded-lg shadow-2xl max-w-md w-full mx-4">
+        <div class="bg-green-600 text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
+            <h2 class="text-xl font-bold">Registrar Pago</h2>
+            <button id="btnCloseModalPago" class="text-white hover:text-gray-300 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <form id="formRegistrarPago" class="p-6 space-y-4">
+            <!-- Información del recibo -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="text-sm text-gray-600 mb-1">Recibo</div>
+                <div id="pagoReciboInfo" class="font-semibold text-navy-700"></div>
+                <div class="text-sm text-gray-600 mt-2">Monto</div>
+                <div id="pagoMontoInfo" class="text-2xl font-bold text-green-600">$0.00</div>
+            </div>
+
+            <!-- Fecha de pago -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Fecha de Pago *
+                </label>
+                <input
+                    type="date"
+                    id="inputFechaPagoModal"
+                    name="fecha_pago"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+            </div>
+
+            <!-- Método de pago -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Método de Pago *
+                </label>
+                <select
+                    id="inputMetodoPagoModal"
+                    name="metodo_pago"
+                    required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                    <option value="">Seleccionar...</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="transferencia">Transferencia</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="domiciliado">Domiciliado</option>
+                </select>
+            </div>
+
+            <!-- Referencia -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Referencia / Folio
+                </label>
+                <input
+                    type="text"
+                    id="inputReferenciaPago"
+                    name="referencia"
+                    placeholder="Ej: Transferencia #12345, Cheque 001"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+            </div>
+
+            <!-- Notas -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Notas (Opcional)
+                </label>
+                <textarea
+                    id="inputNotasPago"
+                    name="notas"
+                    rows="2"
+                    placeholder="Observaciones sobre el pago..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                ></textarea>
+            </div>
+
+            <!-- Opciones adicionales -->
+            <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <label class="flex items-center cursor-pointer">
+                    <input
+                        type="checkbox"
+                        id="checkGenerarComprobante"
+                        class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        checked
+                    >
+                    <span class="ml-2 text-sm text-gray-700">
+                        Generar comprobante PDF automáticamente
+                    </span>
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button
+                    type="button"
+                    id="btnCancelarPago"
+                    class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition-all btn-hover"
+                >
+                    Confirmar Pago
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

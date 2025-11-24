@@ -169,17 +169,36 @@ class ReciboModel {
         return result.changes > 0;
     }
 
-    registrarPago(reciboId, fechaPago = null) {
-        const fecha = fechaPago || new Date().toISOString();
+    registrarPago(reciboId, pagoData = {}) {
+        // Soporte de backward compatibility: si se pasa solo fecha, usarla
+        let fecha, metodoPago, referencia, notas;
+
+        if (typeof pagoData === 'string' || pagoData instanceof Date) {
+            // Llamada antigua: solo fecha
+            fecha = pagoData;
+            metodoPago = null;
+            referencia = null;
+            notas = null;
+        } else {
+            // Llamada nueva: objeto con todos los campos
+            fecha = pagoData.fecha_pago || new Date().toISOString();
+            metodoPago = pagoData.metodo_pago || null;
+            referencia = pagoData.referencia || null;
+            notas = pagoData.notas || null;
+        }
+
         const result = this.dbManager.execute(
             `
             UPDATE Recibo
             SET estado = 'pagado',
                 fecha_pago = ?,
+                metodo_pago = ?,
+                referencia_pago = ?,
+                notas = ?,
                 fecha_modificacion = CURRENT_TIMESTAMP
             WHERE recibo_id = ?
         `,
-            [fecha, reciboId]
+            [fecha, metodoPago, referencia, notas, reciboId]
         );
         return result.changes > 0;
     }
@@ -233,6 +252,210 @@ class ReciboModel {
         }
         const fraccion = String(data.numero_fraccion || 1).padStart(2, '0');
         return `${data.poliza_id}-${fraccion}`;
+    }
+
+    /**
+     * Genera un comprobante PDF para un recibo
+     * @param {number} reciboId - ID del recibo
+     * @returns {Object} - {success, filePath, fileName, error}
+     */
+    async generarPDF(reciboId) {
+        try {
+            const PDFDocument = require('pdfkit');
+            const fs = require('fs');
+            const path = require('path');
+            const os = require('os');
+
+            // Obtener datos completos del recibo con JOIN
+            const recibo = this.dbManager.queryOne(
+                `
+                SELECT
+                    r.*,
+                    p.numero_poliza,
+                    p.ramo,
+                    p.suma_asegurada,
+                    c.nombre AS cliente_nombre,
+                    c.telefono AS cliente_telefono,
+                    c.email AS cliente_email,
+                    a.nombre AS aseguradora_nombre
+                FROM Recibo r
+                JOIN Poliza p ON r.poliza_id = p.poliza_id
+                JOIN Cliente c ON p.cliente_id = c.cliente_id
+                LEFT JOIN Aseguradora a ON p.aseguradora_id = a.aseguradora_id
+                WHERE r.recibo_id = ?
+                `,
+                [reciboId]
+            );
+
+            if (!recibo) {
+                throw new Error('Recibo no encontrado');
+            }
+
+            // Crear directorio de comprobantes si no existe
+            const comprobantesDir = path.join(os.homedir(), 'Documents', 'Comprobantes_Recibos');
+            if (!fs.existsSync(comprobantesDir)) {
+                fs.mkdirSync(comprobantesDir, { recursive: true });
+            }
+
+            // Nombre del archivo (sanitizar numero_recibo para evitar caracteres inválidos)
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+            const numeroSanitizado = (recibo.numero_recibo || recibo.recibo_id)
+                .toString()
+                .replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
+            const fileName = `Comprobante_${numeroSanitizado}_${timestamp}.pdf`;
+            const filePath = path.join(comprobantesDir, fileName);
+
+            // Crear PDF
+            const doc = new PDFDocument({ margin: 50, size: 'LETTER' });
+            const stream = fs.createWriteStream(filePath);
+            doc.pipe(stream);
+
+            // Header
+            doc.fontSize(20).font('Helvetica-Bold').text('COMPROBANTE DE PAGO', { align: 'center' });
+            doc.moveDown();
+            doc.fontSize(10).font('Helvetica').text(`Fecha de emisión: ${new Date().toLocaleDateString('es-MX')}`, { align: 'right' });
+            doc.moveDown(2);
+
+            // Información del Recibo
+            doc.fontSize(14).font('Helvetica-Bold').text('DATOS DEL RECIBO');
+            doc.moveDown(0.5);
+
+            const startY = doc.y;
+            doc.fontSize(10).font('Helvetica');
+            doc.text(`Número de Recibo: `, 50, startY);
+            doc.font('Helvetica-Bold').text(recibo.numero_recibo || `#${recibo.recibo_id}`, 180, startY);
+
+            doc.font('Helvetica').text(`Póliza: `, 50, startY + 15);
+            doc.font('Helvetica-Bold').text(recibo.numero_poliza, 180, startY + 15);
+
+            doc.font('Helvetica').text(`Período: `, 50, startY + 30);
+            doc.font('Helvetica-Bold').text(
+                `${this._formatDate(recibo.fecha_inicio_periodo)} - ${this._formatDate(recibo.fecha_fin_periodo)}`,
+                180, startY + 30
+            );
+
+            doc.font('Helvetica').text(`Monto: `, 50, startY + 45);
+            doc.font('Helvetica-Bold').fontSize(12).text(this._formatCurrency(recibo.monto), 180, startY + 45);
+
+            doc.moveDown(4);
+
+            // Información del Pago
+            doc.fontSize(14).font('Helvetica-Bold').text('DATOS DEL PAGO');
+            doc.moveDown(0.5);
+
+            const paymentY = doc.y;
+            doc.fontSize(10).font('Helvetica');
+            doc.text(`Fecha de Pago: `, 50, paymentY);
+            doc.font('Helvetica-Bold').text(
+                recibo.fecha_pago ? this._formatDate(recibo.fecha_pago) : 'N/A',
+                180, paymentY
+            );
+
+            doc.font('Helvetica').text(`Método de Pago: `, 50, paymentY + 15);
+            doc.font('Helvetica-Bold').text(recibo.metodo_pago || 'N/A', 180, paymentY + 15);
+
+            doc.font('Helvetica').text(`Referencia: `, 50, paymentY + 30);
+            doc.font('Helvetica-Bold').text(recibo.referencia_pago || 'N/A', 180, paymentY + 30);
+
+            if (recibo.notas) {
+                doc.font('Helvetica').text(`Notas: `, 50, paymentY + 45);
+                doc.font('Helvetica').text(recibo.notas, 180, paymentY + 45, { width: 350 });
+                doc.moveDown(3);
+            } else {
+                doc.moveDown(3.5);
+            }
+
+            // Información del Cliente
+            doc.fontSize(14).font('Helvetica-Bold').text('DATOS DEL CLIENTE');
+            doc.moveDown(0.5);
+
+            const clientY = doc.y;
+            doc.fontSize(10).font('Helvetica');
+            doc.text(`Cliente: `, 50, clientY);
+            doc.font('Helvetica-Bold').text(recibo.cliente_nombre, 180, clientY);
+
+            if (recibo.cliente_telefono) {
+                doc.font('Helvetica').text(`Teléfono: `, 50, clientY + 15);
+                doc.font('Helvetica-Bold').text(recibo.cliente_telefono, 180, clientY + 15);
+            }
+
+            if (recibo.cliente_email) {
+                doc.font('Helvetica').text(`Email: `, 50, clientY + 30);
+                doc.font('Helvetica-Bold').text(recibo.cliente_email, 180, clientY + 30);
+            }
+
+            doc.moveDown(3);
+
+            // Información de la Póliza
+            doc.fontSize(14).font('Helvetica-Bold').text('DATOS DE LA PÓLIZA');
+            doc.moveDown(0.5);
+
+            const polizaY = doc.y;
+            doc.fontSize(10).font('Helvetica');
+            if (recibo.aseguradora_nombre) {
+                doc.text(`Aseguradora: `, 50, polizaY);
+                doc.font('Helvetica-Bold').text(recibo.aseguradora_nombre, 180, polizaY);
+            }
+
+            if (recibo.ramo) {
+                doc.font('Helvetica').text(`Ramo: `, 50, polizaY + 15);
+                doc.font('Helvetica-Bold').text(recibo.ramo, 180, polizaY + 15);
+            }
+
+            if (recibo.suma_asegurada) {
+                doc.font('Helvetica').text(`Suma Asegurada: `, 50, polizaY + 30);
+                doc.font('Helvetica-Bold').text(this._formatCurrency(recibo.suma_asegurada), 180, polizaY + 30);
+            }
+
+            // Footer
+            doc.moveDown(5);
+            const footerY = 700;
+            doc.fontSize(8).font('Helvetica').fillColor('#666666');
+            doc.text(
+                'Este comprobante es un documento generado automáticamente por el Sistema de Gestión de Seguros.',
+                50, footerY,
+                { align: 'center', width: 500 }
+            );
+            doc.text(
+                `Generado el ${new Date().toLocaleString('es-MX')}`,
+                50, footerY + 15,
+                { align: 'center', width: 500 }
+            );
+
+            // Finalizar PDF
+            doc.end();
+
+            // Esperar a que se complete la escritura
+            await new Promise((resolve, reject) => {
+                stream.on('finish', resolve);
+                stream.on('error', reject);
+            });
+
+            return {
+                success: true,
+                filePath,
+                fileName
+            };
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    _formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('es-MX');
+    }
+
+    _formatCurrency(amount) {
+        return '$' + Number(amount || 0).toLocaleString('es-MX', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 }
 

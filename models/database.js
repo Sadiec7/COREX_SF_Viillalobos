@@ -72,6 +72,37 @@ class DatabaseManager {
             this.db = new this.SQL.Database();
             await this._createSchema();
         }
+
+        // Migración incremental: Agregar columnas de detalles de pago si no existen
+        this._migratePaymentDetails();
+    }
+
+    _migratePaymentDetails() {
+        const needsMetodoPago = !this._columnExists('Recibo', 'metodo_pago');
+        const needsReferencia = !this._columnExists('Recibo', 'referencia_pago');
+        const needsNotas = !this._columnExists('Recibo', 'notas');
+
+        if (needsMetodoPago || needsReferencia || needsNotas) {
+            console.log('🔄 Aplicando migración de detalles de pago...');
+            try {
+                if (needsMetodoPago) {
+                    this.db.run('ALTER TABLE Recibo ADD COLUMN metodo_pago VARCHAR(50) NULL');
+                    console.log('  ✓ Columna metodo_pago agregada');
+                }
+                if (needsReferencia) {
+                    this.db.run('ALTER TABLE Recibo ADD COLUMN referencia_pago VARCHAR(100) NULL');
+                    console.log('  ✓ Columna referencia_pago agregada');
+                }
+                if (needsNotas) {
+                    this.db.run('ALTER TABLE Recibo ADD COLUMN notas TEXT NULL');
+                    console.log('  ✓ Columna notas agregada');
+                }
+                this._saveToDisk();
+                console.log('✅ Migración de detalles de pago completada');
+            } catch (error) {
+                console.error('❌ Error al migrar detalles de pago:', error.message);
+            }
+        }
     }
 
     async _createSchema() {

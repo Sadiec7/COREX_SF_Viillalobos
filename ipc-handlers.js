@@ -178,6 +178,26 @@ function registerIPCHandlers(dbManager, models) {
         }
     });
 
+    // Abrir archivo con aplicación predeterminada del sistema
+    ipcMain.handle('openFile', async (event, filePath) => {
+        try {
+            if (!filePath || typeof filePath !== 'string') {
+                throw new Error('Ruta de archivo inválida');
+            }
+
+            const shellResult = await shell.openPath(filePath);
+            if (shellResult) {
+                // shell.openPath returns empty string on success, error message on failure
+                throw new Error(shellResult);
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Error al abrir archivo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
     ipcMain.handle('dialog:selectDirectory', async (event, options = {}) => {
         try {
             const dialogOptions = {
@@ -486,6 +506,68 @@ function registerIPCHandlers(dbManager, models) {
             return { success: updated };
         } catch (error) {
             console.error('Error al cambiar estado del recibo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Registrar pago con detalles extendidos
+    ipcMain.handle('recibos:registrarPago', async (event, pagoData) => {
+        try {
+            const { recibo_id, fecha_pago, metodo_pago, referencia, notas, generar_pdf } = pagoData;
+
+            // Registrar el pago con los nuevos campos
+            const updated = reciboModel.registrarPago(recibo_id, {
+                fecha_pago,
+                metodo_pago,
+                referencia,
+                notas
+            });
+
+            if (!updated) {
+                throw new Error('No se pudo registrar el pago');
+            }
+
+            let pdfPath = null;
+
+            // Si se solicitó generar PDF, hacerlo
+            if (generar_pdf) {
+                const pdfResult = await reciboModel.generarPDF(recibo_id);
+                if (pdfResult.success) {
+                    pdfPath = pdfResult.filePath;
+                    console.log('✅ PDF generado:', pdfResult.fileName);
+                } else {
+                    console.warn('⚠️  No se pudo generar PDF:', pdfResult.error);
+                }
+            }
+
+            console.log('✅ Pago registrado correctamente:', recibo_id);
+            return {
+                success: true,
+                pdfPath
+            };
+        } catch (error) {
+            console.error('Error al registrar pago:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Generar PDF de comprobante de recibo
+    ipcMain.handle('recibos:generarPDF', async (event, reciboId) => {
+        try {
+            const result = await reciboModel.generarPDF(reciboId);
+
+            if (result.success) {
+                console.log('✅ PDF generado correctamente:', result.fileName);
+                return {
+                    success: true,
+                    filePath: result.filePath,
+                    fileName: result.fileName
+                };
+            } else {
+                throw new Error(result.error || 'Error al generar PDF');
+            }
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
             return { success: false, message: error.message };
         }
     });
