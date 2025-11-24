@@ -104,7 +104,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('recibos:cambiarEstado', reciboId, nuevoEstado),
 
         pendientesConAlertas: () =>
-            ipcRenderer.invoke('recibos:pendientesConAlertas')
+            ipcRenderer.invoke('recibos:pendientesConAlertas'),
+
+        registrarPago: (pagoData) =>
+            ipcRenderer.invoke('recibos:registrarPago', pagoData),
+
+        generarPDF: (reciboId) =>
+            ipcRenderer.invoke('recibos:generarPDF', reciboId)
     },
 
     // ============================================
@@ -129,11 +135,35 @@ contextBridge.exposeInMainWorld('electronAPI', {
         updateAseguradora: (payload) =>
             ipcRenderer.invoke('catalogos:updateAseguradora', payload),
 
+        deleteAseguradora: (id) =>
+            ipcRenderer.invoke('catalogos:deleteAseguradora', id),
+
         createRamo: (nombre, descripcion) =>
             ipcRenderer.invoke('catalogos:createRamo', nombre, descripcion),
 
         updateRamo: (payload) =>
-            ipcRenderer.invoke('catalogos:updateRamo', payload)
+            ipcRenderer.invoke('catalogos:updateRamo', payload),
+
+        deleteRamo: (id) =>
+            ipcRenderer.invoke('catalogos:deleteRamo', id),
+
+        createPeriodicidad: (nombre, meses) =>
+            ipcRenderer.invoke('catalogos:createPeriodicidad', nombre, meses),
+
+        updatePeriodicidad: (payload) =>
+            ipcRenderer.invoke('catalogos:updatePeriodicidad', payload),
+
+        deletePeriodicidad: (id) =>
+            ipcRenderer.invoke('catalogos:deletePeriodicidad', id),
+
+        createMetodoPago: (nombre) =>
+            ipcRenderer.invoke('catalogos:createMetodoPago', nombre),
+
+        updateMetodoPago: (payload) =>
+            ipcRenderer.invoke('catalogos:updateMetodoPago', payload),
+
+        deleteMetodoPago: (id) =>
+            ipcRenderer.invoke('catalogos:deleteMetodoPago', id)
     },
 
     // ============================================
@@ -146,6 +176,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
         selectDirectory: (options = {}) =>
             ipcRenderer.invoke('dialog:selectDirectory', options)
     },
+
+    // Abrir archivo con aplicación predeterminada del sistema
+    openFile: (filePath) =>
+        ipcRenderer.invoke('openFile', filePath),
 
     // ============================================
     // DOCUMENTOS
