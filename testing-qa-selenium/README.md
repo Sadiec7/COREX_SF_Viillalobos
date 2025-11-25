@@ -1,6 +1,6 @@
-# 🧪 Proyecto de Testing QA con Selenium
+# Testing QA con Selenium WebDriver
 
-Sistema de pruebas automatizadas para el Sistema de Seguros VILLALOBOS utilizando Selenium IDE y Selenium WebDriver.
+Sistema completo de testing automatizado para el Sistema de Seguros VILLALOBOS.
 
 ## 📋 Descripción
 
@@ -15,45 +15,69 @@ Este proyecto implementa pruebas automatizadas end-to-end utilizando un enfoque 
 - Documentar casos de prueba de forma estructurada
 - Facilitar regresión y pruebas continuas
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 testing-qa-selenium/
-├── docs/                              # 📚 Documentación en Typst
-│   ├── 00-plan-maestro-pruebas.typ  # Plan maestro general
-│   ├── 01-estrategia-testing.typ     # Estrategia y metodología
-│   ├── 02-plan-autenticacion.typ     # 3 casos de prueba
-│   ├── 03-plan-clientes.typ          # 20 casos de prueba
-│   ├── 04-plan-polizas.typ           # 20 casos de prueba
-│   ├── 05-plan-recibos.typ           # 25 casos de prueba ✨ NUEVO
-│   ├── 06-plan-catalogos.typ         # 26 casos de prueba ✨ NUEVO
-│   ├── 07-plan-documentos.typ        # 25 casos de prueba ✨ NUEVO
-│   └── templates/                     # Plantillas reutilizables
-├── selenium-webdriver/                # 🤖 Pruebas programáticas
-│   ├── page-objects/                  # Page Object Pattern
-│   │   ├── BasePage.js               # Clase base con métodos comunes
-│   │   ├── LoginPage.js              # Autenticación
-│   │   ├── ClientesPage.js           # Gestión de clientes
-│   │   ├── PolizasPage.js            # Gestión de pólizas
-│   │   ├── RecibosPage.js            # Gestión de recibos ✨ NUEVO
-│   │   ├── AseguradorasPage.js       # Catálogo aseguradoras ✨ NUEVO
-│   │   ├── MetodosPagoPage.js        # Catálogo métodos pago ✨ NUEVO
-│   │   ├── PeriodicidadesPage.js     # Catálogo periodicidades ✨ NUEVO
-│   │   ├── RamosPage.js              # Catálogo ramos ✨ NUEVO
-│   │   └── DocumentosPage.js         # Gestión documentos ✨ NUEVO
-│   ├── tests/                         # 🧪 Casos de prueba
-│   │   ├── auth.test.js              # 3 tests autenticación
-│   │   ├── clientes.test.js          # 20 tests clientes
-│   │   ├── polizas.test.js           # 20 tests pólizas
-│   │   ├── recibos.test.js           # 25 tests recibos ✨ NUEVO
-│   │   ├── catalogos.test.js         # 13 tests catálogos ✨ NUEVO
-│   │   └── documentos.test.js        # 17 tests documentos ✨ NUEVO
-│   ├── helpers/                       # ⚙️ Utilidades
-│   │   ├── electron-driver.js        # Driver configurado
-│   │   ├── wait-helpers.js           # Esperas inteligentes
-│   │   └── test-data.js              # Datos de prueba
-│   └── run-all.js                     # Ejecutor maestro
-└── reports/                           # 📊 Reportes JSON con screenshots
+├── scripts/                      # Scripts de automatización
+│   ├── generators/               # Generadores de reportes
+│   │   ├── generate-module-reports.js    # Reportes detallados por módulo
+│   │   ├── generate-general-report.js    # Reporte consolidado general
+│   │   ├── generate-report.js            # Generador básico
+│   │   ├── generate-full-report.js       # Reporte completo
+│   │   └── generate-professional-report.js # Reporte profesional
+│   └── parsers/                  # Parsers de datos
+│       └── parse-test-docs.js            # Parser de documentación Typst
+│
+├── selenium-webdriver/           # Tests automatizados
+│   ├── tests/                    # Casos de prueba
+│   │   ├── auth.test.js
+│   │   ├── clientes.test.js
+│   │   ├── polizas.test.js
+│   │   ├── catalogos.test.js
+│   │   ├── recibos.test.js
+│   │   ├── documentos.test.js
+│   │   ├── config.test.js
+│   │   └── dashboard.test.js
+│   ├── page-objects/             # Page Object Pattern
+│   │   ├── BasePage.js
+│   │   ├── LoginPage.js
+│   │   ├── ClientesPage.js
+│   │   ├── PolizasPage.js
+│   │   └── ...
+│   ├── helpers/                  # Utilidades
+│   │   ├── electron-driver.js
+│   │   ├── wait-helpers.js
+│   │   └── test-data.js
+│   ├── config/                   # Configuración
+│   │   └── selenium.config.js
+│   └── run-all.js                # Ejecutar toda la suite
+│
+├── docs/                         # Documentación de pruebas
+│   ├── 00-plan-maestro-pruebas.typ
+│   ├── 01-estrategia-testing.typ
+│   ├── 02-plan-autenticacion.typ
+│   ├── 03-plan-clientes.typ
+│   ├── 04-plan-polizas.typ
+│   ├── 05-plan-recibos.typ
+│   ├── 06-plan-catalogos.typ
+│   ├── 07-plan-config.typ
+│   └── archive/                  # Documentos obsoletos
+│
+├── reports/                      # Reportes generados
+│   ├── current/                  # Reportes actuales (última versión)
+│   │   ├── modulo-clientes-report-YYYY-MM-DD.pdf
+│   │   ├── modulo-polizas-report-YYYY-MM-DD.pdf
+│   │   └── reporte-general-testing-YYYY-MM-DD.pdf
+│   ├── archive/                  # Reportes históricos
+│   ├── screenshots/              # Capturas de pantalla de evidencia
+│   └── test-results/             # Resultados JSON de ejecuciones (historial completo)
+│
+├── analysis/                     # Análisis y hallazgos
+│   ├── HALLAZGOS-POLIZAS.md
+│   └── RESUMEN-FALLOS-70.md
+│
+└── README.md                     # Este archivo
 ```
 
 ## 🔧 Instalación

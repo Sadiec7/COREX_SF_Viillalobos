@@ -4,11 +4,12 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const { parseTypstFile } = require('./parse-test-docs');
+const { parseTypstFile } = require('../parsers/parse-test-docs');
 
-const REPORTS_DIR = path.join(__dirname, 'reports');
+const REPORTS_DIR = path.join(__dirname, '../../reports');
+const TEST_RESULTS_DIR = path.join(REPORTS_DIR, 'test-results');
 const SCREENSHOTS_DIR = path.join(REPORTS_DIR, 'screenshots');
-const DOCS_DIR = path.join(__dirname, 'docs');
+const DOCS_DIR = path.join(__dirname, '../../docs');
 
 // Escapar caracteres especiales para Typst
 function escapeTypst(text) {
@@ -89,11 +90,11 @@ const MODULE_CONFIG = {
 // Obtener último archivo JSON de resultados
 function getLatestJSON(moduleName) {
   const config = MODULE_CONFIG[moduleName];
-  const files = fs.readdirSync(REPORTS_DIR)
+  const files = fs.readdirSync(TEST_RESULTS_DIR)
     .filter(f => f.startsWith(config.jsonPattern) && f.endsWith('.json'))
     .map(f => ({
       name: f,
-      time: fs.statSync(path.join(REPORTS_DIR, f)).mtime.getTime()
+      time: fs.statSync(path.join(TEST_RESULTS_DIR, f)).mtime.getTime()
     }))
     .sort((a, b) => b.time - a.time);
 
@@ -101,7 +102,7 @@ function getLatestJSON(moduleName) {
     throw new Error(`No se encontraron resultados JSON para ${moduleName}`);
   }
 
-  const jsonPath = path.join(REPORTS_DIR, files[0].name);
+  const jsonPath = path.join(TEST_RESULTS_DIR, files[0].name);
   return JSON.parse(fs.readFileSync(jsonPath, 'utf-8'));
 }
 

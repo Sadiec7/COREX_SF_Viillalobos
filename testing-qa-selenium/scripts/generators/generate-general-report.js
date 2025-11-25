@@ -3,7 +3,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 // Directorios
-const REPORTS_DIR = path.join(__dirname, 'reports');
+const REPORTS_DIR = path.join(__dirname, '../../reports');
+const TEST_RESULTS_DIR = path.join(REPORTS_DIR, 'test-results');
 const SCREENSHOTS_DIR = path.join(REPORTS_DIR, 'screenshots');
 
 // Configuración de módulos
@@ -85,12 +86,12 @@ function escapeTypst(text) {
  * Buscar el archivo JSON más reciente para un módulo
  */
 function findLatestTestResults(jsonPattern) {
-  const files = fs.readdirSync(REPORTS_DIR)
+  const files = fs.readdirSync(TEST_RESULTS_DIR)
     .filter(f => f.startsWith(jsonPattern) && f.endsWith('.json'))
     .map(f => ({
       name: f,
-      path: path.join(REPORTS_DIR, f),
-      mtime: fs.statSync(path.join(REPORTS_DIR, f)).mtime
+      path: path.join(TEST_RESULTS_DIR, f),
+      mtime: fs.statSync(path.join(TEST_RESULTS_DIR, f)).mtime
     }))
     .sort((a, b) => b.mtime - a.mtime);
 
