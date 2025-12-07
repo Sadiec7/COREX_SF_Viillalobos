@@ -1,0 +1,58 @@
+{
+  "suite": "Export Excel",
+  "timestamp": "2025-12-07T21:07:53.174Z",
+  "total": 7,
+  "passed": 4,
+  "failed": 3,
+  "results": [
+    {
+      "testId": "TC-EXP-001",
+      "description": "Botón Exportar visible en módulo Clientes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:07:57.847Z"
+    },
+    {
+      "testId": "TC-EXP-002",
+      "description": "Exportar Clientes a Excel",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:08:02.521Z"
+    },
+    {
+      "testId": "TC-EXP-003",
+      "description": "Botón Exportar visible en módulo Pólizas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:08:49.315Z"
+    },
+    {
+      "testId": "TC-EXP-004",
+      "description": "Exportar Pólizas a Excel",
+      "passed": false,
+      "message": "No se generó archivo de exportación de Pólizas",
+      "timestamp": "2025-12-07T21:09:13.436Z"
+    },
+    {
+      "testId": "TC-EXP-005",
+      "description": "Botón Exportar visible en módulo Recibos",
+      "passed": false,
+      "message": "element click intercepted: Element <a data-view=\"recibos\" class=\"nav-item flex items-center p-3 rounded-lg transition-colors\">...</a> is not clickable at point (128, 356). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-12-07T21:09:57.769Z"
+    },
+    {
+      "testId": "TC-EXP-006",
+      "description": "Exportar Recibos a Excel",
+      "passed": false,
+      "message": "element click intercepted: Element <button id=\"btnExportExcel\" class=\"px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2\" title=\"Exportar a Excel\">...</button> is not clickable at point (899, 181). Other element would receive the click: <div class=\"fixed inset-0 flex items-center justify-center p-4\">...</div>\n  (Session info: chrome=140.0.7339.133)",
+      "timestamp": "2025-12-07T21:10:19.491Z"
+    },
+    {
+      "testId": "TC-EXP-007",
+      "description": "Verificar directorio de exportaciones",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:10:19.626Z"
+    }
+  ]
+}

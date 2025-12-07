@@ -1,0 +1,58 @@
+{
+  "suite": "Export Excel",
+  "timestamp": "2025-12-07T21:18:26.778Z",
+  "total": 7,
+  "passed": 7,
+  "failed": 0,
+  "results": [
+    {
+      "testId": "TC-EXP-001",
+      "description": "Botón Exportar visible en módulo Clientes",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:32.032Z"
+    },
+    {
+      "testId": "TC-EXP-002",
+      "description": "Exportar Clientes a Excel",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:36.520Z"
+    },
+    {
+      "testId": "TC-EXP-003",
+      "description": "Botón Exportar visible en módulo Pólizas",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:41.013Z"
+    },
+    {
+      "testId": "TC-EXP-004",
+      "description": "Exportar Pólizas a Excel",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:45.482Z"
+    },
+    {
+      "testId": "TC-EXP-005",
+      "description": "Botón Exportar visible en módulo Recibos",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:49.964Z"
+    },
+    {
+      "testId": "TC-EXP-006",
+      "description": "Exportar Recibos a Excel",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:56.440Z"
+    },
+    {
+      "testId": "TC-EXP-007",
+      "description": "Verificar directorio de exportaciones",
+      "passed": true,
+      "message": "",
+      "timestamp": "2025-12-07T21:18:56.530Z"
+    }
+  ]
+}

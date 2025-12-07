@@ -1,8 +1,9 @@
 // controllers/polizas_controller.js
 // Controlador para la gestión de pólizas
 
-class PolizasController {
+class PolizasController extends BaseController {
     constructor() {
+        super(); // Inicializa el sistema de cleanup de BaseController
         console.log('🏗️ [POLIZAS] Inicializando PolizasController...');
 
         this.polizas = [];
@@ -165,99 +166,119 @@ class PolizasController {
         this.inputNotas = document.getElementById('inputNotas');
         this.inputDomiciliada = this.form.querySelector('input[name="domiciliada"]');
         this.inputRenovacionAutomatica = this.form.querySelector('input[name="renovacion_automatica"]');
+
+        // Export Button
+        this.btnExportExcel = document.getElementById('btnExportExcel');
     }
 
     initEventListeners() {
-        // Back button (optional - only in standalone view, not SPA)
-        if (this.btnBack) {
-            this.btnBack.addEventListener('click', () => this.goBack());
-        }
+        // Back button
+        this.addListener(this.btnBack, 'click', this.goBack);
 
         // Add button
-        this.btnAddPoliza.addEventListener('click', () => this.openAddModal());
+        this.addListener(this.btnAddPoliza, 'click', this.openAddModal);
 
         // Close modals
-        this.btnCloseModal.addEventListener('click', () => this.closeModal());
-        this.btnCancelForm.addEventListener('click', () => this.closeModal());
-        this.btnCloseRecibosModal.addEventListener('click', () => this.closeRecibosModal());
+        this.addListener(this.btnCloseModal, 'click', this.closeModal);
+        this.addListener(this.btnCancelForm, 'click', this.closeModal);
+        this.addListener(this.btnCloseRecibosModal, 'click', this.closeRecibosModal);
 
         // Close modal on outside click
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
-                this.closeModal();
-            }
-        });
-
-        this.modalRecibos.addEventListener('click', (e) => {
-            if (e.target === this.modalRecibos) {
-                this.closeRecibosModal();
-            }
-        });
-
-        this.detailModal.addEventListener('click', (e) => {
-            if (e.target === this.detailModal) {
-                this.closeDetailModal();
-            }
-        });
-
-        this.detailModalClose.addEventListener('click', () => this.closeDetailModal());
+        this.addListener(this.modal, 'click', this.handleModalBackdropClick);
+        this.addListener(this.modalRecibos, 'click', this.handleRecibosModalBackdropClick);
+        this.addListener(this.detailModal, 'click', this.handleDetailModalBackdropClick);
+        this.addListener(this.detailModalClose, 'click', this.closeDetailModal);
 
         // Form submit
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleSubmit();
-        });
+        this.addListener(this.form, 'submit', this.handleFormSubmit);
 
-        // Table click handler (for rows and action buttons)
-        this.tableBody.addEventListener('click', (e) => this.handleActionClick(e));
+        // Table click handler
+        this.addListener(this.tableBody, 'click', this.handleActionClick);
 
         // Search
-        this.searchInput.addEventListener('input', (e) => {
-            const searchTerm = (e.target.value || '').toLowerCase();
-            this.currentPage = 1;
-            const filtered = this.getFilteredPolizas(searchTerm);
-            this.renderTable(filtered);
-        });
+        this.addListener(this.searchInput, 'input', this.handleSearchInput);
 
         // Items per page selector
-        if (this.itemsPerPageSelect) {
-            this.itemsPerPageSelect.addEventListener('change', (e) => {
-                this.changeItemsPerPage(e.target.value);
-            });
-        }
+        this.addListener(this.itemsPerPageSelect, 'change', this.handleItemsPerPageChange);
 
         // Filters Modal
-        this.btnOpenFilters.addEventListener('click', () => this.openFiltersModal());
-        this.btnCloseFiltros.addEventListener('click', () => this.closeFiltersModal());
-        this.btnApplyFilters.addEventListener('click', () => this.applyFilters());
-        this.btnClearFilters.addEventListener('click', () => this.clearFilters());
-
-        // Close modal on outside click
-        this.modalFiltros.addEventListener('click', (e) => {
-            if (e.target === this.modalFiltros) {
-                this.closeFiltersModal();
-            }
-        });
+        this.addListener(this.btnOpenFilters, 'click', this.openFiltersModal);
+        this.addListener(this.btnCloseFiltros, 'click', this.closeFiltersModal);
+        this.addListener(this.btnApplyFilters, 'click', this.applyFilters);
+        this.addListener(this.btnClearFilters, 'click', this.clearFilters);
+        this.addListener(this.modalFiltros, 'click', this.handleFiltersModalBackdropClick);
 
         // Quick Filters
-        if (this.quickFilterAll) {
-            this.quickFilterAll.addEventListener('click', () => this.applyQuickFilter('all'));
+        this.addListener(this.quickFilterAll, 'click', this.handleQuickFilterAll);
+        this.addListener(this.quickFilterVencen30, 'click', this.handleQuickFilterVencen30);
+        this.addListener(this.quickFilterConRecibosVencidos, 'click', this.handleQuickFilterRecibosVencidos);
+        this.addListener(this.quickFilterRenovar, 'click', this.handleQuickFilterRenovar);
+        this.addListener(this.quickFilterDomiciliadas, 'click', this.handleQuickFilterDomiciliadas);
+        this.addListener(this.quickFilterClear, 'click', this.handleQuickFilterAll);
+
+        // Export Excel
+        this.addListener(this.btnExportExcel, 'click', this.handleExportExcel);
+    }
+
+    // Handlers para eventos
+    handleModalBackdropClick(e) {
+        if (e.target === this.modal) {
+            this.closeModal();
         }
-        if (this.quickFilterVencen30) {
-            this.quickFilterVencen30.addEventListener('click', () => this.applyQuickFilter('vencen-30'));
+    }
+
+    handleRecibosModalBackdropClick(e) {
+        if (e.target === this.modalRecibos) {
+            this.closeRecibosModal();
         }
-        if (this.quickFilterConRecibosVencidos) {
-            this.quickFilterConRecibosVencidos.addEventListener('click', () => this.applyQuickFilter('recibos-vencidos'));
+    }
+
+    handleDetailModalBackdropClick(e) {
+        if (e.target === this.detailModal) {
+            this.closeDetailModal();
         }
-        if (this.quickFilterRenovar) {
-            this.quickFilterRenovar.addEventListener('click', () => this.applyQuickFilter('renovar'));
+    }
+
+    handleFormSubmit(e) {
+        e.preventDefault();
+        this.handleSubmit();
+    }
+
+    handleSearchInput(e) {
+        const searchTerm = (e.target.value || '').toLowerCase();
+        this.currentPage = 1;
+        const filtered = this.getFilteredPolizas(searchTerm);
+        this.renderTable(filtered);
+    }
+
+    handleItemsPerPageChange(e) {
+        this.changeItemsPerPage(e.target.value);
+    }
+
+    handleFiltersModalBackdropClick(e) {
+        if (e.target === this.modalFiltros) {
+            this.closeFiltersModal();
         }
-        if (this.quickFilterDomiciliadas) {
-            this.quickFilterDomiciliadas.addEventListener('click', () => this.applyQuickFilter('domiciliadas'));
-        }
-        if (this.quickFilterClear) {
-            this.quickFilterClear.addEventListener('click', () => this.applyQuickFilter('all'));
-        }
+    }
+
+    handleQuickFilterAll() {
+        this.applyQuickFilter('all');
+    }
+
+    handleQuickFilterVencen30() {
+        this.applyQuickFilter('vencen-30');
+    }
+
+    handleQuickFilterRecibosVencidos() {
+        this.applyQuickFilter('recibos-vencidos');
+    }
+
+    handleQuickFilterRenovar() {
+        this.applyQuickFilter('renovar');
+    }
+
+    handleQuickFilterDomiciliadas() {
+        this.applyQuickFilter('domiciliadas');
     }
 
     async init() {
@@ -1584,6 +1605,100 @@ Esta acción registrará el recibo como pagado con la fecha actual.
         if (!dateStr) return 'N/A';
         const date = new Date(dateStr);
         return date.toLocaleDateString('es-MX');
+    }
+
+    /**
+     * Destruir el controlador y limpiar todos los recursos
+     * Se llama automáticamente al navegar a otra vista
+     */
+    destroy() {
+        // Llamar al destroy de BaseController para limpiar listeners
+        super.destroy();
+
+        // Cerrar modales si están abiertos
+        if (this.modal && this.modal.classList.contains('active')) {
+            this.closeModal();
+        }
+        if (this.modalRecibos && this.modalRecibos.classList.contains('active')) {
+            this.closeRecibosModal();
+        }
+        if (this.detailModal && this.detailModal.classList.contains('active')) {
+            this.closeDetailModal();
+        }
+        if (this.modalFiltros && this.modalFiltros.classList.contains('active')) {
+            this.closeFiltersModal();
+        }
+
+        // Limpiar datos
+        this.polizas = [];
+        this.polizasOriginal = [];
+        this.clientes = [];
+        this.currentPoliza = null;
+
+        // Limpiar referencias a elementos DOM
+        this.modal = null;
+        this.modalRecibos = null;
+        this.detailModal = null;
+        this.modalFiltros = null;
+        this.tableBody = null;
+        this.form = null;
+    }
+
+    // ============================================
+    // EXPORTAR A EXCEL
+    // ============================================
+    async handleExportExcel() {
+        const hasFilters = this.searchInput?.value?.trim() || this.activeQuickFilter !== 'all';
+
+        if (hasFilters) {
+            const exportAll = await window.confirmModal?.show({
+                title: 'Exportar Pólizas a Excel',
+                message: '¿Qué datos deseas exportar?',
+                confirmText: 'Exportar Todas',
+                cancelText: 'Solo Filtradas',
+                type: 'question'
+            });
+            this.executeExportPolizas(!exportAll);
+        } else {
+            this.executeExportPolizas(true);
+        }
+    }
+
+    async executeExportPolizas(exportAll = true) {
+        try {
+            if (window.toastManager) {
+                window.toastManager.info('Generando archivo Excel...');
+            }
+
+            const filters = exportAll ? {} : {
+                search: this.searchInput?.value?.trim() || '',
+                estado_pago: this.activeQuickFilter === 'recibos_vencidos' ? 'pendiente' : ''
+            };
+
+            const result = await window.electronAPI.exportar.polizas(filters, exportAll);
+
+            if (result.success) {
+                if (window.toastManager) {
+                    window.toastManager.success(
+                        `${result.count} pólizas exportadas correctamente`,
+                        {
+                            duration: 5000,
+                            action: {
+                                text: 'Abrir archivo',
+                                onClick: () => window.electronAPI.openFile(result.filePath)
+                            }
+                        }
+                    );
+                }
+            } else {
+                throw new Error(result.error || 'Error al exportar');
+            }
+        } catch (error) {
+            console.error('Error al exportar pólizas:', error);
+            if (window.toastManager) {
+                window.toastManager.error(`Error al exportar: ${error.message}`);
+            }
+        }
     }
 
 }

@@ -1,8 +1,10 @@
 // controllers/recibos_controller.js
 // Controlador para la gestión de recibos con búsqueda unificada
 
-class RecibosController {
+class RecibosController extends BaseController {
     constructor() {
+        super(); // Inicializa el sistema de cleanup de BaseController
+
         this.recibos = [];
         this.recibosOriginal = [];
         this.polizas = [];
@@ -114,74 +116,118 @@ class RecibosController {
         this.inputDiasGracia = document.getElementById('inputDiasGracia');
         this.inputEstado = document.getElementById('inputEstado');
         this.inputFechaPago = document.getElementById('inputFechaPago');
+
+        // Export Button
+        this.btnExportExcel = document.getElementById('btnExportExcel');
     }
 
     initEventListeners() {
-        // Back button (optional - only in standalone view, not SPA)
-        if (this.btnBack) {
-            this.btnBack.addEventListener('click', () => this.goBack());
-        }
-        this.btnAddRecibo.addEventListener('click', () => this.openCreateModal());
-        this.btnCloseModal.addEventListener('click', () => this.closeModal());
-        this.btnCancelForm.addEventListener('click', () => this.closeModal());
+        // Back button
+        this.addListener(this.btnBack, 'click', this.goBack);
 
-        this.modal.addEventListener('click', (event) => {
-            if (event.target === this.modal) {
-                this.closeModal();
-            }
-        });
+        // Modal principal
+        this.addListener(this.btnAddRecibo, 'click', this.openCreateModal);
+        this.addListener(this.btnCloseModal, 'click', this.closeModal);
+        this.addListener(this.btnCancelForm, 'click', this.closeModal);
+        this.addListener(this.modal, 'click', this.handleModalBackdropClick);
 
-        this.form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            this.handleSubmit();
-        });
+        // Form submit
+        this.addListener(this.form, 'submit', this.handleFormSubmit);
 
-        this.searchInput.addEventListener('input', (event) => {
-            this.applySearch(event.target.value);
-        });
+        // Search
+        this.addListener(this.searchInput, 'input', this.handleSearchInput);
 
         // Items per page selector
-        if (this.itemsPerPageSelect) {
-            this.itemsPerPageSelect.addEventListener('change', (e) => {
-                this.changeItemsPerPage(e.target.value);
-            });
-        }
+        this.addListener(this.itemsPerPageSelect, 'change', this.handleItemsPerPageChange);
 
-        // Table click handler (for rows and action buttons)
-        this.tableBody.addEventListener('click', (e) => this.handleActionClick(e));
+        // Table click handler
+        this.addListener(this.tableBody, 'click', this.handleActionClick);
 
         // Filters Modal
-        this.btnOpenFilters.addEventListener('click', () => this.openFiltersModal());
-        this.btnCloseFiltros.addEventListener('click', () => this.closeFiltersModal());
-        this.btnApplyFilters.addEventListener('click', () => this.applyFilters());
-        this.btnClearFilters.addEventListener('click', () => this.clearFilters());
-
-        // Close modal on outside click
-        this.modalFiltros.addEventListener('click', (e) => {
-            if (e.target === this.modalFiltros) {
-                this.closeFiltersModal();
-            }
-        });
+        this.addListener(this.btnOpenFilters, 'click', this.openFiltersModal);
+        this.addListener(this.btnCloseFiltros, 'click', this.closeFiltersModal);
+        this.addListener(this.btnApplyFilters, 'click', this.applyFilters);
+        this.addListener(this.btnClearFilters, 'click', this.clearFilters);
+        this.addListener(this.modalFiltros, 'click', this.handleFiltersModalBackdropClick);
 
         // Quick Filters
-        this.quickFilterAll.addEventListener('click', () => this.applyQuickFilter('all'));
-        this.quickFilterVencenHoy.addEventListener('click', () => this.applyQuickFilter('vencen-hoy'));
-        this.quickFilterVencen7.addEventListener('click', () => this.applyQuickFilter('vencen-7'));
-        this.quickFilterPendientes.addEventListener('click', () => this.applyQuickFilter('pendientes'));
-        this.quickFilterVencidos.addEventListener('click', () => this.applyQuickFilter('vencidos'));
-        this.quickFilterPagadosHoy.addEventListener('click', () => this.applyQuickFilter('pagados-hoy'));
-        this.quickFilterClear.addEventListener('click', () => this.applyQuickFilter('all'));
+        this.addListener(this.quickFilterAll, 'click', this.handleQuickFilterAll);
+        this.addListener(this.quickFilterVencenHoy, 'click', this.handleQuickFilterVencenHoy);
+        this.addListener(this.quickFilterVencen7, 'click', this.handleQuickFilterVencen7);
+        this.addListener(this.quickFilterPendientes, 'click', this.handleQuickFilterPendientes);
+        this.addListener(this.quickFilterVencidos, 'click', this.handleQuickFilterVencidos);
+        this.addListener(this.quickFilterPagadosHoy, 'click', this.handleQuickFilterPagadosHoy);
+        this.addListener(this.quickFilterClear, 'click', this.handleQuickFilterAll);
 
         // Modal Pago
-        this.btnCloseModalPago.addEventListener('click', () => this.closeModalPago());
-        this.btnCancelarPago.addEventListener('click', () => this.closeModalPago());
-        this.modalPago.addEventListener('click', (e) => {
-            if (e.target === this.modalPago) this.closeModalPago();
-        });
-        this.formPago.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleRegistrarPago();
-        });
+        this.addListener(this.btnCloseModalPago, 'click', this.closeModalPago);
+        this.addListener(this.btnCancelarPago, 'click', this.closeModalPago);
+        this.addListener(this.modalPago, 'click', this.handlePagoModalBackdropClick);
+        this.addListener(this.formPago, 'submit', this.handleFormPagoSubmit);
+
+        // Export Excel
+        this.addListener(this.btnExportExcel, 'click', this.handleExportExcel);
+    }
+
+    // Handlers para eventos
+    handleModalBackdropClick(event) {
+        if (event.target === this.modal) {
+            this.closeModal();
+        }
+    }
+
+    handleFormSubmit(event) {
+        event.preventDefault();
+        this.handleSubmit();
+    }
+
+    handleSearchInput(event) {
+        this.applySearch(event.target.value);
+    }
+
+    handleItemsPerPageChange(e) {
+        this.changeItemsPerPage(e.target.value);
+    }
+
+    handleFiltersModalBackdropClick(e) {
+        if (e.target === this.modalFiltros) {
+            this.closeFiltersModal();
+        }
+    }
+
+    handleQuickFilterAll() {
+        this.applyQuickFilter('all');
+    }
+
+    handleQuickFilterVencenHoy() {
+        this.applyQuickFilter('vencen-hoy');
+    }
+
+    handleQuickFilterVencen7() {
+        this.applyQuickFilter('vencen-7');
+    }
+
+    handleQuickFilterPendientes() {
+        this.applyQuickFilter('pendientes');
+    }
+
+    handleQuickFilterVencidos() {
+        this.applyQuickFilter('vencidos');
+    }
+
+    handleQuickFilterPagadosHoy() {
+        this.applyQuickFilter('pagados-hoy');
+    }
+
+    handlePagoModalBackdropClick(e) {
+        if (e.target === this.modalPago) {
+            this.closeModalPago();
+        }
+    }
+
+    handleFormPagoSubmit(e) {
+        e.preventDefault();
+        this.handleRegistrarPago();
     }
 
     bootstrapContext() {
@@ -1156,6 +1202,98 @@ class RecibosController {
         } catch (error) {
             console.error('Error al generar PDF:', error);
             alert('No se pudo generar el comprobante PDF.');
+        }
+    }
+
+    /**
+     * Destruir el controlador y limpiar todos los recursos
+     * Se llama automáticamente al navegar a otra vista
+     */
+    destroy() {
+        // Llamar al destroy de BaseController para limpiar listeners
+        super.destroy();
+
+        // Cerrar modales si están abiertos
+        if (this.modal && this.modal.classList.contains('active')) {
+            this.closeModal();
+        }
+        if (this.modalFiltros && this.modalFiltros.classList.contains('active')) {
+            this.closeFiltersModal();
+        }
+        if (this.modalPago && this.modalPago.classList.contains('active')) {
+            this.closeModalPago();
+        }
+
+        // Limpiar datos
+        this.recibos = [];
+        this.recibosOriginal = [];
+        this.polizas = [];
+        this.clientes = [];
+        this.currentRecibo = null;
+
+        // Limpiar referencias a elementos DOM
+        this.modal = null;
+        this.modalFiltros = null;
+        this.modalPago = null;
+        this.tableBody = null;
+        this.form = null;
+        this.formPago = null;
+    }
+
+    // ============================================
+    // EXPORTAR A EXCEL
+    // ============================================
+    async handleExportExcel() {
+        const hasFilters = this.searchInput?.value?.trim() || this.activeQuickFilter !== 'all';
+
+        if (hasFilters) {
+            const exportAll = await window.confirmModal?.show({
+                title: 'Exportar Recibos a Excel',
+                message: '¿Qué datos deseas exportar?',
+                confirmText: 'Exportar Todos',
+                cancelText: 'Solo Filtrados',
+                type: 'question'
+            });
+            this.executeExportRecibos(!exportAll);
+        } else {
+            this.executeExportRecibos(true);
+        }
+    }
+
+    async executeExportRecibos(exportAll = true) {
+        try {
+            if (window.toastManager) {
+                window.toastManager.info('Generando archivo Excel...');
+            }
+
+            const filters = exportAll ? {} : {
+                estado: this.activeQuickFilter === 'pendientes' ? 'pendiente' :
+                        this.activeQuickFilter === 'vencidos' ? 'vencido' : ''
+            };
+
+            const result = await window.electronAPI.exportar.recibos(filters, exportAll);
+
+            if (result.success) {
+                if (window.toastManager) {
+                    window.toastManager.success(
+                        `${result.count} recibos exportados correctamente`,
+                        {
+                            duration: 5000,
+                            action: {
+                                text: 'Abrir archivo',
+                                onClick: () => window.electronAPI.openFile(result.filePath)
+                            }
+                        }
+                    );
+                }
+            } else {
+                throw new Error(result.error || 'Error al exportar');
+            }
+        } catch (error) {
+            console.error('Error al exportar recibos:', error);
+            if (window.toastManager) {
+                window.toastManager.error(`Error al exportar: ${error.message}`);
+            }
         }
     }
 }

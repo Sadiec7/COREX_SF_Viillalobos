@@ -15,10 +15,22 @@ function getDocumentsRoot() {
     return documentsRootCache;
 }
 
-function ensureDocumentsRoot() {
+async function ensureDocumentsRoot() {
     const root = getDocumentsRoot();
-    if (!fs.existsSync(root)) {
-        fs.mkdirSync(root, { recursive: true });
+    try {
+        await fsp.access(root);
+    } catch {
+        await fsp.mkdir(root, { recursive: true });
+    }
+}
+
+// Helper async para verificar si un archivo existe
+async function fileExistsAsync(filePath) {
+    try {
+        await fsp.access(filePath);
+        return true;
+    } catch {
+        return false;
     }
 }
 
@@ -73,7 +85,7 @@ function normalizeRelativePath(relativePath) {
     return segments.join('/');
 }
 
-function ensureUniqueRelativePath(relativePath) {
+async function ensureUniqueRelativePath(relativePath) {
     let candidate = normalizeRelativePath(relativePath);
     const ext = path.extname(candidate);
     const baseName = path.basename(candidate, ext);
@@ -82,7 +94,8 @@ function ensureUniqueRelativePath(relativePath) {
 
     const root = getDocumentsRoot();
 
-    while (fs.existsSync(path.join(root, candidate))) {
+    // Usar async para no bloquear el hilo principal
+    while (await fileExistsAsync(path.join(root, candidate))) {
         const suffixed = `${baseName}_${counter}${ext}`;
         candidate = dir && dir !== '.'
             ? path.join(dir, suffixed)
@@ -94,7 +107,7 @@ function ensureUniqueRelativePath(relativePath) {
     return candidate;
 }
 
-function resolveDocumentAbsolutePath(rutaRelativa) {
+async function resolveDocumentAbsolutePath(rutaRelativa) {
     if (!rutaRelativa) {
         return null;
     }
@@ -104,17 +117,17 @@ function resolveDocumentAbsolutePath(rutaRelativa) {
 
     if (sanitized) {
         const candidate = path.join(root, sanitized);
-        if (fs.existsSync(candidate)) {
+        if (await fileExistsAsync(candidate)) {
             return candidate;
         }
     }
 
-    if (path.isAbsolute(rutaRelativa) && fs.existsSync(rutaRelativa)) {
+    if (path.isAbsolute(rutaRelativa) && await fileExistsAsync(rutaRelativa)) {
         return rutaRelativa;
     }
 
     const cwdCandidate = path.resolve(process.cwd(), rutaRelativa);
-    if (fs.existsSync(cwdCandidate)) {
+    if (await fileExistsAsync(cwdCandidate)) {
         return cwdCandidate;
     }
 
@@ -128,7 +141,8 @@ async function ensureUniqueTarget(baseDir, relativePath) {
     const dir = path.dirname(candidate);
     let counter = 1;
 
-    while (fs.existsSync(path.join(baseDir, candidate))) {
+    // Usar async para no bloquear el hilo principal
+    while (await fileExistsAsync(path.join(baseDir, candidate))) {
         const suffixed = `${baseName}_${counter}${ext}`;
         candidate = dir && dir !== '.'
             ? path.join(dir, suffixed)
@@ -1148,6 +1162,85 @@ function registerIPCHandlers(dbManager, models) {
             return { success: true, data };
         } catch (error) {
             console.error('Error al obtener flujo de caja proyectado:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // ============================================
+    // EXPORTACIÓN A EXCEL
+    // ============================================
+
+    // Cargar modelo de exportación
+    const ExportModel = require('./models/export_model');
+    const exportModel = new ExportModel(dbManager);
+
+    // Exportar clientes a Excel
+    ipcMain.handle('export:clientes', async (event, filters = {}, exportAll = false) => {
+        try {
+            const result = exportModel.exportarClientes(filters, exportAll);
+            if (result.success) {
+                console.log(`✅ Clientes exportados: ${result.count} registros → ${result.fileName}`);
+            }
+            return result;
+        } catch (error) {
+            console.error('Error al exportar clientes:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Exportar pólizas a Excel
+    ipcMain.handle('export:polizas', async (event, filters = {}, exportAll = false) => {
+        try {
+            const result = exportModel.exportarPolizas(filters, exportAll);
+            if (result.success) {
+                console.log(`✅ Pólizas exportadas: ${result.count} registros → ${result.fileName}`);
+            }
+            return result;
+        } catch (error) {
+            console.error('Error al exportar pólizas:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Exportar recibos a Excel
+    ipcMain.handle('export:recibos', async (event, filters = {}, exportAll = false) => {
+        try {
+            const result = exportModel.exportarRecibos(filters, exportAll);
+            if (result.success) {
+                console.log(`✅ Recibos exportados: ${result.count} registros → ${result.fileName}`);
+            }
+            return result;
+        } catch (error) {
+            console.error('Error al exportar recibos:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Exportar reporte completo (todas las entidades)
+    ipcMain.handle('export:reporteCompleto', async () => {
+        try {
+            const result = exportModel.exportarReporteCompleto();
+            if (result.success) {
+                console.log(`✅ Reporte completo exportado → ${result.fileName}`);
+            }
+            return result;
+        } catch (error) {
+            console.error('Error al exportar reporte completo:', error);
+            return { success: false, message: error.message };
+        }
+    });
+
+    // Abrir carpeta de exportaciones
+    ipcMain.handle('export:openFolder', async () => {
+        try {
+            const exportDir = path.join(require('os').homedir(), 'Documents', 'Exports_VILLALOBOS');
+            if (!fs.existsSync(exportDir)) {
+                fs.mkdirSync(exportDir, { recursive: true });
+            }
+            await shell.openPath(exportDir);
+            return { success: true };
+        } catch (error) {
+            console.error('Error al abrir carpeta de exportaciones:', error);
             return { success: false, message: error.message };
         }
     });

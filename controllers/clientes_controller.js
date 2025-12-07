@@ -1,8 +1,10 @@
 // controllers/clientes_controller.js
 // Controlador para la gestión de clientes
 
-class ClientesController {
+class ClientesController extends BaseController {
     constructor() {
+        super(); // Inicializa el sistema de cleanup de BaseController
+
         this.clientes = [];
         this.currentCliente = null;
         this.isEditMode = false;
@@ -128,95 +130,95 @@ class ClientesController {
         this.filterConEmail = document.getElementById('filterConEmail');
         this.filterConTelefono = document.getElementById('filterConTelefono');
         this.filterConDireccion = document.getElementById('filterConDireccion');
+
+        // Export Button
+        this.btnExportExcel = document.getElementById('btnExportExcel');
     }
 
     initEventListeners() {
         // Back button (optional - only in standalone view, not SPA)
-        if (this.btnBack) {
-            this.btnBack.addEventListener('click', () => this.goBack());
-        }
+        this.addListener(this.btnBack, 'click', this.goBack);
 
         // Add button
-        this.btnAddCliente.addEventListener('click', () => this.openAddModal());
+        this.addListener(this.btnAddCliente, 'click', this.openAddModal);
 
         // Close modal
-        this.btnCloseModal.addEventListener('click', () => this.closeModal());
-        this.btnCancelForm.addEventListener('click', () => this.closeModal());
+        this.addListener(this.btnCloseModal, 'click', this.closeModal);
+        this.addListener(this.btnCancelForm, 'click', this.closeModal);
 
         // Close modal on outside click
-        this.modal.addEventListener('click', (e) => {
-            if (e.target === this.modal) {
-                this.closeModal();
-            }
-        });
+        this.addListener(this.modal, 'click', this.handleModalBackdropClick);
 
         // Form submit
-        this.form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handleSubmit();
-        });
+        this.addListener(this.form, 'submit', this.handleFormSubmit);
 
         // Search
-        this.searchInput.addEventListener('input', (e) => {
-            this.handleSearch(e.target.value);
-        });
+        this.addListener(this.searchInput, 'input', this.handleSearchInput);
 
         // Items per page selector
-        if (this.itemsPerPageSelect) {
-            this.itemsPerPageSelect.addEventListener('change', (e) => {
-                this.changeItemsPerPage(e.target.value);
-            });
-        }
+        this.addListener(this.itemsPerPageSelect, 'change', this.handleItemsPerPageChange);
 
         // RFC uppercase
-        this.inputRFC.addEventListener('input', (e) => {
-            e.target.value = e.target.value.toUpperCase();
-        });
+        this.addListener(this.inputRFC, 'input', this.handleRFCInput);
 
-        if (this.tableBody) {
-            this.tableBody.addEventListener('click', (event) => this.handleActionClick(event));
-        }
+        // Table click handler
+        this.addListener(this.tableBody, 'click', this.handleActionClick);
 
+        // Dropzone
         if (this.dropzone) {
-            ['dragenter', 'dragover'].forEach(evt =>
-                this.dropzone.addEventListener(evt, (event) => this.handleDragOver(event))
-            );
-            ['dragleave', 'drop'].forEach(evt =>
-                this.dropzone.addEventListener(evt, (event) => this.handleDragLeave(event))
-            );
-            this.dropzone.addEventListener('drop', (event) => this.handleDrop(event));
-            this.dropzone.addEventListener('click', () => this.openFilePicker());
+            this.addListeners(this.dropzone, ['dragenter', 'dragover'], this.handleDragOver);
+            this.addListeners(this.dropzone, ['dragleave', 'drop'], this.handleDragLeave);
+            this.addListener(this.dropzone, 'drop', this.handleDrop);
+            this.addListener(this.dropzone, 'click', this.openFilePicker);
         }
 
-        if (this.btnOpenFilePicker) {
-            this.btnOpenFilePicker.addEventListener('click', () => this.openFilePicker());
-        }
+        this.addListener(this.btnOpenFilePicker, 'click', this.openFilePicker);
+        this.addListener(this.fileInput, 'change', this.handleFileInputChange);
 
-        if (this.fileInput) {
-            this.fileInput.addEventListener('change', (event) => this.handleFileInputChange(event));
-        }
-
-        if (this.documentDraftList) {
-            this.documentDraftList.addEventListener('input', (event) => this.handleDraftInputChange(event));
-            this.documentDraftList.addEventListener('click', (event) => this.handleDraftAction(event));
-        }
-
-        if (this.documentExistingList) {
-            this.documentExistingList.addEventListener('click', (event) => this.handleExistingAction(event));
-        }
+        // Document lists
+        this.addListener(this.documentDraftList, 'input', this.handleDraftInputChange);
+        this.addListener(this.documentDraftList, 'click', this.handleDraftAction);
+        this.addListener(this.documentExistingList, 'click', this.handleExistingAction);
 
         // Filters Modal
-        this.btnOpenFilters.addEventListener('click', () => this.openFiltersModal());
-        this.btnCloseFiltros.addEventListener('click', () => this.closeFiltersModal());
-        this.btnApplyFilters.addEventListener('click', () => this.applyFilters());
-        this.btnClearFilters.addEventListener('click', () => this.clearFilters());
+        this.addListener(this.btnOpenFilters, 'click', this.openFiltersModal);
+        this.addListener(this.btnCloseFiltros, 'click', this.closeFiltersModal);
+        this.addListener(this.btnApplyFilters, 'click', this.applyFilters);
+        this.addListener(this.btnClearFilters, 'click', this.clearFilters);
+        this.addListener(this.modalFiltros, 'click', this.handleFiltersModalBackdropClick);
 
-        // Close filters modal on outside click
-        this.modalFiltros.addEventListener('click', (e) => {
-            if (e.target === this.modalFiltros) {
-                this.closeFiltersModal();
-            }
-        });
+        // Export Excel
+        this.addListener(this.btnExportExcel, 'click', this.handleExportExcel);
+    }
+
+    // Handlers para eventos que necesitan lógica adicional
+    handleModalBackdropClick(e) {
+        if (e.target === this.modal) {
+            this.closeModal();
+        }
+    }
+
+    handleFormSubmit(e) {
+        e.preventDefault();
+        this.handleSubmit();
+    }
+
+    handleSearchInput(e) {
+        this.handleSearch(e.target.value);
+    }
+
+    handleItemsPerPageChange(e) {
+        this.changeItemsPerPage(e.target.value);
+    }
+
+    handleRFCInput(e) {
+        e.target.value = e.target.value.toUpperCase();
+    }
+
+    handleFiltersModalBackdropClick(e) {
+        if (e.target === this.modalFiltros) {
+            this.closeFiltersModal();
+        }
     }
 
     async loadClientes() {
@@ -1047,6 +1049,104 @@ class ClientesController {
         }
 
         return filtered;
+    }
+
+    /**
+     * Destruir el controlador y limpiar todos los recursos
+     * Se llama automáticamente al navegar a otra vista
+     */
+    destroy() {
+        // Llamar al destroy de BaseController para limpiar listeners
+        super.destroy();
+
+        // Cerrar modales si están abiertos
+        if (this.modal && this.modal.classList.contains('active')) {
+            this.closeModal();
+        }
+        if (this.modalFiltros && this.modalFiltros.classList.contains('active')) {
+            this.closeFiltersModal();
+        }
+
+        // Limpiar datos
+        this.clientes = [];
+        this.currentCliente = null;
+        this.documentDrafts = [];
+        this.documentExisting = [];
+
+        // Limpiar referencias a elementos DOM
+        this.modal = null;
+        this.modalFiltros = null;
+        this.tableBody = null;
+        this.form = null;
+    }
+
+    // ============================================
+    // EXPORTAR A EXCEL
+    // ============================================
+    async handleExportExcel() {
+        // Verificar si hay filtros activos
+        const hasFilters = this.hasActiveFilters() || this.searchInput?.value?.trim();
+
+        if (hasFilters) {
+            // Preguntar si exportar filtrados o todos
+            const exportAll = await window.confirmModal?.show({
+                title: 'Exportar Clientes a Excel',
+                message: '¿Qué datos deseas exportar?',
+                confirmText: 'Exportar Todos',
+                cancelText: 'Solo Filtrados',
+                type: 'question'
+            });
+
+            this.executeExport(!exportAll);
+        } else {
+            // No hay filtros, exportar todos directamente
+            this.executeExport(true);
+        }
+    }
+
+    async executeExport(exportAll = true) {
+        try {
+            // Mostrar loading
+            if (window.toastManager) {
+                window.toastManager.info('Generando archivo Excel...');
+            }
+
+            // Preparar filtros si no se exportan todos
+            const filters = exportAll ? {} : {
+                search: this.searchInput?.value?.trim() || '',
+                tipo_persona: this.activeFilters.fisica && !this.activeFilters.moral ? 'fisica' :
+                              this.activeFilters.moral && !this.activeFilters.fisica ? 'moral' : ''
+            };
+
+            const result = await window.electronAPI.exportar.clientes(filters, exportAll);
+
+            if (result.success) {
+                // Mostrar notificación de éxito con opción de abrir
+                if (window.toastManager) {
+                    window.toastManager.success(
+                        `${result.count} clientes exportados correctamente`,
+                        {
+                            duration: 5000,
+                            action: {
+                                text: 'Abrir archivo',
+                                onClick: () => window.electronAPI.openFile(result.filePath)
+                            }
+                        }
+                    );
+                }
+            } else {
+                throw new Error(result.error || 'Error al exportar');
+            }
+        } catch (error) {
+            console.error('Error al exportar clientes:', error);
+            if (window.toastManager) {
+                window.toastManager.error(`Error al exportar: ${error.message}`);
+            }
+        }
+    }
+
+    hasActiveFilters() {
+        return Object.values(this.activeFilters).some(v => v === true);
     }
 
 }

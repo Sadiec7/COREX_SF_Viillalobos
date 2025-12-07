@@ -256,6 +256,26 @@ contextBridge.exposeInMainWorld('electronAPI', {
             ipcRenderer.invoke('dashboard:getFlujoCajaProyectado')
     },
 
+    // ============================================
+    // EXPORTACIÓN A EXCEL
+    // ============================================
+    exportar: {
+        clientes: (filters = {}, exportAll = false) =>
+            ipcRenderer.invoke('export:clientes', filters, exportAll),
+
+        polizas: (filters = {}, exportAll = false) =>
+            ipcRenderer.invoke('export:polizas', filters, exportAll),
+
+        recibos: (filters = {}, exportAll = false) =>
+            ipcRenderer.invoke('export:recibos', filters, exportAll),
+
+        reporteCompleto: () =>
+            ipcRenderer.invoke('export:reporteCompleto'),
+
+        openFolder: () =>
+            ipcRenderer.invoke('export:openFolder')
+    },
+
     // Información del sistema
     platform: process.platform,
     versions: process.versions

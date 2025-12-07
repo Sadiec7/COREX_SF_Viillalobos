@@ -67,7 +67,10 @@ class ClientesPage extends BasePage {
       // Paginación
       paginationContainer: By.id('paginationContainer'),
       paginationInfo: By.id('paginationInfo'),
-      itemsPerPageSelect: By.id('itemsPerPageSelect')
+      itemsPerPageSelect: By.id('itemsPerPageSelect'),
+
+      // Exportar Excel
+      btnExportExcel: By.id('btnExportExcel')
     };
   }
 
@@ -466,6 +469,30 @@ class ClientesPage extends BasePage {
       return await field.getAttribute('value');
     } catch (error) {
       return '';
+    }
+  }
+
+  // ==================== EXPORTAR A EXCEL ====================
+
+  /**
+   * Hace clic en el botón de exportar a Excel
+   */
+  async clickExportExcel() {
+    console.log('📊 Haciendo clic en botón Exportar Excel...');
+    await this.click(this.locators.btnExportExcel);
+    await this.sleep(500);
+    console.log('✅ Botón de exportar clickeado');
+  }
+
+  /**
+   * Verifica si el botón de exportar está visible
+   */
+  async isExportButtonVisible() {
+    try {
+      const btn = await this.driver.findElement(this.locators.btnExportExcel);
+      return await btn.isDisplayed();
+    } catch (error) {
+      return false;
     }
   }
 }
