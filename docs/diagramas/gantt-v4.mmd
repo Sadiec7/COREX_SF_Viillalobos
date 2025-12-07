@@ -1,0 +1,44 @@
+gantt
+    title Sistema de Gestion de Seguros VILLALOBOS - v4.0 Estado actual
+    dateFormat  YYYY-MM-DD
+
+    section Fase 1: Analisis
+    Levantamiento de requerimientos    :done, req, 2025-08-01, 14d
+    Analisis de entidades              :done, ent, after req, 7d
+    Especificacion SRS                 :done, srs, after ent, 7d
+
+    section Fase 2: Diseño
+    Diseño de base de datos v2.0       :done, db, 2025-08-22, 10d
+    Diseño de arquitectura MVC         :done, mvc, after db, 7d
+    Mockups de interfaz                :done, mock, after mvc, 10d
+
+    section Fase 3: Infraestructura
+    Configuracion Electron             :done, elec, 2025-09-15, 7d
+    Sistema de autenticacion           :done, auth, after elec, 10d
+    IPC y preload seguro               :done, ipc, after auth, 5d
+
+    section Fase 4: Frontend
+    Vista de Login                     :done, vlog, 2025-10-01, 5d
+    Dashboard principal                :done, dash, after vlog, 10d
+    Modulo de Clientes                 :done, cli, after dash, 14d
+    Modulo de Polizas                  :done, pol, after cli, 14d
+    Modulo de Recibos                  :done, rec, after pol, 10d
+    Modulo de Catalogos                :done, cat, after rec, 7d
+
+    section Fase 5: Backend
+    Modelos de datos                   :done, mod, 2025-11-01, 21d
+    IPC Handlers completos             :done, ipc2, after mod, 14d
+    Integracion BD                     :done, integ, after ipc2, 10d
+
+    section Fase 6: Testing QA
+    Arquitectura Selenium              :done, arch, 2025-11-15, 5d
+    Suite de pruebas Auth              :done, tauth, after arch, 3d
+    Suite de pruebas Clientes          :done, tcli, after tauth, 5d
+    Suite de pruebas Polizas           :done, tpol, after tcli, 5d
+    Suite de pruebas Recibos           :done, trec, after tpol, 5d
+    Reportes automatizados             :done, rep, after trec, 7d
+
+    section Fase 7: Distribucion
+    Generacion instaladores Win/Mac    :active, build, 2025-12-07, 7d
+    Documentacion final                :docs, after build, 5d
+    Release v1.0.0                     :milestone, rel, after docs, 0d

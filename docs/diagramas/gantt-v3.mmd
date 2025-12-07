@@ -1,0 +1,39 @@
+gantt
+    title Sistema de Gestion de Seguros VILLALOBOS - v3.0 Seguimiento de desarrollo
+    dateFormat  YYYY-MM-DD
+
+    section Fase 1: Analisis
+    Levantamiento de requerimientos    :done, req, 2025-08-01, 14d
+    Analisis de entidades              :done, ent, after req, 7d
+    Especificacion SRS                 :done, srs, after ent, 7d
+
+    section Fase 2: Diseño
+    Diseño de base de datos            :done, db, 2025-08-22, 10d
+    Diseño de arquitectura MVC         :done, mvc, after db, 7d
+    Mockups de interfaz                :done, mock, after mvc, 10d
+
+    section Fase 3: Infraestructura
+    Configuracion Electron             :done, elec, 2025-09-15, 7d
+    Sistema de autenticacion           :done, auth, after elec, 10d
+    IPC y preload seguro               :done, ipc, after auth, 5d
+
+    section Fase 4: Desarrollo Frontend
+    Vista de Login                     :done, vlog, 2025-10-01, 5d
+    Dashboard principal                :done, dash, after vlog, 10d
+    Modulo de Clientes                 :done, cli, after dash, 14d
+    Modulo de Polizas                  :active, pol, after cli, 14d
+    Modulo de Recibos                  :rec, after pol, 10d
+
+    section Fase 5: Desarrollo Backend
+    Modelos de datos                   :mod, 2025-11-15, 21d
+    IPC Handlers                       :ipc2, after mod, 14d
+    Integracion BD                     :integ, after ipc2, 10d
+
+    section Fase 6: Testing
+    Suite de pruebas Selenium          :test, after integ, 21d
+    Tests E2E                          :e2e, after test, 14d
+
+    section Fase 7: Distribucion
+    Generacion de instaladores         :build, after e2e, 7d
+    Documentacion                      :docs, after build, 5d
+    Release v1.0.0                     :milestone, rel, after docs, 0d

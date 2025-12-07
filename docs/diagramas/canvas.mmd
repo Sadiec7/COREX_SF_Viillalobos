@@ -1,0 +1,84 @@
+flowchart TB
+    subgraph CANVAS["MODELO CANVAS - Sistema de Seguros VILLALOBOS v1.0"]
+        direction TB
+
+        subgraph ROW1[" "]
+            direction LR
+            subgraph KP["SOCIOS CLAVE"]
+                kp1["Aseguradoras asociadas"]
+                kp2["Proveedores de hosting"]
+                kp3["Soporte tecnico IT"]
+            end
+
+            subgraph KA["ACTIVIDADES CLAVE"]
+                ka1["Desarrollo de software"]
+                ka2["Gestion de polizas"]
+                ka3["Atencion al cliente"]
+                ka4["Mantenimiento sistema"]
+            end
+
+            subgraph VP["PROPUESTA DE VALOR"]
+                vp1["Gestion integral de seguros"]
+                vp2["Compatible equipos lentos"]
+                vp3["Interfaz moderna"]
+                vp4["Alertas de vencimiento"]
+                vp5["Auditoria completa"]
+            end
+
+            subgraph CR["RELACION CLIENTES"]
+                cr1["Soporte tecnico directo"]
+                cr2["Actualizaciones"]
+                cr3["Capacitacion inicial"]
+            end
+
+            subgraph CS["SEGMENTOS CLIENTES"]
+                cs1["Despachos de seguros"]
+                cs2["PyMEs aseguradoras"]
+                cs3["Agentes independientes"]
+            end
+        end
+
+        subgraph ROW2[" "]
+            direction LR
+            subgraph KR["RECURSOS CLAVE"]
+                kr1["Electron Framework"]
+                kr2["SQLite Database"]
+                kr3["Equipo desarrollo"]
+                kr4["Documentacion"]
+            end
+
+            subgraph CH["CANALES"]
+                ch1["Venta directa"]
+                ch2["Sitio web"]
+                ch3["Referidos"]
+                ch4["Demostraciones"]
+            end
+        end
+
+        subgraph ROW3[" "]
+            direction LR
+            subgraph COST["ESTRUCTURA DE COSTOS"]
+                cost1["Desarrollo y mantenimiento"]
+                cost2["Infraestructura"]
+                cost3["Soporte al cliente"]
+                cost4["Marketing"]
+            end
+
+            subgraph REV["FUENTES DE INGRESO"]
+                rev1["Licencia de software"]
+                rev2["Suscripcion mensual"]
+                rev3["Soporte premium"]
+                rev4["Personalizaciones"]
+            end
+        end
+    end
+
+    style VP fill:#c8e6c9,stroke:#2e7d32,stroke-width:3px
+    style CS fill:#bbdefb,stroke:#1565c0,stroke-width:2px
+    style KP fill:#ffe0b2,stroke:#ef6c00,stroke-width:2px
+    style KA fill:#f8bbd9,stroke:#c2185b,stroke-width:2px
+    style KR fill:#e1bee7,stroke:#7b1fa2,stroke-width:2px
+    style CR fill:#b2ebf2,stroke:#00838f,stroke-width:2px
+    style CH fill:#fff9c4,stroke:#f9a825,stroke-width:2px
+    style COST fill:#ffcdd2,stroke:#c62828,stroke-width:2px
+    style REV fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
