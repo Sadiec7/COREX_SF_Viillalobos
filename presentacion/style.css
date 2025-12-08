@@ -1,0 +1,182 @@
+/* CoreX Solutions - Custom Slidev Theme */
+
+:root {
+  --slidev-theme-primary: #2AABAB;
+  --slidev-theme-secondary: #2F2F2F;
+}
+
+/* Reset dark theme - force white background */
+.slidev-layout {
+  background: white !important;
+  color: #2F2F2F !important;
+}
+
+/* Header with logo */
+.corex-header {
+  position: absolute;
+  top: 40px;
+  left: 60px;
+  right: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #2F2F2F;
+}
+
+.corex-logo {
+  height: 80px;
+}
+
+.corex-date {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 18px;
+  color: #2F2F2F;
+  font-weight: 500;
+}
+
+/* Circle decorations */
+.circles-left {
+  position: absolute;
+  left: -100px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.circles-right {
+  position: absolute;
+  right: -100px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.circles-bottom-right {
+  position: absolute;
+  right: -50px;
+  bottom: -50px;
+}
+
+.circle {
+  width: 350px;
+  height: 350px;
+  border: 2px solid #2F2F2F;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.circle-1 {
+  left: 0;
+  top: 0;
+}
+
+.circle-2 {
+  left: 150px;
+  top: 0;
+}
+
+/* Typography */
+.slide-title {
+  font-family: 'Public Sans', -apple-system, sans-serif;
+  font-size: 90px;
+  font-weight: 900;
+  color: #2F2F2F;
+  line-height: 1.1;
+}
+
+.slide-title-large {
+  font-size: 120px;
+}
+
+.slide-subtitle {
+  font-family: 'Public Sans', sans-serif;
+  font-size: 24px;
+  color: #2F2F2F;
+  font-weight: 400;
+}
+
+/* Content area */
+.content-area {
+  position: absolute;
+  top: 180px;
+  left: 60px;
+  right: 60px;
+  bottom: 60px;
+}
+
+/* Lists */
+.content-area ul {
+  font-size: 24px;
+  line-height: 2;
+}
+
+.content-area li {
+  text-decoration: underline;
+}
+
+/* Tables */
+.styled-table {
+  font-size: 18px;
+  border-collapse: collapse;
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 20px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.styled-table th {
+  font-weight: 700;
+  background: #f5f5f5;
+}
+
+/* Cards */
+.stat-card {
+  background: white;
+  border: 2px solid #2F2F2F;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 64px;
+  font-weight: 900;
+  color: #2AABAB;
+}
+
+.stat-label {
+  font-size: 18px;
+  color: #2F2F2F;
+  margin-top: 10px;
+}
+
+/* Code blocks */
+pre {
+  background: #f8f8f8 !important;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+code {
+  font-size: 14px !important;
+}
+
+/* Two column layout */
+.two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  height: 100%;
+}
+
+/* Thank you slide */
+.thank-you-title {
+  font-size: 180px;
+  font-weight: 900;
+  color: #2F2F2F;
+  position: absolute;
+  bottom: 80px;
+  left: 60px;
+}
