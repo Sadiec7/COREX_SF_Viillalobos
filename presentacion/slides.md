@@ -35,16 +35,21 @@ h1, h2, h3 { color: #2F2F2F; margin: 0; }
 
 <!-- SLIDE 1: PORTADA -->
 <div class="slide-container">
-  <div class="header">
-    <img src="/corex-logo.png" style="height: 80px;" />
-    <span>Diciembre 2025</span>
+  <div class="flex justify-end items-center border-b-2 border-[#2F2F2F] pb-2 mb-4">
+    <span class="text-sm text-gray-500">Diciembre 2025</span>
   </div>
-  <div class="flex-1 flex flex-col justify-center">
-    <h1 class="text-5xl font-black leading-tight">Sistema de Seguros<br/>VILLALOBOS</h1>
-    <p class="text-lg text-gray-500 mt-4">La solución integral para gestionar tu agencia</p>
-  </div>
-  <div class="text-right text-xs text-gray-500">
-    <strong>COREX Solutions</strong> — Angel | Sebastian | Salvador | Mariana
+  <div class="flex-1 flex items-center gap-12">
+    <div class="flex-1 flex flex-col items-center justify-center">
+      <img src="/corex-logo.png" style="height: 280px;" />
+    </div>
+    <div class="flex-1">
+      <h1 class="text-4xl font-black leading-tight mb-6">Sistema de Seguros<br/>VILLALOBOS</h1>
+      <div class="text-sm text-gray-500 mt-8">
+        <p class="font-bold mb-2">Team:</p>
+        <p>Angel Salinas | Sebastian Rivera</p>
+        <p>Salvador Camacho | Mariana Michelle</p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -144,7 +149,7 @@ h1, h2, h3 { color: #2F2F2F; margin: 0; }
       <p class="py-2"><span class="text-red-500 font-bold">✗</span> Recibos vencidos sin cobrar</p>
       <p class="py-2"><span class="text-red-500 font-bold">✗</span> Horas perdidas buscando datos de un cliente</p>
       <p class="py-2"><span class="text-red-500 font-bold">✗</span> Pólizas que vencen sin que nadie se entere</p>
-      <p class="py-2"><span class="text-red-500 font-bold">✗</span> Reportes manuales que nadie quiere hacer</p>
+      <p class="py-2"><span class="text-red-500 font-bold">✗</span> Sin visibilidad del negocio</p>
     </div>
   </div>
 </div>
@@ -190,10 +195,15 @@ h1, h2, h3 { color: #2F2F2F; margin: 0; }
     <img src="/corex-logo.png" />
     <span>Diciembre 2025</span>
   </div>
-  <div class="flex-1 center-slide">
-    <p class="text-xl text-gray-500 mb-4">Presentamos</p>
-    <h1 class="large-text accent">Sistema de Seguros<br/>VILLALOBOS</h1>
-    <p class="text-2xl text-gray-600 mt-8">Todo en un solo lugar. Sin Excel.</p>
+  <div class="flex-1 flex items-center gap-8">
+    <div class="flex-1">
+      <p class="text-xl text-gray-500 mb-4">Presentamos</p>
+      <h1 class="text-5xl font-black accent leading-tight">Sistema de Seguros<br/>VILLALOBOS</h1>
+      <p class="text-xl text-gray-600 mt-6">Todo en un solo lugar. Sin Excel.</p>
+    </div>
+    <div class="flex-1">
+      <img src="/screenshots/00-DASHBOARD-INITIAL.png" class="w-full rounded-lg shadow-xl" />
+    </div>
   </div>
 </div>
 
@@ -206,13 +216,18 @@ h1, h2, h3 { color: #2F2F2F; margin: 0; }
     <span>Diciembre 2025</span>
   </div>
   <h1 class="text-2xl font-black mb-4">Un sistema que...</h1>
-  <div class="flex-1 flex flex-col justify-center">
-    <div class="text-xl leading-loose">
-      <p class="py-2"><span class="accent font-bold">✓</span> Centraliza clientes, pólizas y recibos</p>
-      <p class="py-2"><span class="accent font-bold">✓</span> Genera alertas automáticas de vencimientos</p>
-      <p class="py-2"><span class="accent font-bold">✓</span> Exportación de datos a Excel</p>
-      <p class="py-2"><span class="accent font-bold">✓</span> Búsqueda instantánea de información</p>
-      <p class="py-2"><span class="accent font-bold">✓</span> Funciona sin internet</p>
+  <div class="flex-1 flex items-center gap-6">
+    <div class="flex-1">
+      <div class="text-lg leading-loose">
+        <p class="py-2"><span class="accent font-bold">✓</span> Centraliza clientes, pólizas y recibos</p>
+        <p class="py-2"><span class="accent font-bold">✓</span> Genera alertas automáticas de vencimientos</p>
+        <p class="py-2"><span class="accent font-bold">✓</span> Exportación de datos a Excel</p>
+        <p class="py-2"><span class="accent font-bold">✓</span> Búsqueda instantánea de información</p>
+        <p class="py-2"><span class="accent font-bold">✓</span> Funciona sin internet</p>
+      </div>
+    </div>
+    <div class="flex-1">
+      <img src="/screenshots/01-CLIENTES-VIEW.png" class="w-full rounded-lg shadow-xl" />
     </div>
   </div>
 </div>
@@ -387,11 +402,17 @@ h1, h2, h3 { color: #2F2F2F; margin: 0; }
     <img src="/corex-logo.png" />
     <span>Diciembre 2025</span>
   </div>
-  <div class="flex-1 center-slide">
-    <p class="text-lg text-gray-500 mb-2">Tests automatizados</p>
-    <h1 class="big-number">93</h1>
-    <p class="text-2xl font-bold accent">100% pasando</p>
-    <p class="text-base text-gray-500 mt-6">= Tu información siempre segura y funcionando</p>
+  <div class="flex-1 flex items-center gap-8">
+    <div class="flex-1 text-center">
+      <p class="text-lg text-gray-500 mb-2">Tests automatizados</p>
+      <h1 class="big-number">93</h1>
+      <p class="text-2xl font-bold accent">100% pasando</p>
+      <p class="text-base text-gray-500 mt-6">= Tu información siempre segura y funcionando</p>
+    </div>
+    <div class="flex-1">
+      <img src="/screenshots/TC-CLI-001-AFTER-SUBMIT.png" class="w-full rounded-lg shadow-xl" />
+      <p class="text-xs text-gray-400 text-center mt-2">Prueba de creación de cliente exitosa</p>
+    </div>
   </div>
 </div>
 
